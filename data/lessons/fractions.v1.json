@@ -1,0 +1,79 @@
+{
+  "id": "fractions",
+  "version": 1,
+  "title": "Understanding Fractions",
+  "objectives": [
+    {"id": "part_whole", "description": "Explains a fraction as a number of equal-sized parts of one whole."},
+    {"id": "equivalence", "description": "Explains why two fractions can name the same amount (e.g. 1/2 and 2/4)."},
+    {"id": "comparison", "description": "Compares unit fractions by reasoning about the size of the parts."}
+  ],
+  "criteria": [
+    {
+      "id": "part_whole",
+      "objective": "part_whole",
+      "levels": {
+        "0": "Describes a fraction as two unrelated numbers.",
+        "1": "Describes parts of a whole but accepts unequal parts.",
+        "2": "Describes counting parts of a whole without stating the parts must be equal.",
+        "3": "Explains the denominator as equal parts of one whole and the numerator as how many are counted."
+      }
+    },
+    {
+      "id": "equivalence",
+      "objective": "equivalence",
+      "levels": {
+        "0": "Says equivalent fractions are different amounts because the numbers differ.",
+        "1": "Uses an invalid rule, such as adding the same number to top and bottom.",
+        "2": "Correctly states two fractions are equal but gives no reason.",
+        "3": "Explains equivalence by multiplying/dividing both parts or by the same amount of the whole."
+      }
+    },
+    {
+      "id": "comparison",
+      "objective": "comparison",
+      "levels": {
+        "0": "Compares without reasoning or picks the wrong fraction without explanation.",
+        "1": "Says a larger denominator means a larger fraction.",
+        "2": "Picks the correct fraction but explains only partially.",
+        "3": "Explains that more parts of the same whole means each part is smaller."
+      }
+    }
+  ],
+  "misconceptions": [
+    {"tag": "unequal_parts_ok", "objective": "part_whole", "description": "Accepts unequal parts as fractions of a whole."},
+    {"tag": "add_to_top_and_bottom", "objective": "equivalence", "description": "Believes adding the same number to numerator and denominator keeps a fraction equal."},
+    {"tag": "bigger_denominator_bigger_fraction", "objective": "comparison", "description": "Believes a larger denominator always means a larger fraction."}
+  ],
+  "questions": [
+    {
+      "id": "f1", "objective": "part_whole", "kind": "open", "difficulty": 1,
+      "prompt": "What does the fraction 3/4 mean? You can describe a picture or an example.",
+      "hints": ["Imagine one pizza. What do the 4 and the 3 tell you about it?"]
+    },
+    {
+      "id": "f1_d", "objective": "part_whole", "kind": "diagnostic", "difficulty": 2,
+      "targets_misconception": "unequal_parts_ok",
+      "prompt": "A pizza is cut into 4 pieces of very different sizes and you eat one piece. Did you eat exactly 1/4 of the pizza? Why or why not?"
+    },
+    {
+      "id": "f2", "objective": "equivalence", "kind": "open", "difficulty": 2,
+      "prompt": "Are 1/2 and 2/4 the same amount? How do you know?",
+      "hints": ["Picture a rectangle split into 2 parts, then split each part in half again."]
+    },
+    {
+      "id": "f2_d", "objective": "equivalence", "kind": "diagnostic", "difficulty": 3,
+      "targets_misconception": "add_to_top_and_bottom",
+      "prompt": "Someone says 2/3 equals 3/4 because they added 1 to the top and the bottom. Do you agree? Explain."
+    },
+    {
+      "id": "f3", "objective": "comparison", "kind": "open", "difficulty": 2,
+      "prompt": "Which is larger, 1/3 or 1/5? Explain your reasoning.",
+      "hints": ["Think about sharing the same cake among 3 people versus among 5 people."]
+    },
+    {
+      "id": "f3_d", "objective": "comparison", "kind": "diagnostic", "difficulty": 2,
+      "targets_misconception": "bigger_denominator_bigger_fraction",
+      "prompt": "Would you rather have 1/3 or 1/8 of the same chocolate bar? Why?"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "id": "python_loops",
+  "version": 1,
+  "title": "Python Loops",
+  "objectives": [
+    {"id": "iteration", "description": "Explains that a for loop runs its body once for each item in a sequence."},
+    {"id": "range_bounds", "description": "Explains that range(start, stop) includes start and excludes stop."},
+    {"id": "while_termination", "description": "Explains that a while loop repeats until its condition is false, so something must change it."}
+  ],
+  "criteria": [
+    {
+      "id": "iteration",
+      "objective": "iteration",
+      "levels": {
+        "0": "Describes a loop as something unrelated to repetition.",
+        "1": "Says the loop repeats but believes the body runs once or runs on the whole list at once.",
+        "2": "Says the loop repeats code but does not connect repetitions to the items.",
+        "3": "Explains the body runs once per item, with the loop variable set to each item in order."
+      }
+    },
+    {
+      "id": "range_bounds",
+      "objective": "range_bounds",
+      "levels": {
+        "0": "Gives values unrelated to the range arguments.",
+        "1": "Includes the stop value.",
+        "2": "Gives the correct values but cannot explain the rule.",
+        "3": "Gives the correct values and explains that stop is excluded."
+      }
+    },
+    {
+      "id": "while_termination",
+      "objective": "while_termination",
+      "levels": {
+        "0": "Cannot describe what controls a while loop.",
+        "1": "Believes a while loop stops on its own after some time or count.",
+        "2": "Says the loop stops when the condition is false but not what makes it false.",
+        "3": "Explains the condition is rechecked each time and code in the body must eventually make it false."
+      }
+    }
+  ],
+  "misconceptions": [
+    {"tag": "body_runs_once", "objective": "iteration", "description": "Believes the loop body runs only once, or once on the whole collection."},
+    {"tag": "range_includes_stop", "objective": "range_bounds", "description": "Believes range(a, b) includes b."},
+    {"tag": "while_stops_itself", "objective": "while_termination", "description": "Believes a while loop eventually stops without its condition becoming false."}
+  ],
+  "questions": [
+    {
+      "id": "p1", "objective": "iteration", "kind": "open", "difficulty": 1,
+      "prompt": "In your own words, what does a for loop do in Python?",
+      "hints": ["Think about a list of names and wanting to greet each person."]
+    },
+    {
+      "id": "p1_d", "objective": "iteration", "kind": "diagnostic", "difficulty": 2,
+      "targets_misconception": "body_runs_once",
+      "prompt": "For the code: for name in ['a', 'b', 'c']: print(name) — how many times does print run, and what does it print each time?"
+    },
+    {
+      "id": "p2", "objective": "range_bounds", "kind": "open", "difficulty": 2,
+      "prompt": "What values does i take in: for i in range(1, 5)?",
+      "hints": ["Try counting out loud from the first number. Where does Python stop?"]
+    },
+    {
+      "id": "p2_d", "objective": "range_bounds", "kind": "diagnostic", "difficulty": 2,
+      "targets_misconception": "range_includes_stop",
+      "prompt": "How many times does for i in range(3) run, and what is the last value of i?"
+    },
+    {
+      "id": "p3", "objective": "while_termination", "kind": "open", "difficulty": 2,
+      "prompt": "What makes a while loop stop?",
+      "hints": ["Look at the line that starts with while. What is it checking?"]
+    },
+    {
+      "id": "p3_d", "objective": "while_termination", "kind": "diagnostic", "difficulty": 3,
+      "targets_misconception": "while_stops_itself",
+      "prompt": "What happens if you set count = 0 and then run while count < 3: print(count), without ever changing count? Why?"
+    }
+  ]
+}

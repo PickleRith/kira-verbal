@@ -1,0 +1,79 @@
+{
+  "id": "photosynthesis",
+  "version": 1,
+  "title": "Photosynthesis",
+  "objectives": [
+    {"id": "purpose", "description": "Explains that photosynthesis lets a plant make its own food (sugar) from carbon dioxide and water, releasing oxygen."},
+    {"id": "carbon_dioxide", "description": "Explains that carbon dioxide enters from the air through openings (stomata) in leaves."},
+    {"id": "light", "description": "Explains that light supplies the energy, captured by chlorophyll, to drive the process."}
+  ],
+  "criteria": [
+    {
+      "id": "purpose",
+      "objective": "purpose",
+      "levels": {
+        "0": "States an incorrect purpose, e.g. that plants take in ready-made food from the soil.",
+        "1": "Mentions food or energy but with a material misconception or no inputs/outputs.",
+        "2": "Says the plant makes sugar/food using some correct inputs, but omits an input or output.",
+        "3": "Explains the plant makes sugar from carbon dioxide and water using light, releasing oxygen."
+      }
+    },
+    {
+      "id": "carbon_dioxide",
+      "objective": "carbon_dioxide",
+      "levels": {
+        "0": "Names an incorrect source with no reference to air.",
+        "1": "Attributes carbon dioxide uptake to roots or soil, or mixes air and soil.",
+        "2": "Says carbon dioxide comes from the air but cannot say how it enters.",
+        "3": "Says carbon dioxide comes from the air and enters through stomata in the leaves."
+      }
+    },
+    {
+      "id": "light",
+      "objective": "light",
+      "levels": {
+        "0": "Says light has no role, or only that it keeps the plant warm.",
+        "1": "Treats light as a substance the plant eats or stores as food.",
+        "2": "Says light provides energy but does not connect it to making sugar.",
+        "3": "Says light provides energy, captured by chlorophyll, that drives making sugar."
+      }
+    }
+  ],
+  "misconceptions": [
+    {"tag": "food_from_soil", "objective": "purpose", "description": "Believes plants absorb their food ready-made from the soil."},
+    {"tag": "co2_from_roots", "objective": "carbon_dioxide", "description": "Believes carbon dioxide is absorbed by roots from the soil."},
+    {"tag": "light_is_food", "objective": "light", "description": "Believes light itself is the plant's food or an ingredient that becomes part of the plant."}
+  ],
+  "questions": [
+    {
+      "id": "q1", "objective": "purpose", "kind": "open", "difficulty": 1,
+      "prompt": "Explain photosynthesis in your own words.",
+      "hints": ["Think about what a plant needs to grow, and what it makes for itself."]
+    },
+    {
+      "id": "q2", "objective": "carbon_dioxide", "kind": "open", "difficulty": 2,
+      "prompt": "Where does a plant get carbon dioxide?",
+      "hints": ["Carbon dioxide is a gas. Where around a plant would you find gases?"]
+    },
+    {
+      "id": "q3", "objective": "carbon_dioxide", "kind": "diagnostic", "difficulty": 2,
+      "targets_misconception": "co2_from_roots",
+      "prompt": "How do leaves exchange gases with the air?"
+    },
+    {
+      "id": "q4", "objective": "light", "kind": "open", "difficulty": 2,
+      "prompt": "What role does sunlight play for a plant?",
+      "hints": ["Think about what a plant needs to power the process of making its food."]
+    },
+    {
+      "id": "q5", "objective": "purpose", "kind": "diagnostic", "difficulty": 3,
+      "targets_misconception": "food_from_soil",
+      "prompt": "A small seed grows into a huge tree, but the soil around it barely changes. Where do you think most of the tree's material comes from?"
+    },
+    {
+      "id": "q6", "objective": "light", "kind": "diagnostic", "difficulty": 3,
+      "targets_misconception": "light_is_food",
+      "prompt": "Does the light become part of the plant, or does it do something else? Explain what happens to it."
+    }
+  ]
+}
