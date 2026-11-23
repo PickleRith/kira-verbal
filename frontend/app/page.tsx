@@ -1,5 +1,5 @@
-// Landing page. The student (Day 2) and teacher (Day 5) experiences are not
-// built yet; this page only states what the prototype is and is not.
+import { LessonPicker } from "@/components/LessonPicker";
+
 export default function Home() {
   return (
     <main className="mx-auto max-w-2xl px-4 py-16">
@@ -9,10 +9,8 @@ export default function Home() {
         and gives teachers transcript-backed evidence to review.
       </p>
 
-      <ul className="mt-8 space-y-2 text-sm">
-        <li>Student assessment: not built yet (Day 2)</li>
-        <li>Teacher review: not built yet (Day 5)</li>
-      </ul>
+      <h2 className="mt-10 text-lg font-semibold">Try a text assessment</h2>
+      <LessonPicker />
 
       <p className="mt-12 rounded-md border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
         Independent portfolio prototype. Not affiliated with Kira Learning.

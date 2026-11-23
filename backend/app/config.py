@@ -32,10 +32,17 @@ class Settings(BaseSettings):
     # stalls until a timeout before falling back to IPv4.
     database_url: str = "postgresql+psycopg://kira:kira@127.0.0.1:5432/kira"
     redis_url: str = "redis://127.0.0.1:6379/0"
-    frontend_origin: str = "http://localhost:3000"
+    # Comma-separated CORS allowlist. Both spellings: browsers treat them as different origins.
+    frontend_origin: str = "http://localhost:3000,http://127.0.0.1:3000"
     lessons_dir: Path = REPO_ROOT / "data" / "lessons"
 
     session_max_seconds: int = 300
+    # Extra time after the policy's time budget before an idle session is marked incomplete.
+    deadline_grace_seconds: int = 60
+    max_turns: int = 5
+    # How long a turn may sit in "evaluating" before another request may recover it.
+    processing_lease_seconds: int = 30
+    evaluator_timeout_seconds: float = 10.0
     transcript_retention_days: int = 7
 
     llm_api_key: SecretStr | None = None
@@ -46,6 +53,10 @@ class Settings(BaseSettings):
     deepgram_api_key: SecretStr | None = None
     elevenlabs_api_key: SecretStr | None = None
     elevenlabs_voice_id: str | None = None
+
+    @property
+    def frontend_origins(self) -> list[str]:
+        return [origin.strip() for origin in self.frontend_origin.split(",") if origin.strip()]
 
 
 @lru_cache

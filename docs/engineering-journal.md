@@ -1,5 +1,71 @@
 # Engineering journal
 
+## 2026-11-23 — Day 2: end-to-end text assessment
+
+- [ ] I can explain each changed module.
+- [ ] I ran tests and recorded results.
+- [ ] I updated docs and committed code.
+
+### What I built
+- Migration 0002: `sessions` (pinned to a lesson version by FK, token hash, `state_version`,
+  processing lease, deadline) and `turns` (partial unique indexes on live
+  `(session_id, client_turn_id)` and `(session_id, sequence)`, cached response).
+- `Evaluator` protocol and a deterministic keyword `FakeEvaluator`.
+- `AssessmentService`: create, get/resume, submit turn (refresh → claim → evaluate → commit),
+  finish early, lease recovery, deadline timeout, evaluator timeout, sanitising evaluator tags.
+- REST routes `/v1/lessons`, `/v1/sessions`, `.../turns`, `.../finish`; bearer-token demo auth;
+  typed error bodies; CORS allowlist.
+- Frontend: lesson picker, student page (intro, transcript, hint, finish, loading and error
+  states, resume after reload), typed API client.
+
+### Request flow (files and functions)
+`StudentSession.send()` → `lib/api.ts:submitTurn` → `api/sessions.py:submit_turn` →
+`services/assessment.py:AssessmentService.submit_turn` → `_refresh` (T0) → claim (T1, row lock,
+`repositories/sessions.py:find_live_turn`) → `_evaluate` (thread pool, timeout) → commit (T2,
+`domain/policy.py:next_action`, `_apply_action`) → `TurnResponse` stored on the turn row.
+
+### Why this design
+See [api.md](api.md#transaction-design-why-it-is-safe) and
+[ADR 0001](adr/0001-database-idempotency.md). In short: the database row lock, `state_version`
+and partial unique indexes guarantee "commit at most once"; no transaction is held during the
+evaluator call.
+
+### Bug, root cause, fix, regression test
+- None found by the tests in this milestone: all 336 passed on the first run. Lint issues were
+  FastAPI's `Depends` idiom flagged by ruff B008 (configured as allowed) and one long line.
+- SQLAlchemy 2.1 deprecated `Result.tuples()`; replaced with plain row unpacking.
+
+### Tradeoff and alternative
+- **Hint requests count toward the 5-turn budget.** In the live smoke test a hint plus the
+  diagnostic follow-up used the budget before the light objective was asked, so the session
+  ended with `budget`. Alternative: don't count help requests. Kept for now; revisit with the
+  evaluation on Day 6.
+- **Saying "stop" → `completed/learner_request`; "Finish early" → `incomplete/learner_exit`.**
+  The plan's state diagram has no evaluating → incomplete edge for a learner request.
+- **Fake evaluator ignores negation** ("not from the roots" still matches "root"). Acceptable for
+  a fake; the Day 3 LLM evaluator replaces it.
+- Hint requests go through the evaluator as text ("Can I have a hint?") rather than a separate
+  API field, so voice and text behave the same.
+
+### What I still do not understand
+_(fill in yourself)_
+
+### Actual results / next task
+- `REQUIRE_SERVICES=1 pytest -q`: **336 passed** in 8.6 s (Windows 11, Python 3.11.9,
+  Postgres 16, Docker engine 29.9.3). New: 21 orchestrator tests (flow, hint, budget, stop,
+  idempotent retry, payload mismatch, stale version, 8-thread races, evaluator error/timeout,
+  crash recovery, late commit after recovery, deadline, finish), 13 HTTP contract tests,
+  11 fake-evaluator tests.
+- `ruff check` / `ruff format --check`: clean. Frontend `npm run lint`, `tsc --noEmit`,
+  `npm run build`: clean.
+- Live smoke test (uvicorn + Next dev, HTTP with browser Origin header): hint → assisted answer;
+  duplicate submit replayed identically; stale request 409; roots → diagnostic q3; session
+  completed; student page 200.
+- **Not yet verified by hand:** clicking through the student page in a real browser.
+- Gaps: no frontend unit tests yet (Vitest), no rate limiting (Day 6), Redis unused beyond
+  readiness.
+- Next: Day 3, real LLM evaluation.
+
 ## 2026-11-23 — Day 1: scaffold and domain
 
 - [ ] I can explain each changed module.

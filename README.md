@@ -12,8 +12,11 @@ teacher effort than running oral assessments by hand.
 
 | Milestone | State |
 |---|---|
-| Day 1: scaffold, lesson schema, state machine, question policy, health/ready, CI | Built (see [journal](docs/engineering-journal.md)) |
-| Day 2–7: text assessment, LLM evaluator, voice, teacher review, evaluation, deploy | Not started |
+| Day 1: scaffold, lesson schema, state machine, question policy, health/ready, CI | Built |
+| Day 2: end-to-end text assessment (sessions, turns, fake evaluator, student UI, idempotency) | Built |
+| Day 3–7: LLM evaluator, voice, teacher review, evaluation, deploy | Not started |
+
+Progress and real test results are in the [engineering journal](docs/engineering-journal.md).
 
 No benchmark results exist yet. See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the full plan.
 
@@ -47,6 +50,12 @@ npm install
 npm run dev                           # http://localhost:3000
 ```
 
+Open http://localhost:3000, pick a lesson, and answer as a demo learner. Try the roots
+misconception on photosynthesis ("From the soil through its roots.") to see the adaptive
+follow-up. No API keys are needed: the evaluator is a deterministic keyword fake until Day 3.
+The frontend calls `http://127.0.0.1:8000` by default (override with
+`NEXT_PUBLIC_API_BASE_URL` in `frontend/.env.local`).
+
 Check it: `GET http://localhost:8000/health` → `{"status":"ok"}`;
 `GET http://localhost:8000/ready` → 200 when Postgres, Redis and lessons are all OK, otherwise 503.
 OpenAPI docs: http://localhost:8000/docs.
@@ -69,18 +78,23 @@ Integration tests create and drop their own `kira_test` database; they never tou
 
 ```text
 backend/app/domain/      pure rules: lesson schema, state machine, question policy (no framework imports)
-backend/app/api/         HTTP handlers (health/ready so far)
+backend/app/services/    orchestrator (turn algorithm), lesson store
+backend/app/providers/   evaluator interface + deterministic fake
+backend/app/api/         HTTP handlers, auth dependency, error mapping
 backend/app/db/          SQLAlchemy models, engine factory
 backend/app/repositories/ database read/write boundaries
 backend/migrations/      Alembic migrations
 data/lessons/            versioned lesson fixtures: <id>.v<version>.json
-frontend/                Next.js app (landing page only so far)
+frontend/lib/            typed API client, browser storage helpers
+frontend/components/     lesson picker, student session
 docs/                    architecture, journal; more docs per milestone
 ```
 
 ## Documentation
 
 - [Architecture](docs/architecture.md)
+- [API, errors, idempotency and transactions](docs/api.md)
+- [ADR 0001: idempotency in Postgres, not Redis](docs/adr/0001-database-idempotency.md)
 - [Engineering journal](docs/engineering-journal.md)
 
 ## Limitations

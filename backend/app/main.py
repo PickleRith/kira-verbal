@@ -11,24 +11,38 @@ Run locally:  uvicorn app.main:app --reload --port 8000
 from __future__ import annotations
 
 from collections.abc import AsyncIterator, Callable, Mapping
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
 
 import redis
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
-from app.api import health
+from app.api import health, sessions
+from app.api.errors import register_error_handlers
 from app.config import Settings, get_settings
-from app.db.session import make_engine
+from app.db.session import make_engine, make_session_factory
 from app.lesson_catalog import load_catalog
+from app.providers.fake import FakeEvaluator
+from app.providers.llm import Evaluator
+from app.services.assessment import AssessmentConfig, AssessmentService
+from app.services.lessons import LessonStore
+
+
+def build_evaluator(settings: Settings) -> Evaluator:
+    if settings.evaluator_provider == "fake":
+        return FakeEvaluator()
+    raise RuntimeError("EVALUATOR_PROVIDER=llm is not implemented yet (Day 3); use 'fake'")
 
 
 def create_app(
     settings: Settings | None = None,
     *,
     readiness_checks: Mapping[str, Callable[[], None]] | None = None,
+    evaluator: Evaluator | None = None,
 ) -> FastAPI:
-    """Build the app. Tests pass `readiness_checks` to avoid real dependencies."""
+    """Build the app. Tests inject `readiness_checks` and `evaluator`."""
     settings = settings or get_settings()
 
     @asynccontextmanager
@@ -38,8 +52,26 @@ def create_app(
         app.state.lesson_catalog = catalog
 
         engine = make_engine(settings.database_url)
+        session_factory = make_session_factory(engine)
         redis_client = redis.Redis.from_url(
             settings.redis_url, socket_connect_timeout=2, socket_timeout=2
+        )
+        executor = ThreadPoolExecutor(max_workers=8, thread_name_prefix="evaluator")
+
+        lesson_store = LessonStore(session_factory)
+        app.state.lesson_store = lesson_store
+        app.state.assessment = AssessmentService(
+            session_factory,
+            lesson_store,
+            evaluator or build_evaluator(settings),
+            executor,
+            AssessmentConfig(
+                max_turns=settings.max_turns,
+                session_max_seconds=settings.session_max_seconds,
+                deadline_grace_seconds=settings.deadline_grace_seconds,
+                processing_lease_seconds=settings.processing_lease_seconds,
+                evaluator_timeout_seconds=settings.evaluator_timeout_seconds,
+            ),
         )
 
         def check_database() -> None:
@@ -62,16 +94,25 @@ def create_app(
         try:
             yield
         finally:
+            executor.shutdown(wait=False, cancel_futures=True)
             redis_client.close()
             engine.dispose()
 
     app = FastAPI(
         title="Kira Verbal API",
-        version="0.1.0",
+        version="0.2.0",
         description="Independent portfolio prototype. Synthetic data only.",
         lifespan=lifespan,
     )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.frontend_origins,
+        allow_methods=["GET", "POST"],
+        allow_headers=["Authorization", "Content-Type"],
+    )
+    register_error_handlers(app)
     app.include_router(health.router)
+    app.include_router(sessions.router)
     return app
 
 
