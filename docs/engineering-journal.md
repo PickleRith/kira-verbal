@@ -1,5 +1,78 @@
 # Engineering journal
 
+## 2026-11-23 — Day 3: real evaluation
+
+- [ ] I can explain each changed module.
+- [ ] I ran tests and recorded results.
+- [ ] I updated docs and committed code.
+
+### What I built
+- New evaluator contract: an evaluator returns learner intent plus *proposed* evidence
+  (criterion, level 0–3 or none, exact quote, tag, reason, abstain).
+- `AnthropicEvaluator` (`providers/llm.py`): official `anthropic` SDK 2.13.0, `claude-opus-5-5`
+  at effort medium. Per-request JSON schema with enums, `output_config.format`, Pydantic re-parse.
+  SDK retry (1) plus one re-ask on truncated or unparseable output. Refusal → no evidence.
+  Server-side refusal fallbacks are enabled.
+- Versioned prompt `evaluator-v1` (`providers/prompts.py`) with a rubric context block and an
+  untrusted `<learner_transcript>` boundary whose closing tag is neutralised.
+- Deterministic validator (`services/evaluator.py`): accept / abstain / reject; normalised exact
+  quote matching; signal from accepted evidence only.
+- `domain/scoring.py`: suggested level = latest accepted independent evidence; unknown otherwise;
+  assisted kept separate; conflicts and rejections flag review; coverage as a count pair.
+- Migration 0003: `evidence` table (status, rejection reason, assisted, evaluator version, model)
+  written in the same transaction as its turn.
+- Fake evaluator moved onto the same contract (`fake-keyword-v2`).
+- 22 labelled cases in `data/evals/evaluator_cases.v1.json` (correct, partial, incorrect,
+  ambiguous, adversarial, help, stop) and `scripts/run_evaluator_cases.py`.
+- `python -m app.inspect_session <id>`: developer view of evidence and suggested levels.
+- Settings check: processing lease > evaluator timeout ≥ LLM timeout × (retries + 1).
+
+### Request flow (files and functions)
+`submit_turn` T1 claim → `_evaluate` (thread pool, 45 s cap) → `AnthropicEvaluator.evaluate` →
+`client.beta.messages.create(...)` → `_LlmEvaluation.model_validate_json` →
+`services/evaluator.py:validate_output` → T2: `next_action` on the validated signal, turn
+committed, `EvidenceRow`s inserted → `domain/scoring.py:summarize` when read.
+
+### Why this design
+The model is good at reading an explanation; it is not trusted to keep rules. Everything that
+must be true (the quote exists, the criterion applies, the level is in range, assisted is not
+independent, unknown is not zero) is enforced by code that tests can pin down.
+
+### Bug, root cause, fix, regression test
+- **Latent bug avoided by a new invariant.** Day 2 had a 30 s lease and a 10 s evaluator timeout.
+  An LLM call can take longer than that, and if the lease expired first, a healthy slow call
+  would have been "recovered" and then lost its claim. Now `AssessmentConfig` and `Settings`
+  reject any configuration where the lease does not outlast the evaluator timeout. Defaults:
+  lease 60 s, timeout 45 s.
+- Mutation checks: disabling the quote-not-found rule failed 5 unit tests; letting assisted
+  evidence set the suggested level failed 2. Both were restored.
+
+### Tradeoff and alternative
+- Structured outputs alone would guarantee valid JSON shape but not truth; the validator
+  duplicates some checks on purpose (defence in depth).
+- On evaluator failure the turn is released (503) rather than committed as "unknown", so the
+  learner's answer is never silently dropped. Cost: repeated outages block progress on that
+  question; the learner can still finish early.
+- Rejected evidence is stored, not discarded, so the rate of invented quotes can be measured.
+
+### What I still do not understand
+_(fill in yourself)_
+
+### Actual results / next task
+- `REQUIRE_SERVICES=1 pytest -q`: **402 passed** in 10.9 s. New or changed files:
+  23 validation tests, 7 scoring tests, 9 Claude-adapter tests (stub client), 24 fixture
+  consistency tests, 12 fake-evaluator tests, and 23 orchestrator tests (including fabricated
+  quote → rejected, evidence persisted with the assisted flag, and crash recovery with the
+  evaluator called twice but evidence committed once).
+- `ruff check` / `ruff format --check`: clean.
+- Fake evaluator on the 22 cases: signal 20/22, tag 22/22, level 14/22. That is the fake's
+  baseline, not system accuracy.
+- Live stack: a session with hint → assisted answer showed `purpose` as **unknown** (assisted
+  only), `carbon_dioxide` **conflict** (1 then 2), coverage 2 of 3, needs review.
+- **Not run:** the Claude evaluator against the live API (no credentials on this machine). Run
+  `python scripts/run_evaluator_cases.py --provider llm --confirm-cost` and record the result here.
+- Next: Day 4, streaming voice.
+
 ## 2026-11-23 — Day 2: end-to-end text assessment
 
 - [ ] I can explain each changed module.

@@ -11,7 +11,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import SecretStr
+from pydantic import SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -41,18 +41,36 @@ class Settings(BaseSettings):
     deadline_grace_seconds: int = 60
     max_turns: int = 5
     # How long a turn may sit in "evaluating" before another request may recover it.
-    processing_lease_seconds: int = 30
-    evaluator_timeout_seconds: float = 10.0
+    # Must exceed evaluator_timeout_seconds (checked below).
+    processing_lease_seconds: int = 60
+    # Wall-clock cap on one evaluator call, including the SDK's own retries.
+    evaluator_timeout_seconds: float = 45.0
     transcript_retention_days: int = 7
 
-    llm_api_key: SecretStr | None = None
-    llm_model: str | None = None
+    llm_api_key: SecretStr | None = None  # optional: the SDK also reads ANTHROPIC_API_KEY
+    llm_model: str = "claude-opus-5-5"
+    llm_effort: Literal["low", "medium", "high", "xhigh", "max"] = "medium"
+    llm_timeout_seconds: float = 20.0  # per HTTP attempt
+    llm_max_retries: int = 1  # SDK retries (connection errors, 429, 5xx)
     livekit_url: str | None = None
     livekit_api_key: SecretStr | None = None
     livekit_api_secret: SecretStr | None = None
     deepgram_api_key: SecretStr | None = None
     elevenlabs_api_key: SecretStr | None = None
     elevenlabs_voice_id: str | None = None
+
+    @model_validator(mode="after")
+    def _timeouts_are_consistent(self) -> Settings:
+        if self.processing_lease_seconds <= self.evaluator_timeout_seconds:
+            raise ValueError("PROCESSING_LEASE_SECONDS must exceed EVALUATOR_TIMEOUT_SECONDS")
+        if self.evaluator_provider == "llm":
+            worst_case = self.llm_timeout_seconds * (self.llm_max_retries + 1)
+            if self.evaluator_timeout_seconds < worst_case:
+                raise ValueError(
+                    "EVALUATOR_TIMEOUT_SECONDS must be at least "
+                    "LLM_TIMEOUT_SECONDS * (LLM_MAX_RETRIES + 1)"
+                )
+        return self
 
     @property
     def frontend_origins(self) -> list[str]:

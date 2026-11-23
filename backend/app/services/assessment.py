@@ -42,8 +42,8 @@ from datetime import UTC, datetime, timedelta
 
 from sqlalchemy.orm import Session, sessionmaker
 
-from app.db.models import SessionRow, TurnRow
-from app.domain.models import Lesson, Question
+from app.db.models import EvidenceRow, SessionRow, TurnRow
+from app.domain.models import Lesson
 from app.domain.policy import (
     Action,
     AskQuestion,
@@ -55,7 +55,7 @@ from app.domain.policy import (
     next_action,
 )
 from app.domain.state import SessionEvent, SessionStatus, is_terminal, transition
-from app.providers.llm import EvaluationRequest, EvaluationResult, Evaluator
+from app.providers.llm import EvaluationRequest, Evaluator, EvaluatorOutput
 from app.repositories import sessions as repo
 from app.schemas.sessions import (
     LessonRef,
@@ -77,6 +77,7 @@ from app.services.errors import (
     StaleStateVersionError,
     TurnInProgressError,
 )
+from app.services.evaluator import validate_output
 from app.services.lessons import LessonStore
 
 logger = logging.getLogger(__name__)
@@ -104,8 +105,14 @@ class AssessmentConfig:
     max_turns: int = 5
     session_max_seconds: int = 300
     deadline_grace_seconds: int = 60
-    processing_lease_seconds: int = 30
-    evaluator_timeout_seconds: float = 10.0
+    processing_lease_seconds: int = 60
+    evaluator_timeout_seconds: float = 45.0
+
+    def __post_init__(self) -> None:
+        # If the lease could expire while a healthy evaluator call is still running, another
+        # request would "recover" a turn that is not stuck, and every slow answer would fail.
+        if self.processing_lease_seconds <= self.evaluator_timeout_seconds:
+            raise ValueError("processing_lease_seconds must exceed evaluator_timeout_seconds")
 
 
 class AssessmentService:
@@ -270,7 +277,10 @@ class AssessmentService:
             raise EvaluationUnavailableError(
                 "could not process the answer; please retry", state_version=version
             ) from None
-        signal, tag = self._sanitize(lesson, question, result)
+        # Validation is deterministic and checks quotes against the stored transcript, so a
+        # fabricated quote or an undeclared tag can never reach the policy or the scores.
+        assessment = validate_output(lesson, question, turn_input.transcript, result)
+        signal, tag = assessment.signal, assessment.misconception_tag
 
         # T2: commit
         with self._db.begin() as db:
@@ -301,6 +311,26 @@ class AssessmentService:
             turn.evaluator_version = result.evaluator_version
             turn.status = "committed"
             turn.committed_at = now
+            for item in assessment.evidence:  # same transaction as the turn: exactly once
+                db.add(
+                    EvidenceRow(
+                        id=uuid.uuid4(),
+                        session_id=session_id,
+                        turn_id=turn.id,
+                        criterion_id=item.criterion_id,
+                        objective=item.objective,
+                        proposed_level=item.proposed_level,
+                        evidence_quote=item.evidence_quote,
+                        misconception_tag=item.misconception_tag,
+                        reason=item.reason,
+                        assisted=turn.assisted,
+                        validation_status=item.status.value,
+                        rejection_reason=item.rejection_reason,
+                        evaluator_version=result.evaluator_version,
+                        model=result.model,
+                        created_at=now,
+                    )
+                )
             self._apply_action(row, action)
             row.state_version += 1
             row.lease_expires_at = None
@@ -377,23 +407,10 @@ class AssessmentService:
         row.state_version += 1
         row.updated_at = self.clock()
 
-    def _evaluate(self, request: EvaluationRequest) -> EvaluationResult:
+    def _evaluate(self, request: EvaluationRequest) -> EvaluatorOutput:
         # The worker thread keeps running after a timeout; its result is simply ignored.
         future = self._executor.submit(self.evaluator.evaluate, request)
         return future.result(timeout=self.config.evaluator_timeout_seconds)
-
-    @staticmethod
-    def _sanitize(
-        lesson: Lesson, question: Question, result: EvaluationResult
-    ) -> tuple[Signal, str | None]:
-        """Never trust evaluator tags: an unknown or off-objective tag becomes AMBIGUOUS."""
-        if result.signal is Signal.MISCONCEPTION:
-            misconception = lesson.misconception(result.misconception_tag or "")
-            if misconception is None or misconception.objective != question.objective:
-                logger.warning("evaluator returned invalid tag %r", result.misconception_tag)
-                return Signal.AMBIGUOUS, None
-            return Signal.MISCONCEPTION, misconception.tag
-        return result.signal, None
 
     @staticmethod
     def _apply_action(row: SessionRow, action: Action) -> None:

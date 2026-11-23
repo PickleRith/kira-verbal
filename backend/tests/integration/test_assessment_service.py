@@ -9,10 +9,9 @@ from concurrent.futures import ThreadPoolExecutor
 import pytest
 from sqlalchemy import Engine, func, select
 
-from app.db.models import SessionRow, TurnRow
-from app.domain.policy import Signal
+from app.db.models import EvidenceRow, SessionRow, TurnRow
 from app.domain.state import SessionStatus
-from app.providers.llm import EvaluationResult
+from app.providers.llm import EvaluatorOutput, LearnerIntent, ProposedEvidence
 from app.schemas.sessions import TurnInput, TurnResponse
 from app.services.assessment import AssessmentService
 from app.services.errors import (
@@ -154,15 +153,72 @@ def test_turn_budget_ends_session(service):
     assert r.status is SessionStatus.COMPLETED and r.finish_reason == "budget"
 
 
-def test_invalid_evaluator_tag_is_treated_as_ambiguous(service, evaluator, seeded_engine):
+def _proposal(level, quote, tag=None, criterion="carbon_dioxide") -> ProposedEvidence:
+    return ProposedEvidence(criterion, level, quote, tag, "test reason", abstain=level is None)
+
+
+def test_invalid_evaluator_tag_is_rejected_and_treated_as_ambiguous(
+    service, evaluator, seeded_engine
+):
     learner = Learner(service)
     learner.say(GOOD_Q1)  # now on q2 (carbon_dioxide)
-    evaluator.override = EvaluationResult(Signal.MISCONCEPTION, "light_is_food", "test")
+    evaluator.override = EvaluatorOutput(
+        LearnerIntent.ANSWER, (_proposal(1, ROOTS_Q2, tag="light_is_food"),), "test"
+    )
     r = learner.say(ROOTS_Q2)
     assert r.prompt.purpose == "clarify"
     with seeded_engine.connect() as c:
         tag = c.scalar(select(TurnRow.misconception_tag).where(TurnRow.question_id == "q2"))
-    assert tag is None
+        status = c.scalar(
+            select(EvidenceRow.validation_status).where(
+                EvidenceRow.criterion_id == "carbon_dioxide"
+            )
+        )
+    assert tag is None and status == "rejected"
+
+
+def test_fabricated_quote_is_stored_rejected_and_never_scores(service, evaluator, seeded_engine):
+    learner = Learner(service)
+    learner.say(GOOD_Q1)
+    evaluator.override = EvaluatorOutput(
+        LearnerIntent.ANSWER,
+        (_proposal(3, "through stomata in the leaves"),),  # the learner never said this
+        "test",
+    )
+    r = learner.say("Um, I'm not really sure about that one, maybe the ground?")
+    assert r.prompt.purpose == "clarify"  # no accepted evidence -> ambiguous
+    with seeded_engine.connect() as c:
+        row = c.execute(
+            select(EvidenceRow.validation_status, EvidenceRow.rejection_reason).where(
+                EvidenceRow.session_id == learner.id, EvidenceRow.criterion_id == "carbon_dioxide"
+            )
+        ).one()
+    assert row == ("rejected", "quote not found in transcript")
+
+
+def test_evidence_is_persisted_with_assisted_flag_and_metadata(service, seeded_engine):
+    learner = Learner(service)
+    learner.say("Can I have a hint?")
+    learner.say(GOOD_Q1)  # answered after a hint -> assisted evidence
+    learner.say(ROOTS_Q2)  # independent, misconception
+    with seeded_engine.connect() as c:
+        rows = c.execute(
+            select(
+                EvidenceRow.criterion_id,
+                EvidenceRow.assisted,
+                EvidenceRow.validation_status,
+                EvidenceRow.proposed_level,
+                EvidenceRow.misconception_tag,
+                EvidenceRow.evaluator_version,
+            )
+            .join(TurnRow, TurnRow.id == EvidenceRow.turn_id)
+            .where(EvidenceRow.session_id == learner.id)
+            .order_by(TurnRow.sequence)
+        ).all()
+    assert [tuple(r) for r in rows] == [
+        ("purpose", True, "accepted", 2, None, "fake-keyword-v2"),
+        ("carbon_dioxide", False, "accepted", 1, "co2_from_roots", "fake-keyword-v2"),
+    ]
 
 
 # --- idempotency and versioning ------------------------------------------------------
@@ -313,6 +369,15 @@ def test_crash_between_claim_and_commit_is_recovered_without_duplicates(
     assert retried.prompt.question_id == "q2"
     assert count_turns(seeded_engine, learner.id, "committed") == 1
     assert count_turns(seeded_engine, learner.id, "failed") == 1
+    # The evaluator ran twice (crash + retry) but evidence was committed exactly once.
+    assert evaluator.calls == 2
+    with seeded_engine.connect() as c:
+        evidence = c.scalar(
+            select(func.count())
+            .select_from(EvidenceRow)
+            .where(EvidenceRow.session_id == learner.id)
+        )
+    assert evidence == 1
 
 
 def test_late_commit_after_recovery_is_rejected(service, evaluator, clock, seeded_engine):

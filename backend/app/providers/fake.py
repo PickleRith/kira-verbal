@@ -2,24 +2,33 @@
 
 This is deliberately simple and NOT a model of understanding: it matches phrases.
 It exists so the full flow runs with no paid API and so tests are reproducible.
-Known limitation: it ignores negation ("not from the roots" still matches "root").
+Its output goes through the same validator as the LLM's.
+
+Known limitations: it ignores negation ("not from the roots" still matches "root"), and
+the level it proposes for an ordinary answer (2) is a placeholder, not a judgment. Its
+evaluator_version ("fake-keyword-v2") marks every such row so it is never mistaken for
+real evaluation.
 
 Rules, in order:
-1. Whole answer is a stop phrase            -> STOP_REQUESTED
-2. Short answer asking for help/a hint      -> HELP_REQUESTED
-3. Fewer than 3 words                       -> AMBIGUOUS (never scored as wrong)
-4. Matches a keyword for a misconception of this question's objective -> MISCONCEPTION
-5. Otherwise                                -> ANSWERED
+1. Whole answer is a stop phrase            -> intent stop_request
+2. Short answer asking for help/a hint      -> intent help_request
+3. Fewer than 3 words                       -> abstain (-> AMBIGUOUS, never scored as wrong)
+4. Keyword for a misconception of this question's objective -> level 1 + tag
+5. Otherwise                                -> placeholder level 2
 """
 
 from __future__ import annotations
 
 import re
 
-from app.domain.policy import Signal
-from app.providers.llm import EvaluationRequest, EvaluationResult
+from app.providers.llm import (
+    EvaluationRequest,
+    EvaluatorOutput,
+    LearnerIntent,
+    ProposedEvidence,
+)
 
-FAKE_EVALUATOR_VERSION = "fake-keyword-v1"
+FAKE_EVALUATOR_VERSION = "fake-keyword-v2"
 
 STOP_PHRASES = frozenset(
     {"stop", "quit", "i want to stop", "i want to finish", "i'm done", "im done", "end"}
@@ -84,24 +93,45 @@ def normalize(text: str) -> str:
 class FakeEvaluator:
     version = FAKE_EVALUATOR_VERSION
 
-    def evaluate(self, request: EvaluationRequest) -> EvaluationResult:
+    def evaluate(self, request: EvaluationRequest) -> EvaluatorOutput:
         answer = normalize(request.transcript)
         words = answer.split()
+        criterion_id = next(
+            c.id for c in request.lesson.criteria if c.objective == request.question.objective
+        )
 
-        def result(signal: Signal, tag: str | None = None) -> EvaluationResult:
-            return EvaluationResult(signal, tag, self.version)
+        def output(
+            intent: LearnerIntent = LearnerIntent.ANSWER, *items: ProposedEvidence
+        ) -> EvaluatorOutput:
+            return EvaluatorOutput(intent, items, self.version, None)
+
+        def item(level: int | None, tag: str | None, reason: str) -> ProposedEvidence:
+            return ProposedEvidence(
+                criterion_id=criterion_id,
+                proposed_level=level,
+                evidence_quote=request.transcript.strip() if level is not None else "",
+                misconception_tag=tag,
+                reason=reason,
+                abstain=level is None,
+            )
 
         if answer.rstrip(".!") in STOP_PHRASES:
-            return result(Signal.STOP_REQUESTED)
+            return output(LearnerIntent.STOP_REQUEST)
         if len(words) <= HELP_MAX_WORDS and HELP_PATTERN.search(answer):
-            return result(Signal.HELP_REQUESTED)
+            return output(LearnerIntent.HELP_REQUEST)
         if len(words) < 3:
-            return result(Signal.AMBIGUOUS)
+            return output(LearnerIntent.ANSWER, item(None, None, "Too short to judge."))
 
         for misconception in request.lesson.misconceptions:
             if misconception.objective != request.question.objective:
                 continue
             keywords = MISCONCEPTION_KEYWORDS.get(misconception.tag, ())
             if any(keyword in answer for keyword in keywords):
-                return result(Signal.MISCONCEPTION, misconception.tag)
-        return result(Signal.ANSWERED)
+                return output(
+                    LearnerIntent.ANSWER,
+                    item(1, misconception.tag, f"Keyword fake matched '{misconception.tag}'."),
+                )
+        return output(
+            LearnerIntent.ANSWER,
+            item(2, None, "Keyword fake: placeholder level, not a judgment of correctness."),
+        )

@@ -1,6 +1,6 @@
 # Architecture
 
-Status: Day 2. Components marked *(planned)* do not exist in code yet.
+Status: Day 3. Components marked *(planned)* do not exist in code yet.
 
 ## Diagram
 
@@ -12,7 +12,9 @@ flowchart TD
   W --> API
   API --> O[Assessment orchestrator]
   O --> P[Question policy and lesson rubric]
-  O --> E[Evaluator interface: fake now, LLM planned]
+  O --> E[Evaluator: keyword fake or Claude adapter]
+  E --> V[Deterministic evidence validator]
+  V --> S[Scoring: suggested levels, unknowns, conflicts]
   O --> DB[(PostgreSQL durable records)]
   API --> DB
   API -.-> R[(Redis: readiness only so far)]
@@ -28,8 +30,11 @@ flowchart TD
 | Lesson store | `backend/app/services/lessons.py` | Reads published versions from Postgres (runtime source of truth), caches forever |
 | State machine | `backend/app/domain/state.py` | The only legal session status transitions |
 | Question policy | `backend/app/domain/policy.py` | Pure function: (lesson, history, time, budget) → next action |
-| Evaluator interface | `backend/app/providers/llm.py` | `Evaluator` protocol: turn → signal (+ misconception tag) |
+| Evaluator interface + Claude adapter | `backend/app/providers/llm.py` | `Evaluator` protocol (turn → intent + proposed evidence); `AnthropicEvaluator` with structured output and bounded retry |
+| Evaluator prompt | `backend/app/providers/prompts.py` | Versioned prompt; untrusted transcript boundary |
 | Fake evaluator | `backend/app/providers/fake.py` | Deterministic keyword rules; free and reproducible |
+| Evidence validator | `backend/app/services/evaluator.py` | Accept / abstain / reject each item; derive the policy signal from accepted evidence only |
+| Scoring | `backend/app/domain/scoring.py` | Suggested level per criterion; unknown, assisted, conflicts, coverage |
 | Orchestrator | `backend/app/services/assessment.py` | Sessions, the claim/evaluate/commit turn algorithm, recovery, deadlines |
 | Repositories | `backend/app/repositories/` | SQL for lessons, sessions, turns |
 | API | `backend/app/api/` | Routes, bearer-token dependency, error → HTTP mapping |
@@ -53,8 +58,11 @@ api ──► services ──► domain
    `api/deps.py:session_token` extracts the bearer token.
 3. `AssessmentService.submit_turn`: refresh (T0), claim (T1), evaluator call outside any
    transaction, commit (T2). Details in [api.md](api.md#transaction-design-why-it-is-safe).
-4. The policy (`domain/policy.py:next_action`) picks the next question from committed history.
-5. The student-facing `TurnResponse` is stored on the turn row and returned. The UI then
+4. `services/evaluator.py:validate_output` checks every proposed evidence item against the
+   lesson and the stored transcript; the signal comes from accepted items only. Evidence rows
+   (accepted, abstained and rejected) are inserted in T2 with the turn.
+5. The policy (`domain/policy.py:next_action`) picks the next question from committed history.
+6. The student-facing `TurnResponse` is stored on the turn row and returned. The UI then
    refetches the session to render the transcript.
 
 ## Key decisions and tradeoffs
@@ -63,6 +71,8 @@ api ──► services ──► domain
   `(lesson_id, version)` by foreign key.
 - **Deterministic policy, not a free-form agent.** Reproducible and bounded; follow-ups must be
   authored.
+- **The LLM proposes, code disposes.** The evaluator's output is validated before it can affect
+  the policy or a score; see [assessment-policy.md](assessment-policy.md).
 - **Budget counts learner turns** (default 5), including hint requests and clarifications.
 - **Idempotency and concurrency in Postgres**, not Redis. See
   [ADR 0001](adr/0001-database-idempotency.md).

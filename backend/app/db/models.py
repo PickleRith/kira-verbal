@@ -140,8 +140,58 @@ class TurnRow(Base):
     status: Mapped[str] = mapped_column(String(16), nullable=False)
     signal: Mapped[str | None] = mapped_column(String(32))
     misconception_tag: Mapped[str | None] = mapped_column(String(64))
-    evaluator_version: Mapped[str | None] = mapped_column(String(64))
+    evaluator_version: Mapped[str | None] = mapped_column(String(128))
     # The exact student-facing response, replayed verbatim for idempotent retries.
     response: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     committed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+EVIDENCE_STATUSES = "('accepted','abstained','rejected')"
+
+
+class EvidenceRow(Base):
+    """One proposed evidence item for one committed turn, after validation.
+
+    Teacher-only. Rejected items are kept for audit (e.g. to measure how often the model
+    invents quotes) but never count toward a suggested level. Rows are written in the same
+    transaction that commits their turn, so a turn's evidence exists exactly once.
+    """
+
+    __tablename__ = "evidence"
+    __table_args__ = (
+        Index("ix_evidence_session", "session_id"),
+        CheckConstraint(f"validation_status IN {EVIDENCE_STATUSES}", name="ck_evidence_status"),
+        CheckConstraint(
+            "proposed_level IS NULL OR proposed_level BETWEEN 0 AND 3", name="ck_evidence_level"
+        ),
+        CheckConstraint(
+            "validation_status <> 'accepted' OR proposed_level IS NOT NULL",
+            name="ck_evidence_accepted_has_level",
+        ),
+        CheckConstraint(
+            "(validation_status = 'rejected') = (rejection_reason IS NOT NULL)",
+            name="ck_evidence_rejection_reason",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True)
+    session_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("sessions.id", ondelete="CASCADE"), nullable=False
+    )
+    turn_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("turns.id", ondelete="CASCADE"), nullable=False
+    )
+    criterion_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    objective: Mapped[str | None] = mapped_column(String(64))
+    proposed_level: Mapped[int | None] = mapped_column(Integer)
+    evidence_quote: Mapped[str] = mapped_column(Text, nullable=False)
+    misconception_tag: Mapped[str | None] = mapped_column(String(64))
+    reason: Mapped[str] = mapped_column(Text, nullable=False)
+    # Independent vs assisted: copied from the turn so it can never be recomputed differently.
+    assisted: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    validation_status: Mapped[str] = mapped_column(String(16), nullable=False)
+    rejection_reason: Mapped[str | None] = mapped_column(Text)
+    evaluator_version: Mapped[str] = mapped_column(String(128), nullable=False)
+    model: Mapped[str | None] = mapped_column(String(128))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

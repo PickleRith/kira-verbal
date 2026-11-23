@@ -28,7 +28,7 @@ from app.config import REPO_ROOT, Settings
 from app.lesson_catalog import load_catalog
 from app.main import create_app
 from app.providers.fake import FakeEvaluator
-from app.providers.llm import EvaluationRequest, EvaluationResult
+from app.providers.llm import EvaluationRequest, EvaluatorOutput
 from app.repositories.lessons import publish_lesson
 from app.services.assessment import AssessmentConfig, AssessmentService
 from app.services.lessons import LessonStore
@@ -141,9 +141,9 @@ class ControllableEvaluator:
         self.gate: threading.Event | None = None  # if set, evaluate() waits for it
         self.raise_next: BaseException | None = None
         self.delay_seconds = 0.0
-        self.override: EvaluationResult | None = None  # return this instead of evaluating
+        self.override: EvaluatorOutput | None = None  # return this instead of evaluating
 
-    def evaluate(self, request: EvaluationRequest) -> EvaluationResult:
+    def evaluate(self, request: EvaluationRequest) -> EvaluatorOutput:
         self.calls += 1
         self.entered.set()
         if self.gate is not None:
@@ -184,7 +184,7 @@ def service(
         LessonStore(factory),
         evaluator,
         executor,
-        AssessmentConfig(evaluator_timeout_seconds=1.0),
+        AssessmentConfig(evaluator_timeout_seconds=1.0, processing_lease_seconds=30),
         clock=clock,
     )
     executor.shutdown(wait=False, cancel_futures=True)

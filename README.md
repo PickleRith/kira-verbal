@@ -14,7 +14,8 @@ teacher effort than running oral assessments by hand.
 |---|---|
 | Day 1: scaffold, lesson schema, state machine, question policy, health/ready, CI | Built |
 | Day 2: end-to-end text assessment (sessions, turns, fake evaluator, student UI, idempotency) | Built |
-| Day 3–7: LLM evaluator, voice, teacher review, evaluation, deploy | Not started |
+| Day 3: Claude evaluator, evidence validation, abstention, independent/assisted scoring | Built; live API run pending credentials |
+| Day 4–7: voice, teacher review, evaluation, deploy | Not started |
 
 Progress and real test results are in the [engineering journal](docs/engineering-journal.md).
 
@@ -24,7 +25,8 @@ No benchmark results exist yet. See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the f
 
 Next.js + TypeScript + Tailwind (frontend) · FastAPI + Pydantic (API) · PostgreSQL + SQLAlchemy +
 Alembic (durable records) · Redis (coordination only, never the source of truth) · pytest.
-Voice (LiveKit, Deepgram, ElevenLabs) and the LLM evaluator arrive in later milestones.
+Evaluator: Claude (`claude-opus-5-5`) via the official `anthropic` SDK, or a free keyword fake.
+Voice (LiveKit, Deepgram, ElevenLabs) arrives in a later milestone.
 
 ## Local setup
 
@@ -52,7 +54,10 @@ npm run dev                           # http://localhost:3000
 
 Open http://localhost:3000, pick a lesson, and answer as a demo learner. Try the roots
 misconception on photosynthesis ("From the soil through its roots.") to see the adaptive
-follow-up. No API keys are needed: the evaluator is a deterministic keyword fake until Day 3.
+follow-up. No API keys are needed: by default the evaluator is a deterministic keyword fake.
+To use Claude instead, set `EVALUATOR_PROVIDER=llm` and either `LLM_API_KEY` or
+`ANTHROPIC_API_KEY` (each answer is one paid API call). Inspect what was recorded for a session
+with `python -m app.inspect_session <session_id>`.
 The frontend calls `http://127.0.0.1:8000` by default (override with
 `NEXT_PUBLIC_API_BASE_URL` in `frontend/.env.local`).
 
@@ -94,6 +99,7 @@ docs/                    architecture, journal; more docs per milestone
 
 - [Architecture](docs/architecture.md)
 - [API, errors, idempotency and transactions](docs/api.md)
+- [Assessment policy, evidence validation and scoring](docs/assessment-policy.md)
 - [ADR 0001: idempotency in Postgres, not Redis](docs/adr/0001-database-idempotency.md)
 - [Engineering journal](docs/engineering-journal.md)
 

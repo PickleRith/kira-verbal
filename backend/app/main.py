@@ -25,7 +25,7 @@ from app.config import Settings, get_settings
 from app.db.session import make_engine, make_session_factory
 from app.lesson_catalog import load_catalog
 from app.providers.fake import FakeEvaluator
-from app.providers.llm import Evaluator
+from app.providers.llm import AnthropicEvaluator, Evaluator, build_anthropic_client
 from app.services.assessment import AssessmentConfig, AssessmentService
 from app.services.lessons import LessonStore
 
@@ -33,7 +33,12 @@ from app.services.lessons import LessonStore
 def build_evaluator(settings: Settings) -> Evaluator:
     if settings.evaluator_provider == "fake":
         return FakeEvaluator()
-    raise RuntimeError("EVALUATOR_PROVIDER=llm is not implemented yet (Day 3); use 'fake'")
+    client = build_anthropic_client(
+        api_key=settings.llm_api_key.get_secret_value() if settings.llm_api_key else None,
+        timeout_seconds=settings.llm_timeout_seconds,
+        max_retries=settings.llm_max_retries,
+    )
+    return AnthropicEvaluator(client, model=settings.llm_model, effort=settings.llm_effort)
 
 
 def create_app(
