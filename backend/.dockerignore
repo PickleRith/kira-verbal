@@ -1,0 +1,12 @@
+# Build context for the voice agent image (backend/Dockerfile, LiveKit Cloud).
+.venv
+**/__pycache__
+.pytest_cache
+.ruff_cache
+tests
+migrations
+alembic.ini
+start.sh
+*.egg-info
+.env
+.env.*

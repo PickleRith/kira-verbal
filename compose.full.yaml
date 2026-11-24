@@ -35,7 +35,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: backend/Dockerfile
+      dockerfile: backend/api.Dockerfile
     environment: &backend-env
       DATABASE_URL: postgresql+psycopg://kira:kira@postgres:5432/kira
       REDIS_URL: redis://redis:6379/0
@@ -65,7 +65,7 @@ services:
     profiles: ["voice"]
     build:
       context: .
-      dockerfile: backend/Dockerfile
+      dockerfile: backend/api.Dockerfile
     command: ["python", "-m", "app.voice.worker", "start"]
     environment: *backend-env
     depends_on:

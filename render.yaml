@@ -21,7 +21,7 @@ services:
     runtime: docker
     plan: free
     region: oregon
-    dockerfilePath: ./backend/Dockerfile
+    dockerfilePath: ./backend/api.Dockerfile
     dockerContext: .
     healthCheckPath: /health
     autoDeployTrigger: commit

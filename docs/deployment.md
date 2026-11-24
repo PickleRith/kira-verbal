@@ -49,7 +49,8 @@ The voice worker runs on LiveKit Cloud's agent hosting (free Build plan: 1 deplo
 1,000 agent-session minutes a month, 5 concurrent sessions; idle agents scale to zero, so
 the first session after a quiet spell waits 10–20 s for the agent to start).
 
-- Image: the root `Dockerfile` (build context = repository root).
+- Image: `backend/Dockerfile` (build context = `backend/`; LiveKit's CLI needs the
+  folder with `pyproject.toml`). The API image is `backend/api.Dockerfile`.
 - LiveKit injects `LIVEKIT_URL` / `LIVEKIT_API_KEY` / `LIVEKIT_API_SECRET` itself.
 - The agent's own settings are LiveKit Cloud secrets, kept locally in the git-ignored
   `.env.voice-agent`: `KIRA_API_URL` (the API's public URL), `VOICE_AGENT_NAME`
@@ -57,8 +58,9 @@ the first session after a quiet spell waits 10–20 s for the agent to start).
   value as on the API).
 
 ```powershell
-# from the repository root, against the same LiveKit project the API uses
-lk agent create --region us-east --secrets-file .env.voice-agent .
+# from backend/, against the same LiveKit project the API uses
+cd backend
+lk agent create --region us-east --secrets-file ../.env.voice-agent .
 lk agent deploy .                                   # later versions
 lk agent update-secrets --secrets "KIRA_API_URL=https://<real api url>"   # if the URL differs
 lk agent status ; lk agent logs
@@ -81,7 +83,7 @@ flowchart LR
 | Service | Image / command | Needs | Notes |
 |---|---|---|---|
 | `web` | `frontend/Dockerfile` | `NEXT_PUBLIC_API_BASE_URL` **at build time** | Stateless |
-| `api` | `backend/Dockerfile` (default command) | Postgres, Redis, env below | Runs migrations and the lesson seed on start (both idempotent). With more than one instance, run them as a release step instead |
+| `api` | `backend/api.Dockerfile` | Postgres, Redis, env below | Runs migrations and the lesson seed on start (both idempotent). With more than one instance, run them as a release step instead |
 | `worker` | same image, `python -m app.voice.worker start` | LiveKit settings, `KIRA_API_URL` | **Must be a long-running service** (it holds an outbound connection to LiveKit). It can't run on request-driven serverless. No inbound port needed except its health check (8081) |
 | Postgres 16 | managed | | The only durable store. Back it up |
 | Redis 7 | managed | | Rate limiting only; losing it loses nothing |

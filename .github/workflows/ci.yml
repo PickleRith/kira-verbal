@@ -114,5 +114,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: docker build -f backend/Dockerfile -t kira-verbal-api .
+      - run: docker build -f backend/api.Dockerfile -t kira-verbal-api .
       - run: docker build -t kira-verbal-web frontend
