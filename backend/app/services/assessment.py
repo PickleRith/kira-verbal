@@ -45,6 +45,7 @@ from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from typing import Literal
 
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -126,6 +127,10 @@ class AssessmentConfig:
     processing_lease_seconds: int = 60
     evaluator_timeout_seconds: float = 45.0
     responder_timeout_seconds: float = 5.0
+    # "side_turns": ask the responder only where its line matters (replying to a turn that
+    # was not an answer, or asking for more detail). Moving to a new question or giving a
+    # hint uses the template, which saves one model call on most turns. "all": every step.
+    responder_scope: Literal["side_turns", "all"] = "side_turns"
     max_side_turns: int = 4
 
     def __post_init__(self) -> None:
@@ -171,6 +176,7 @@ class AssessmentService:
         synthetic_learner_id: str,
         *,
         workspace_id: uuid.UUID | None = None,
+        learner_user_id: uuid.UUID | None = None,
     ) -> tuple[StudentSessionView, str]:
         """`workspace_id` is set when a teacher creates the session; only that teacher's
         workspace can then see its report."""
@@ -192,6 +198,7 @@ class AssessmentService:
             id=uuid.uuid4(),
             synthetic_learner_id=synthetic_learner_id,
             workspace_id=workspace_id,
+            learner_user_id=learner_user_id,
             lesson_id=lesson.id,
             lesson_version=lesson.version,
             access_token_sha256=hash_secret(token),
@@ -464,6 +471,11 @@ class AssessmentService:
         if isinstance(action, Finish):
             return None, "none:finished"  # closing words are fixed (voice worker / UI)
         request = _responder_request(lesson, asked, transcript, intent, action, recent)
+        if self.config.responder_scope == "side_turns" and request.next_step not in (
+            "repeat_question",
+            "ask_for_more",
+        ):
+            return fallback_reply(request), "template:scope"
         try:
             future = self._executor.submit(self.responder.respond, request)
             reply = future.result(timeout=self.config.responder_timeout_seconds)

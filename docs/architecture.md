@@ -1,6 +1,6 @@
 # Architecture
 
-Status: Day 5. Components marked *(planned)* do not exist in code yet.
+Status: Day 7 (not deployed). Components marked *(planned)* do not exist in code yet.
 
 ## Diagram
 
@@ -18,7 +18,7 @@ flowchart TD
   O --> RS[Responder: Claude or templates] --> G[Reply guardrails]
   O --> DB[(PostgreSQL durable records)]
   API --> DB
-  API -.-> R[(Redis: readiness only so far)]
+  API -.-> R[(Redis: rate limits)]
   API --> RP[Report service: revisions, reviews, audit] --> X[Mock Kira export adapter]
 ```
 
@@ -40,14 +40,45 @@ flowchart TD
 | Repositories | `backend/app/repositories/` | SQL for lessons, sessions, turns |
 | API | `backend/app/api/` | Routes, bearer-token dependency, error → HTTP mapping |
 | Student UI | `frontend/components/StudentSession.tsx` | Intro, transcript, answer form, hint/finish, retry and resume |
-| Voice panel | `frontend/components/VoicePanel.tsx` | Join the LiveKit room, mic control, agent state; text stays available |
+| Voice panel | `frontend/components/VoicePanel.tsx`, `Waveform.tsx`, `lib/voice-state.ts` | Join the LiveKit room; one central microphone; UI state (idle, connecting, listening, processing, speaking, completed, error) derived from real events and unit-tested; mute, end, retry; live waveform (Web Audio, never recorded); text stays available |
+| Accounts | `backend/app/services/accounts.py`, `api/accounts.py`, migration 0006 | Registration, sign-in tokens, classes with join codes, a student's own check-ins. A student's session is created in their class, which is what puts it on the teacher's board |
+| Auth state (UI) | `frontend/lib/auth.tsx`, `components/shell.tsx` | Signed-in user, role-based navigation and redirects (`/student`, `/teacher`) |
 | Voice token + worker credential | `providers/livekit_tokens.py`, `services/voice_credentials.py` | Room token that dispatches the worker; per-session HMAC credential for the worker |
 | Voice worker | `backend/app/voice/` | `worker.py` (LiveKit), `transport.py` (turn forwarding, testable), `client.py` (HTTP) |
 | Responder | `backend/app/providers/responder.py`, `responder_prompt.py` | The short line said before each question; Claude (`claude-haiku-5-5`) or templates |
 | Report service | `backend/app/services/reports.py`, `api/teacher.py` | Classrooms, report lifecycle, review with revision check, idempotent export. See [reports.md](reports.md) |
 | Mock Kira adapter | `backend/app/providers/kira_mock.py` | Export payload `kira-verbal.mastery-update.v1`; fake receiver that applies each key once |
-| Teacher UI | `frontend/components/TeacherDashboard.tsx`, `ReportReview.tsx` | Launch sessions, review evidence, approve/revise/reject, export, audit trail |
+| Student home | `frontend/components/StudentHome.tsx` | Join a class, start a lesson, past check-ins with review status |
+| Teacher UI | `frontend/components/TeacherDashboard.tsx`, `ReportReview.tsx` | Class code, review board (needs review / in progress / reviewed), review by question, rubric or transcript, approve/revise/reject, export, audit trail |
+| Request limits | `backend/app/api/limits.py` | Rate limits (Redis, fails open) and body-size cap |
+| Retention | `backend/app/purge.py` | Deletes sessions past the retention period |
+| Benchmark | `backend/app/evals/simulation.py`, `scripts/run_benchmark.py` | Scripted learners through the real policy, validator and scoring. See [evaluation.md](evaluation.md) |
 | Reply guardrails | `backend/app/services/conversation.py` | Length, no feedback, no answer-key terms; template otherwise. See [conversation.md](conversation.md) |
+
+## Frontend component hierarchy
+
+```mermaid
+flowchart TD
+  L[app/layout.tsx: fonts, AuthProvider] --> P1[/ landing/]
+  L --> P2[/login, /register/]
+  L --> P3[/student/]
+  L --> P4[/student/id/]
+  L --> P5[/teacher/]
+  L --> P6[/teacher/id/]
+  P1 --> MS[MarketingShell] --> LD[Landing: HeroActions, HowItWorks, LessonShowcase]
+  P2 --> MS --> AF[AuthForm]
+  P3 --> AS[AppShell: sidebar / drawer] --> SH[StudentHome] --> SC1[Score: ScoreChip, ScoreSummary, CriterionResults]
+  P5 --> AS --> TD[TeacherDashboard] --> SC2[ScoreChip]
+  P6 --> AS --> RR[ReportReview] --> FT[FolderTabs] & SC3[ScoreSummary]
+  P4 --> FS[FocusShell] --> SS[StudentSession] --> VP[VoicePanel] --> WF[Waveform]
+  VP --> VS[lib/voice-state.ts]
+  SH & TD & RR & SS & VP & AF --> API[lib/api.ts]
+  RR --> GR[lib/grading.ts]
+```
+
+Every component draws from the primitives in `components/ui.tsx` and the tokens in
+`app/globals.css` ([DESIGN_SYSTEM.md](../frontend/DESIGN_SYSTEM.md)). Presentation lives in
+components, API calls only in `lib/api.ts`, pure rules in `lib/` with unit tests.
 
 ## Dependency direction
 

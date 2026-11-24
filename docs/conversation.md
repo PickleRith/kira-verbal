@@ -70,6 +70,7 @@ line; a leaked answer would corrupt the evidence. Every turn records where its r
 from in `turns.reply_source`:
 
 - `fake-template-v1`: the template, used in fake mode;
+- `template:scope`: the template, because this step is outside `RESPONDER_SCOPE`;
 - `anthropic:<model>:responder-v2`: Claude's line, used;
 - `fallback:<reason>`: the template, because of `answer_key_term`, `evaluative`,
   `too_long`, `thanks`, `link_or_markup`, `empty`, `error` (failure or timeout) or `plan_changed`;
@@ -92,6 +93,7 @@ real school deployment needs its own reporting procedure.
 | `RESPONDER_MODEL` | `claude-haiku-5-5` | A fast model, because this call is on the learner's critical path |
 | `RESPONDER_EFFORT` | `low` | |
 | `RESPONDER_TIMEOUT_SECONDS` | `5` | One attempt, no SDK retries; then the template |
+| `RESPONDER_SCOPE` | `side_turns` | `side_turns`: the responder runs only for side turns and "say more" prompts; moving to a new question or giving a hint uses the template (no line), so most turns make one model call. `all`: it also writes a transition before every question (about 1.3 s slower per turn, measured) |
 | `MAX_SIDE_TURNS` | `4` | Free side turns per session |
 
 `PROCESSING_LEASE_SECONDS` must exceed `EVALUATOR_TIMEOUT_SECONDS + RESPONDER_TIMEOUT_SECONDS`.

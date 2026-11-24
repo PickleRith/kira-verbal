@@ -12,6 +12,7 @@ from typing import Any
 # This runs at import time, before any test builds a Settings object.
 for _name, _value in {
     "EVALUATOR_PROVIDER": "fake",
+    "RATE_LIMIT_ENABLED": "false",  # limits are tested explicitly in test_limits.py
     "RESPONDER_PROVIDER": "fake",
     "LLM_API_KEY": "",
     "LIVEKIT_URL": "",

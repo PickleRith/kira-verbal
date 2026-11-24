@@ -27,6 +27,38 @@ class _Strict(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
+# --- score ----------------------------------------------------------------------------
+
+
+GradeBand = Literal["mastered", "proficient", "developing", "beginning", "incomplete"]
+
+
+class ScoreView(BaseModel):
+    """Rubric levels as a score (app/domain/grading.py). Unknown criteria are left out of
+    the points, never counted as zero, and make the band "incomplete"."""
+
+    points: int
+    max_points: int
+    percent: int | None
+    assessed: int
+    total: int
+    band: GradeBand
+
+    @classmethod
+    def from_levels(cls, levels: dict[str, int | None]) -> ScoreView:
+        from app.domain.grading import grade
+
+        g = grade(levels)
+        return cls(
+            points=g.points,
+            max_points=g.max_points,
+            percent=g.percent,
+            assessed=g.assessed,
+            total=g.total,
+            band=g.band,  # type: ignore[arg-type]
+        )
+
+
 # --- workspace and sessions ---------------------------------------------------------
 
 
@@ -58,6 +90,7 @@ class TeacherSessionItem(BaseModel):
     session_id: uuid.UUID
     lesson: LessonRef
     synthetic_learner_id: str
+    learner_name: str | None = None  # the student account's display name, if any
     session_status: str
     finish_reason: FinishReasonOut | None
     created_at: datetime
@@ -65,6 +98,7 @@ class TeacherSessionItem(BaseModel):
     report_revision: int | None
     answer_turns: int
     wellbeing_flags: int
+    score: ScoreView | None = None  # latest revision's levels; None while in progress
 
 
 # --- report -------------------------------------------------------------------------
@@ -158,6 +192,7 @@ class ReportView(BaseModel):
     status: ReportStatus
     lesson: LessonRef
     synthetic_learner_id: str
+    learner_name: str | None = None
     session_status: str
     finish_reason: FinishReasonOut | None
     session_created_at: datetime
@@ -167,6 +202,8 @@ class ReportView(BaseModel):
     hints_used: int
     side_turns: int
     criteria: list[CriterionReport]
+    score: ScoreView  # this revision's levels (live suggestion while pending)
+    suggested_score: ScoreView  # the system's suggested levels
     transcript: list[TranscriptTurn]
     revisions: list[RevisionEntry]
     reviews: list[ReviewEntry]  # the audit trail, oldest first

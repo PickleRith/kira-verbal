@@ -82,3 +82,30 @@ class ReportNotApprovedError(AssessmentError):
 
 class InvalidReviewError(AssessmentError):
     """The review is incomplete: missing levels, unknown criteria, or a missing reason."""
+
+
+# --- accounts -----------------------------------------------------------------------------
+
+
+class NotSignedInError(AssessmentError):
+    """Missing, malformed, unknown or expired sign-in token."""
+
+
+class InvalidCredentialsError(AssessmentError):
+    """Wrong email or password (deliberately not saying which)."""
+
+
+class EmailTakenError(AssessmentError):
+    """An account with this email already exists."""
+
+
+class WrongRoleError(AssessmentError):
+    """Signed in, but as the other role (a student on a teacher route, or the reverse)."""
+
+
+class ClassNotFoundError(AssessmentError):
+    """No class has this join code."""
+
+
+class NoClassError(AssessmentError):
+    """A student who hasn't joined a class tried to start a check-in."""

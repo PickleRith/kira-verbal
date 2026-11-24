@@ -1,0 +1,85 @@
+# The whole app in containers, for a clean-machine demo:
+#
+#   docker compose -f compose.full.yaml up --build
+#   open http://localhost:3000
+#
+# Runs in free fake mode by default (no keys). To use Claude or voice, put the settings in
+# .env (see .env.example); they are passed through below. The voice worker only starts with
+#   docker compose -f compose.full.yaml --profile voice up --build
+# Not for production as-is: database password and ports are demo values.
+name: kira-verbal-full  # its own project, so it never replaces the dev containers from compose.yaml
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: kira
+      POSTGRES_PASSWORD: kira
+      POSTGRES_DB: kira
+    volumes:
+      - pgdata-full:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kira -d kira"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment: &backend-env
+      DATABASE_URL: postgresql+psycopg://kira:kira@postgres:5432/kira
+      REDIS_URL: redis://redis:6379/0
+      FRONTEND_ORIGIN: http://localhost:3000,http://127.0.0.1:3000
+      EVALUATOR_PROVIDER: ${EVALUATOR_PROVIDER:-fake}
+      RESPONDER_PROVIDER: ${RESPONDER_PROVIDER:-fake}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-claude-haiku-5-5}
+      LLM_EFFORT: ${LLM_EFFORT:-low}
+      LIVEKIT_URL: ${LIVEKIT_URL:-}
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY:-}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET:-}
+      VOICE_WORKER_SECRET: ${VOICE_WORKER_SECRET:-}
+      KIRA_API_URL: http://api:8000
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    ports:
+      - "127.0.0.1:8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8000/ready')"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  worker:
+    profiles: ["voice"]
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: ["python", "-m", "app.voice.worker", "start"]
+    environment: *backend-env
+    depends_on:
+      api: { condition: service_healthy }
+
+  web:
+    build:
+      context: frontend
+      args:
+        NEXT_PUBLIC_API_BASE_URL: http://127.0.0.1:8000
+    depends_on:
+      api: { condition: service_healthy }
+    ports:
+      - "127.0.0.1:3000:3000"
+
+volumes:
+  pgdata-full:

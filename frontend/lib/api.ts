@@ -2,7 +2,11 @@
 // machine-readable `code`, so pages can decide how to recover without parsing strings.
 
 import type {
+  AuthResponse,
   CreateSessionResponse,
+  Me,
+  RegisterRequest,
+  StudentSessionItem,
   ErrorCode,
   ExportResponse,
   LessonSummary,
@@ -33,11 +37,12 @@ export class ApiError extends Error {
 
 interface RequestOptions {
   method?: "GET" | "POST";
+  empty?: boolean; // 204 No Content
   body?: unknown;
   token?: string;
 }
 
-async function request<T>(path: string, { method = "GET", body, token }: RequestOptions = {}) {
+async function request<T>(path: string, { method = "GET", body, token, empty }: RequestOptions = {}) {
   const headers: Record<string, string> = {};
   if (body !== undefined) headers["Content-Type"] = "application/json";
   if (token) headers["Authorization"] = `Bearer ${token}`;
@@ -69,6 +74,7 @@ async function request<T>(path: string, { method = "GET", body, token }: Request
       data.state_version ?? null,
     );
   }
+  if (empty) return undefined as T;
   return (await response.json()) as T;
 }
 
@@ -97,7 +103,32 @@ export const api = {
       token,
     }),
 
-  // --- teacher (token = the demo classroom's teacher token) ---------------------------
+  // --- accounts (token = the sign-in token) -------------------------------------------
+  register: (body: RegisterRequest) =>
+    request<AuthResponse>("/v1/auth/register", { method: "POST", body }),
+
+  login: (email: string, password: string) =>
+    request<AuthResponse>("/v1/auth/login", { method: "POST", body: { email, password } }),
+
+  logout: (token: string) => request<void>("/v1/auth/logout", { method: "POST", token, empty: true }),
+
+  me: (token: string) => request<Me>("/v1/me", { token }),
+
+  joinClass: (token: string, joinCode: string) =>
+    request<Me>("/v1/me/class", { method: "POST", body: { join_code: joinCode }, token }),
+
+  mySessions: (token: string) => request<StudentSessionItem[]>("/v1/me/sessions", { token }),
+
+  startLesson: (token: string, lessonId: string) =>
+    request<CreateSessionResponse>("/v1/me/sessions", { method: "POST", body: { lesson_id: lessonId }, token }),
+
+  resumeSession: (token: string, sessionId: string) =>
+    request<{ session_id: string; session_token: string }>(`/v1/me/sessions/${sessionId}/resume`, {
+      method: "POST",
+      token,
+    }),
+
+  // --- teacher (token = a signed-in teacher's token, or a demo classroom token) -------
   createWorkspace: () =>
     request<WorkspaceCreated>("/v1/teacher/workspaces", { method: "POST" }),
 

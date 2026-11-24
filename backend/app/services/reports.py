@@ -56,19 +56,24 @@ from app.schemas.reports import (
     ReviewEntry,
     ReviewRequest,
     RevisionEntry,
+    ScoreView,
     TeacherSessionItem,
     TranscriptTurn,
 )
 from app.schemas.sessions import LessonRef, StudentSessionView
+from app.services.accounts import USER_TOKEN_PREFIX, AccountService
 from app.services.assessment import AssessmentService
 from app.services.errors import (
     InvalidReviewError,
     LessonNotFoundError,
+    NoClassError,
+    NotSignedInError,
     ReportNotApprovedError,
     ReportNotFoundError,
     SessionNotFoundError,
     StaleRevisionError,
     TeacherNotFoundError,
+    WrongRoleError,
 )
 
 TEACHER_TOKEN_PREFIX = "kvt_"
@@ -86,9 +91,11 @@ class ReportService:
         assessment: AssessmentService,
         kira: kira_mock.MockKiraClient | None = None,
         clock: Callable[[], datetime] | None = None,
+        accounts: AccountService | None = None,
     ) -> None:
         self._db = session_factory
         self._assessment = assessment
+        self._accounts = accounts
         self.kira = kira or kira_mock.MockKiraClient()
         self._clock = clock
 
@@ -109,6 +116,13 @@ class ReportService:
         return row.id, token
 
     def workspace(self, token: str) -> WorkspaceRow:
+        """The class a teacher route acts on: a signed-in teacher's class, or a demo
+        classroom opened with its teacher token."""
+        if self._accounts is not None and token.startswith(USER_TOKEN_PREFIX):
+            try:
+                return self._accounts.teacher_workspace(token)
+            except (NotSignedInError, WrongRoleError, NoClassError) as exc:
+                raise TeacherNotFoundError(str(exc)) from None
         if not token.startswith(TEACHER_TOKEN_PREFIX):
             raise TeacherNotFoundError("teacher token required")
         digest = _sha256(token)
@@ -143,9 +157,11 @@ class ReportService:
             self._assessment.apply_timers(session_id)
         items: list[TeacherSessionItem] = []
         with self._db.begin() as db:
-            for session_id in ids:
-                row = db.get(SessionRow, session_id)
+            rows = [db.get(SessionRow, session_id) for session_id in ids]
+            names = self._names({r.learner_user_id for r in rows if r and r.learner_user_id})
+            for row in rows:
                 assert row is not None
+                session_id = row.id
                 latest = _latest_report(db, session_id)
                 turns = _committed_turns(db, session_id)
                 items.append(
@@ -153,6 +169,7 @@ class ReportService:
                         session_id=row.id,
                         lesson=self._lesson_ref(row),
                         synthetic_learner_id=row.synthetic_learner_id,
+                        learner_name=names.get(row.learner_user_id),  # type: ignore[arg-type]
                         session_status=row.status,
                         finish_reason=row.finish_reason,  # type: ignore[arg-type]
                         created_at=row.created_at,
@@ -160,6 +177,7 @@ class ReportService:
                         report_revision=latest.revision if latest else None,
                         answer_turns=sum(t.signal != "conversation" for t in turns),
                         wellbeing_flags=sum(t.intent == "wellbeing_concern" for t in turns),
+                        score=self._board_score(db, row, latest, turns),
                     )
                 )
         return items
@@ -317,6 +335,21 @@ class ReportService:
             raise ReportNotFoundError("report not found") from None
         return report, row
 
+    def _board_score(
+        self, db: Session, row: SessionRow, latest: ReportRow | None, turns: list[TurnRow]
+    ) -> ScoreView | None:
+        """The latest revision's score; for a finished check-in nobody has opened yet, the
+        suggested score (what revision 1 will hold). None while the student is answering."""
+        if latest is not None:
+            return _score_view(latest.criteria, "level")
+        if not is_terminal(SessionStatus(row.status)):
+            return None
+        summary = _score(self._lesson(row), _evidence(db, row.id), turns)
+        return ScoreView.from_levels({c.criterion_id: c.suggested_level for c in summary.criteria})
+
+    def _names(self, user_ids: set[uuid.UUID]) -> dict[uuid.UUID, str]:
+        return self._accounts.display_names(user_ids) if self._accounts else {}
+
     def _lesson(self, row: SessionRow) -> Lesson:
         lesson = self._assessment.lessons.get(row.lesson_id, row.lesson_version)
         if lesson is None:
@@ -397,6 +430,11 @@ class ReportService:
             status=_report_status(row, latest),  # type: ignore[arg-type]
             lesson=LessonRef(id=lesson.id, version=lesson.version, title=lesson.title),
             synthetic_learner_id=row.synthetic_learner_id,
+            learner_name=(
+                self._names({row.learner_user_id}).get(row.learner_user_id)
+                if row.learner_user_id
+                else None
+            ),
             session_status=row.status,
             finish_reason=row.finish_reason,  # type: ignore[arg-type]
             session_created_at=row.created_at,
@@ -406,6 +444,8 @@ class ReportService:
             hints_used=summary_json["hints_used"],
             side_turns=summary_json["side_turns"],
             criteria=criteria,
+            score=_score_view(criteria_json, "level"),  # type: ignore[arg-type]
+            suggested_score=_score_view(criteria_json, "suggested_level"),  # type: ignore[arg-type]
             transcript=[
                 TranscriptTurn(
                     sequence=t.sequence,
@@ -525,6 +565,12 @@ def _evidence(db: Session, session_id: uuid.UUID) -> list[EvidenceRow]:
             .order_by(TurnRow.sequence, EvidenceRow.criterion_id, EvidenceRow.id)
         )
     )
+
+
+def _score_view(criteria: list[dict[str, Any]] | None, key: str) -> ScoreView | None:
+    if criteria is None:
+        return None
+    return ScoreView.from_levels({c["criterion_id"]: c[key] for c in criteria})
 
 
 def _report_status(row: SessionRow, latest: ReportRow | None) -> str:

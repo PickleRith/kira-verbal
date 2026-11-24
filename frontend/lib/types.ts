@@ -89,6 +89,14 @@ export type ErrorCode =
   | "report_not_ready"
   | "report_not_approved"
   | "invalid_review"
+  | "not_signed_in"
+  | "invalid_credentials"
+  | "email_taken"
+  | "wrong_role"
+  | "class_not_found"
+  | "no_class"
+  | "rate_limited"
+  | "payload_too_large"
   | "missing_token"
   | "session_not_found"
   | "lesson_not_found"
@@ -105,6 +113,19 @@ export type ErrorCode =
   | "unknown_error";
 
 // --- teacher (mirrors backend/app/schemas/reports.py) -----------------------------------
+
+export type GradeBand = "mastered" | "proficient" | "developing" | "beginning" | "incomplete";
+
+// Rubric levels as a score. Unknown criteria are left out of the points (never zero) and
+// make the band "incomplete". Rule: backend/app/domain/grading.py, mirrored in lib/grading.ts.
+export interface ScoreView {
+  points: number;
+  max_points: number;
+  percent: number | null;
+  assessed: number;
+  total: number;
+  band: GradeBand;
+}
 
 export type ReportStatus = "pending" | "ready_for_review" | "approved" | "rejected";
 
@@ -130,6 +151,7 @@ export interface TeacherSessionItem {
   session_id: string;
   lesson: LessonRef;
   synthetic_learner_id: string;
+  learner_name: string | null;
   session_status: SessionStatus;
   finish_reason: FinishReason | null;
   created_at: string;
@@ -137,6 +159,7 @@ export interface TeacherSessionItem {
   report_revision: number | null;
   answer_turns: number;
   wellbeing_flags: number;
+  score: ScoreView | null; // null while the student is answering
 }
 
 export interface EvidenceItem {
@@ -209,6 +232,7 @@ export interface ReportView {
   status: ReportStatus;
   lesson: LessonRef;
   synthetic_learner_id: string;
+  learner_name: string | null;
   session_status: SessionStatus;
   finish_reason: FinishReason | null;
   session_created_at: string;
@@ -218,6 +242,8 @@ export interface ReportView {
   hints_used: number;
   side_turns: number;
   criteria: CriterionReport[];
+  score: ScoreView; // this revision's levels
+  suggested_score: ScoreView; // the system's suggestion
   transcript: TeacherTranscriptTurn[];
   revisions: { report_id: string; revision: number; status: ReportStatus; created_by: string; created_at: string }[];
   reviews: ReviewEntry[];
@@ -233,4 +259,68 @@ export interface ReviewRequest {
 
 export interface ExportResponse extends ExportEntry {
   replayed: boolean;
+}
+
+// --- accounts (mirrors backend/app/schemas/accounts.py) ---------------------------------
+
+export type Role = "student" | "teacher";
+
+export interface ClassView {
+  id: string;
+  name: string;
+  join_code: string | null; // teacher only
+  teacher_name: string | null;
+  student_count: number | null; // teacher only
+}
+
+export interface Me {
+  id: string;
+  email: string;
+  display_name: string;
+  role: Role;
+  created_at: string;
+  class: ClassView | null;
+}
+
+export interface AuthResponse {
+  token: string;
+  expires_at: string;
+  user: Me;
+}
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  display_name: string;
+  role: Role;
+  join_code?: string;
+  class_name?: string;
+}
+
+export type ReviewStatus = "in_progress" | "awaiting_review" | "reviewed";
+
+export interface StudentCriterionResult {
+  criterion_id: string;
+  objective_description: string;
+  level: number | null;
+  max_level: number;
+  descriptor: string | null;
+}
+
+// Only present once the teacher has approved the check-in.
+export interface StudentResult {
+  score: ScoreView;
+  approved_at: string;
+  criteria: StudentCriterionResult[];
+}
+
+export interface StudentSessionItem {
+  session_id: string;
+  lesson: LessonRef;
+  session_status: SessionStatus;
+  finish_reason: FinishReason | null;
+  created_at: string;
+  answers: number;
+  review_status: ReviewStatus;
+  result: StudentResult | null;
 }

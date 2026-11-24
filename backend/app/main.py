@@ -20,14 +20,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
-from app.api import health, sessions, teacher
+from app.api import accounts, health, sessions, teacher
 from app.api.errors import register_error_handlers
+from app.api.limits import LimitConfig, RequestLimitsMiddleware
 from app.config import Settings, get_settings
 from app.db.session import make_engine, make_session_factory
 from app.lesson_catalog import load_catalog
 from app.providers.fake import FakeEvaluator
 from app.providers.llm import AnthropicEvaluator, Evaluator, build_anthropic_client
 from app.providers.responder import AnthropicResponder, FakeResponder, Responder
+from app.services.accounts import AccountService
 from app.services.assessment import AssessmentConfig, AssessmentService
 from app.services.lessons import LessonStore
 from app.services.reports import ReportService
@@ -92,6 +94,7 @@ def create_app(
         redis_client = redis.Redis.from_url(
             settings.redis_url, socket_connect_timeout=2, socket_timeout=2
         )
+        app.state.redis = redis_client  # used by the rate limiter
         executor = ThreadPoolExecutor(max_workers=8, thread_name_prefix="evaluator")
 
         lesson_store = LessonStore(session_factory)
@@ -108,6 +111,7 @@ def create_app(
                 processing_lease_seconds=settings.processing_lease_seconds,
                 evaluator_timeout_seconds=settings.evaluator_timeout_seconds,
                 responder_timeout_seconds=settings.responder_timeout_seconds,
+                responder_scope=settings.responder_scope,
                 max_side_turns=settings.max_side_turns,
             ),
             voice_secret=(
@@ -117,7 +121,10 @@ def create_app(
             ),
             responder=responder or build_responder(settings),
         )
-        app.state.reports = ReportService(session_factory, app.state.assessment)
+        app.state.accounts = AccountService(session_factory, app.state.assessment)
+        app.state.reports = ReportService(
+            session_factory, app.state.assessment, accounts=app.state.accounts
+        )
 
         def check_database() -> None:
             with engine.connect() as connection:
@@ -149,6 +156,19 @@ def create_app(
         description="Independent portfolio prototype. Synthetic data only.",
         lifespan=lifespan,
     )
+    # Added before CORS so CORS stays outermost: a 429/413 still carries CORS headers and
+    # the browser can read the error.
+    app.add_middleware(
+        RequestLimitsMiddleware,
+        config=LimitConfig(
+            enabled=settings.rate_limit_enabled,
+            create_per_minute=settings.rate_limit_create_per_minute,
+            turns_per_minute=settings.rate_limit_turns_per_minute,
+            requests_per_minute=settings.rate_limit_requests_per_minute,
+            auth_per_minute=settings.rate_limit_auth_per_minute,
+            max_body_bytes=settings.max_body_bytes,
+        ),
+    )
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.frontend_origins,
@@ -159,6 +179,7 @@ def create_app(
     app.include_router(health.router)
     app.include_router(sessions.router)
     app.include_router(teacher.router)
+    app.include_router(accounts.router)
     return app
 
 

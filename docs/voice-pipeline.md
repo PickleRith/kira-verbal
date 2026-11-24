@@ -111,6 +111,13 @@ measured** yet.
 
 ## Troubleshooting
 
+- **A dialog "Microsoft Visual C++ Runtime Library: Assertion failed … livekit_ffi.dll …
+  soxr … LSX_FFT_BR == NULL", then the worker exits.** On Windows, LiveKit runs jobs as
+  threads by default, so two overlapping calls (for example "Resume voice" while the old call
+  is still shutting down) share the native audio resampler, and it crashes. Fixed by
+  `VOICE_JOB_EXECUTOR=process` (the default here): each call gets its own process. If a
+  Windows Python build can't spawn processes (BrokenPipeError), set it to `thread`.
+
 - **The agent never joins.** Is the worker running and registered with the same
   `VOICE_AGENT_NAME`? Each attempt uses a new room, so stale rooms don't block dispatch.
 - **The worker gets 404 from the API.** The credential expired (session past its deadline), or
@@ -145,6 +152,20 @@ turns for a timing breakdown.
   on the critical path, it can't be met as designed. The biggest lever is turning off the
   responder for voice (−1.3 s).
 - Interruptions and silence re-prompts were not specifically exercised in this run.
+
+## After the first runs: latency changes (2026-11-23)
+
+A second live session, on a slow connection, measured 4.0–6.5 s from end of turn to first
+audio. Two changes followed:
+
+- `RESPONDER_SCOPE=side_turns` (new default): the reply-line model call now runs only for
+  side turns and "say more" prompts, not before every question.
+- Evaluator effort `low` instead of `medium` (33/33 on the labelled cases, so no measured
+  loss).
+
+Measured over the API, text, 5 turns: ordinary turns **1.8–2.4 s** (before: 2.9–4.7 s); side
+turns 3.0–3.2 s. Add about 0.3 s for speech to start. **This has not been re-measured by
+voice**, and it is still above the 1.5 s stretch target.
 
 ## Status
 

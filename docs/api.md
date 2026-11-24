@@ -14,6 +14,12 @@ All bodies are JSON. Unknown request fields are rejected (422).
 
 This isolates synthetic demo sessions from each other. It is not school authentication.
 
+**Accounts.** `POST /v1/auth/register` and `/v1/auth/login` return a sign-in `token`
+(`kvu_…`, valid 7 days, only a hash stored). Send it as `Authorization: Bearer <token>` on
+`/v1/me…` routes. A teacher's token also opens their class on every teacher route below. A
+student's check-in (`POST /v1/me/sessions`) belongs to their class, so it appears in that
+teacher's `GET /v1/teacher/sessions` with no extra step.
+
 ## Endpoints
 
 | Method / path | Purpose | Success |
@@ -26,7 +32,15 @@ This isolates synthetic demo sessions from each other. It is not school authenti
 | `POST /v1/sessions/{id}/turns` | Submit one finalized answer | 200 |
 | `POST /v1/sessions/{id}/finish` | Learner exits early → `incomplete` (idempotent) | 200 |
 | `POST /v1/sessions/{id}/voice-token` | LiveKit room token that dispatches the voice worker; 503 `voice_unavailable` if not configured, 409 if the session is closed | 200 |
-| `POST /v1/teacher/workspaces` | Create a demo classroom; returns `teacher_token` once | 201 |
+| `POST /v1/auth/register` | Create a student or teacher account (teachers get a class with a join code; students may pass `join_code`) | 201 |
+| `POST /v1/auth/login` | Sign in; same response as register | 200 |
+| `POST /v1/auth/logout` | Revoke this sign-in token | 204 |
+| `GET /v1/me` | The signed-in user and their class (the join code and student count only for its teacher) | 200 |
+| `POST /v1/me/class` | Student joins a class by code | 200 |
+| `GET /v1/me/sessions` | Student's own check-ins with `in_progress` / `awaiting_review` / `reviewed` (no levels) | 200 |
+| `POST /v1/me/sessions` | Student starts a lesson in their class; returns the session and its `session_token` | 201 |
+| `POST /v1/me/sessions/{id}/resume` | Fresh `session_token` for the student's own session (e.g. another device); the old one stops working | 200 |
+| `POST /v1/teacher/workspaces` | Create a demo classroom without an account; returns `teacher_token` once | 201 |
 | `GET /v1/teacher/workspace` | Check a teacher token | 200 |
 | `POST /v1/teacher/sessions` | Launch a session in the classroom; returns the learner's `session_token` | 201 |
 | `GET /v1/teacher/sessions` | The classroom's sessions with report status and wellbeing flags | 200 |
@@ -34,7 +48,18 @@ This isolates synthetic demo sessions from each other. It is not school authenti
 | `POST /v1/reports/{id}/review` | Approve (levels for every criterion, reason if changed) or reject (reason); creates a new revision | 200 |
 | `POST /v1/reports/{id}/export` | Idempotent export of the latest approved revision to the mock Kira adapter | 200 |
 
-Teacher routes use `Authorization: Bearer <teacher_token>`. Details:
+**Scores.** Reports carry `score` (this revision's levels) and `suggested_score` (the
+system's): `{points, max_points, percent, assessed, total, band}`. Each criterion is 0–3
+points; criteria without a level are left out of the points and make `band` `incomplete`;
+otherwise the band is `beginning` (<40%), `developing` (40–64), `proficient` (65–84) or
+`mastered` (85+). Rule: `app/domain/grading.py`. Teacher session lists include `score`
+(null while in progress). A student's `GET /v1/me/sessions` includes `result` (score plus
+each criterion's approved level and its rubric descriptor) only when the latest revision is
+approved: never the suggestion, evidence, quotes or the teacher's reason.
+
+Teacher routes use `Authorization: Bearer <token>`: a signed-in teacher's token, or a demo
+classroom's `teacher_token`. Teacher lists and reports include `learner_name` (the student
+account's display name) when the check-in was taken by an account. Details:
 [reports.md](reports.md).
 
 The voice worker authenticates with a per-session credential (`v1.<session>.<expiry>.<hmac>`)
@@ -112,7 +137,15 @@ Body: `{"error": "<code>", "message": "…", "state_version": <int|null>}`.
 | 409 | `claim_lost` | Processing lease expired and was recovered | Refetch, resend same id |
 | 409 | `session_closed` | Session completed/incomplete | Show finished state |
 | 409 | `session_expired` | Deadline passed | Show finished state |
+| 413 | `payload_too_large` | Body over 16 KB | Send less |
 | 422 | (FastAPI) | Invalid body | Fix input |
+| 429 | `rate_limited` | Too many requests (`Retry-After` seconds) | Wait, then retry |
+| 401 | `not_signed_in` | Missing, unknown or expired sign-in token | Log in again |
+| 401 | `invalid_credentials` | Wrong email or password (doesn't say which) | Retry |
+| 409 | `email_taken` | An account already uses this email | Log in instead |
+| 403 | `wrong_role` | A teacher on a student route or the reverse | Use the other account |
+| 404 | `class_not_found` | No class has this join code | Check the code |
+| 409 | `no_class` | Student hasn't joined a class yet | Join with a code |
 | 401 | `teacher_not_found` | Missing or unknown teacher token (a learner token is not one) | Open the teacher dashboard |
 | 404 | `report_not_found` | Unknown report, or another classroom's | Stop |
 | 409 | `stale_revision` | Reviewed/exported a revision that isn't the latest | Refetch the report, review again |
@@ -120,7 +153,10 @@ Body: `{"error": "<code>", "message": "…", "state_version": <int|null>}`.
 | 422 | `invalid_review` | Missing/extra criteria, level outside 0–3, or a missing reason | Fix the review |
 | 503 | `evaluation_unavailable` | Evaluator failed/timed out (`Retry-After: 1`); answer released | Refetch, resend same id with new version |
 
-Rate limiting (429) is planned for Day 6.
+Rate limits: sign-in and registration 10 per minute per client; new sessions and classrooms
+30 per minute per client, answers 40 per minute per
+session, other requests 600 per minute per client. Bodies over 16 KB are refused. See
+[security.md](security.md).
 
 ## Idempotency
 

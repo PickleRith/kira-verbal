@@ -96,6 +96,7 @@ def test_refetch_shows_the_same_lead_in_and_the_transcript_shows_replies(
 def test_model_reply_is_used_when_it_passes_the_guard(
     service: AssessmentService, seeded_engine: Engine
 ):
+    service.config = dataclasses.replace(service.config, responder_scope="all")
     service.responder = ScriptedResponder("Okay, let's keep going.")
     learner = Learner(service)
     r = learner.say(GOOD_Q1)
@@ -123,6 +124,7 @@ def test_unsafe_model_reply_falls_back_to_the_template(
 
 
 def test_responder_failure_never_fails_the_turn(service: AssessmentService, seeded_engine):
+    service.config = dataclasses.replace(service.config, responder_scope="all")
     service.responder = ScriptedResponder(error=RuntimeError("provider down"))
     learner = Learner(service)
     r = learner.say("I don't know")  # hint
@@ -155,6 +157,7 @@ def test_hint_stays_through_a_side_turn_and_the_answer_is_assisted(
 
 
 def test_hint_reply_keeps_the_authored_hint_word_for_word(service: AssessmentService):
+    service.config = dataclasses.replace(service.config, responder_scope="all")
     service.responder = ScriptedResponder("No problem.")
     learner = Learner(service)
     r = learner.say("Can I have a hint?")
@@ -201,6 +204,7 @@ def test_responder_sees_the_learner_and_recent_exchanges_but_no_rubric(
 def test_thanks_after_an_answer_falls_back_but_is_allowed_for_a_wellbeing_reply(
     service: AssessmentService, seeded_engine: Engine
 ):
+    service.config = dataclasses.replace(service.config, responder_scope="all")
     service.responder = ScriptedResponder("Thanks for that. Next one.")
     learner = Learner(service)
     r = learner.say(GOOD_Q1)
@@ -211,3 +215,18 @@ def test_thanks_after_an_answer_falls_back_but_is_allowed_for_a_wellbeing_reply(
     other = Learner(service)
     r = other.say("I'm scared to go home today")
     assert r.prompt.lead_in == "Thank you for telling me. Please talk to your teacher."
+
+
+def test_default_scope_skips_the_responder_when_moving_to_a_new_question(
+    service: AssessmentService, seeded_engine: Engine
+):
+    """One model call per ordinary turn: the responder runs only where its line matters."""
+    responder = ScriptedResponder("Sure, here it is again.")
+    service.responder = responder
+    learner = Learner(service)
+    r = learner.say(GOOD_Q1)  # moves on to q2
+    assert r.prompt.lead_in is None and responder.requests == []
+    r = learner.say("Can you repeat that?")  # side turn: responder is asked
+    assert r.prompt.lead_in == "Sure, here it is again." and len(responder.requests) == 1
+    sources = [row.reply_source for row in turn_rows(seeded_engine, learner.id)]
+    assert sources == ["template:scope", "scripted-v1"]

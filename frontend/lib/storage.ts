@@ -47,11 +47,11 @@ export const sessionStore = {
     write(pendingKey(sessionId), pending ? JSON.stringify(pending) : null),
 };
 
-// The demo teacher token for this browser's classroom. Anyone with it can see that
-// classroom's synthetic reports, so it lives only in this browser.
-const TEACHER_KEY = "kira-verbal:teacher-token";
+// The sign-in token. Like the session token it lives only in this browser and expires
+// server-side after a week; signing out deletes it on the server too.
+const AUTH_KEY = "kira-verbal:auth-token";
 
-export const teacherStore = {
-  getToken: () => read(TEACHER_KEY),
-  setToken: (token: string | null) => write(TEACHER_KEY, token),
+export const authStore = {
+  getToken: () => read(AUTH_KEY),
+  setToken: (token: string | null) => write(AUTH_KEY, token),
 };

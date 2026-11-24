@@ -20,6 +20,7 @@ AnthropicEvaluator:
 from __future__ import annotations
 
 import logging
+import threading
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any, Literal, Protocol
@@ -186,6 +187,16 @@ class AnthropicEvaluator:
         self.max_tokens = max_tokens
         self.parse_retries = parse_retries
         self.version = f"anthropic:{model}:{prompts.PROMPT_VERSION}"
+        # Running totals from the API's own usage report, for cost estimates in benchmarks.
+        self.usage = {"requests": 0, "input_tokens": 0, "output_tokens": 0}
+        self._usage_lock = threading.Lock()
+
+    def _record_usage(self, response: Any) -> None:
+        usage = getattr(response, "usage", None)
+        with self._usage_lock:
+            self.usage["requests"] += 1
+            self.usage["input_tokens"] += getattr(usage, "input_tokens", 0) or 0
+            self.usage["output_tokens"] += getattr(usage, "output_tokens", 0) or 0
 
     def build_params(self, request: EvaluationRequest) -> dict[str, Any]:
         params: dict[str, Any] = {
@@ -212,6 +223,7 @@ class AnthropicEvaluator:
         last_problem = "no attempt made"
         for attempt in range(self.parse_retries + 1):
             response = self._client.beta.messages.create(**params)
+            self._record_usage(response)
             served_by = getattr(response, "model", None)
 
             if response.stop_reason == "refusal":

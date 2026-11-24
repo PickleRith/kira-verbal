@@ -45,7 +45,16 @@ class Settings(BaseSettings):
     processing_lease_seconds: int = 60
     # Wall-clock cap on one evaluator call, including the SDK's own retries.
     evaluator_timeout_seconds: float = 45.0
+    # Sessions older than this are deleted by `python -m app.purge` (run it on a schedule).
     transcript_retention_days: int = 7
+
+    # Request limits (app/api/limits.py). Per minute; the limiter fails open if Redis is down.
+    rate_limit_enabled: bool = True
+    rate_limit_create_per_minute: int = 30  # new sessions / classrooms, per client IP
+    rate_limit_turns_per_minute: int = 40  # answers, per session
+    rate_limit_requests_per_minute: int = 600  # everything else, per client IP
+    rate_limit_auth_per_minute: int = 10  # sign-in / registration attempts, per client IP
+    max_body_bytes: int = 16_384
 
     llm_api_key: SecretStr | None = None  # optional: the SDK also reads ANTHROPIC_API_KEY
     llm_model: str = "claude-opus-5-5"
@@ -59,6 +68,9 @@ class Settings(BaseSettings):
     responder_model: str = "claude-haiku-5-5"
     responder_effort: Literal["low", "medium", "high", "xhigh", "max"] = "low"
     responder_timeout_seconds: float = 5.0  # then the template is used; never fails a turn
+    # side_turns = call the responder only for side turns and "say more" prompts (faster:
+    # most turns then make one model call, not two). all = also for every new question.
+    responder_scope: Literal["side_turns", "all"] = "side_turns"
     # Side turns (questions about the topic, "say that again", off topic) per session that
     # use no answer budget. Past this they count as turns.
     max_side_turns: int = 4
@@ -77,6 +89,11 @@ class Settings(BaseSettings):
     voice_tts_model: str = "fishaudio/s2.1-pro"
     voice_tts_voice: str = "fa4c9eb3dccc4806b382b40d61c6b10a"
     voice_user_away_seconds: float = 20.0
+    # Run each voice job in its own process. LiveKit defaults to threads on Windows, but two
+    # overlapping jobs then share the native audio library, and its resampler (soxr) crashed
+    # the worker with "Assertion failed: LSX_FFT_BR == NULL" on 2026-11-23. "thread" is the
+    # fallback if process spawning fails on a particular Windows Python build.
+    voice_job_executor: Literal["process", "thread"] = "process"
     # Unused: kept so old .env files still parse. Plan originally named these providers.
     deepgram_api_key: SecretStr | None = None
     elevenlabs_api_key: SecretStr | None = None

@@ -61,4 +61,58 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run lint
+      - run: npx tsc --noEmit
+      - run: npm test # Vitest: voice states, grading rule
       - run: npm run build
+
+  e2e:
+    # The whole text workflow in a real browser, against a real API with fake providers.
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: kira
+          POSTGRES_PASSWORD: kira
+          POSTGRES_DB: kira
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U kira -d kira"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      DATABASE_URL: postgresql+psycopg://kira:kira@127.0.0.1:5432/kira
+      REDIS_URL: redis://127.0.0.1:6379/0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: pip install -e .
+        working-directory: backend
+      - run: alembic upgrade head && python -m app.seed
+        working-directory: backend
+      - run: npm ci && npx playwright install --with-deps chromium
+        working-directory: frontend
+      - run: npm run test:e2e
+        working-directory: frontend
+
+  images:
+    # The container images must keep building.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f backend/Dockerfile -t kira-verbal-api .
+      - run: docker build -t kira-verbal-web frontend

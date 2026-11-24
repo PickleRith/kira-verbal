@@ -1,0 +1,7484 @@
+{
+ "evaluator_version": "anthropic:claude-haiku-5-5:evaluator-v2",
+ "prompt_version": "evaluator-v2",
+ "seed": 20261123,
+ "profiles": 60,
+ "max_turns": 5,
+ "evaluator_calls": 209,
+ "usage": {
+  "requests": 209,
+  "input_tokens": 422052,
+  "output_tokens": 23841
+ },
+ "estimated_cost_usd": 0.054125700000000006,
+ "failures": [],
+ "metrics": {
+  "adaptive / all": {
+   "sessions": 60,
+   "turns": 276,
+   "answers": 255,
+   "level_judged": 227,
+   "level_exact": 206,
+   "level_within_one": 222,
+   "abstained_on_judgeable": 0,
+   "vague_answers": 28,
+   "vague_left_unknown": 25,
+   "tag_true_positive": 107,
+   "tag_false_positive": 0,
+   "tag_false_negative": 0,
+   "non_answers": 21,
+   "non_answers_scored": 0,
+   "rejected_evidence": 0,
+   "criteria": 180,
+   "criteria_with_level": 157,
+   "final_judged": 154,
+   "final_within_one": 149,
+   "final_unknown_expected": 26,
+   "final_unknown_kept": 23,
+   "learner_misconceptions": 70,
+   "learner_misconceptions_detected": 70,
+   "learner_misconceptions_followed_up": 65,
+   "finish_reasons": {
+    "budget": 30,
+    "objectives_exhausted": 30
+   }
+  },
+  "adaptive / dev": {
+   "sessions": 42,
+   "turns": 195,
+   "answers": 177,
+   "level_judged": 154,
+   "level_exact": 137,
+   "level_within_one": 150,
+   "abstained_on_judgeable": 0,
+   "vague_answers": 23,
+   "vague_left_unknown": 20,
+   "tag_true_positive": 70,
+   "tag_false_positive": 0,
+   "tag_false_negative": 0,
+   "non_answers": 18,
+   "non_answers_scored": 0,
+   "rejected_evidence": 0,
+   "criteria": 126,
+   "criteria_with_level": 107,
+   "final_judged": 104,
+   "final_within_one": 100,
+   "final_unknown_expected": 22,
+   "final_unknown_kept": 19,
+   "learner_misconceptions": 47,
+   "learner_misconceptions_detected": 47,
+   "learner_misconceptions_followed_up": 43,
+   "finish_reasons": {
+    "budget": 23,
+    "objectives_exhausted": 19
+   }
+  },
+  "adaptive / held_out": {
+   "sessions": 18,
+   "turns": 81,
+   "answers": 78,
+   "level_judged": 73,
+   "level_exact": 69,
+   "level_within_one": 72,
+   "abstained_on_judgeable": 0,
+   "vague_answers": 5,
+   "vague_left_unknown": 5,
+   "tag_true_positive": 37,
+   "tag_false_positive": 0,
+   "tag_false_negative": 0,
+   "non_answers": 3,
+   "non_answers_scored": 0,
+   "rejected_evidence": 0,
+   "criteria": 54,
+   "criteria_with_level": 50,
+   "final_judged": 50,
+   "final_within_one": 49,
+   "final_unknown_expected": 4,
+   "final_unknown_kept": 4,
+   "learner_misconceptions": 23,
+   "learner_misconceptions_detected": 23,
+   "learner_misconceptions_followed_up": 22,
+   "finish_reasons": {
+    "objectives_exhausted": 11,
+    "budget": 7
+   }
+  },
+  "fixed / all": {
+   "sessions": 60,
+   "turns": 201,
+   "answers": 180,
+   "level_judged": 163,
+   "level_exact": 147,
+   "level_within_one": 157,
+   "abstained_on_judgeable": 0,
+   "vague_answers": 17,
+   "vague_left_unknown": 14,
+   "tag_true_positive": 70,
+   "tag_false_positive": 0,
+   "tag_false_negative": 0,
+   "non_answers": 21,
+   "non_answers_scored": 0,
+   "rejected_evidence": 0,
+   "criteria": 180,
+   "criteria_with_level": 157,
+   "final_judged": 154,
+   "final_within_one": 149,
+   "final_unknown_expected": 26,
+   "final_unknown_kept": 23,
+   "learner_misconceptions": 70,
+   "learner_misconceptions_detected": 70,
+   "learner_misconceptions_followed_up": 0,
+   "finish_reasons": {
+    "objectives_exhausted": 60
+   }
+  },
+  "fixed / dev": {
+   "sessions": 42,
+   "turns": 144,
+   "answers": 126,
+   "level_judged": 112,
+   "level_exact": 99,
+   "level_within_one": 107,
+   "abstained_on_judgeable": 0,
+   "vague_answers": 14,
+   "vague_left_unknown": 11,
+   "tag_true_positive": 47,
+   "tag_false_positive": 0,
+   "tag_false_negative": 0,
+   "non_answers": 18,
+   "non_answers_scored": 0,
+   "rejected_evidence": 0,
+   "criteria": 126,
+   "criteria_with_level": 107,
+   "final_judged": 104,
+   "final_within_one": 100,
+   "final_unknown_expected": 22,
+   "final_unknown_kept": 19,
+   "learner_misconceptions": 47,
+   "learner_misconceptions_detected": 47,
+   "learner_misconceptions_followed_up": 0,
+   "finish_reasons": {
+    "objectives_exhausted": 42
+   }
+  },
+  "fixed / held_out": {
+   "sessions": 18,
+   "turns": 57,
+   "answers": 54,
+   "level_judged": 51,
+   "level_exact": 48,
+   "level_within_one": 50,
+   "abstained_on_judgeable": 0,
+   "vague_answers": 3,
+   "vague_left_unknown": 3,
+   "tag_true_positive": 23,
+   "tag_false_positive": 0,
+   "tag_false_negative": 0,
+   "non_answers": 3,
+   "non_answers_scored": 0,
+   "rejected_evidence": 0,
+   "criteria": 54,
+   "criteria_with_level": 50,
+   "final_judged": 50,
+   "final_within_one": 49,
+   "final_unknown_expected": 4,
+   "final_unknown_kept": 4,
+   "learner_misconceptions": 23,
+   "learner_misconceptions_detected": 23,
+   "learner_misconceptions_followed_up": 0,
+   "finish_reasons": {
+    "objectives_exhausted": 18
+   }
+  }
+ },
+ "sessions": [
+  {
+   "profile": "photosynthesis-01",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "purpose": "misconception_persists",
+    "carbon_dioxide": "misconception_persists",
+    "light": "misconception_resolved"
+   },
+   "finish": "budget",
+   "suggested": {
+    "purpose": 0,
+    "carbon_dioxide": 1,
+    "light": 1
+   },
+   "detected_tags": [
+    "co2_from_roots",
+    "food_from_soil",
+    "light_is_food"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "food_from_soil",
+     "signal": "misconception",
+     "level": 0,
+     "tag": "food_from_soil",
+     "assisted": false
+    },
+    {
+     "question": "q5",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "food_from_soil",
+     "signal": "misconception",
+     "level": 0,
+     "tag": "food_from_soil",
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "light_is_food",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "light_is_food",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-01",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "purpose": "misconception_persists",
+    "carbon_dioxide": "misconception_persists",
+    "light": "misconception_resolved"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 0,
+    "carbon_dioxide": 1,
+    "light": 1
+   },
+   "detected_tags": [
+    "co2_from_roots",
+    "food_from_soil",
+    "light_is_food"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "food_from_soil",
+     "signal": "misconception",
+     "level": 0,
+     "tag": "food_from_soil",
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "light_is_food",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "light_is_food",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-02",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "purpose": "misconception_persists",
+    "carbon_dioxide": "strong",
+    "light": "vague"
+   },
+   "finish": "budget",
+   "suggested": {
+    "purpose": 0,
+    "carbon_dioxide": null,
+    "light": null
+   },
+   "detected_tags": [
+    "food_from_soil"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "food_from_soil",
+     "signal": "misconception",
+     "level": 0,
+     "tag": "food_from_soil",
+     "assisted": false
+    },
+    {
+     "question": "q5",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "food_from_soil",
+     "signal": "misconception",
+     "level": 0,
+     "tag": "food_from_soil",
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "hint_request",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "help_requested",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": true
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-02",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "purpose": "misconception_persists",
+    "carbon_dioxide": "strong",
+    "light": "vague"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 0,
+    "carbon_dioxide": null,
+    "light": null
+   },
+   "detected_tags": [
+    "food_from_soil"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "food_from_soil",
+     "signal": "misconception",
+     "level": 0,
+     "tag": "food_from_soil",
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "hint_request",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "help_requested",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": true
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-03",
+   "split": "held_out",
+   "policy": "adaptive",
+   "states": {
+    "purpose": "partial",
+    "carbon_dioxide": "partial",
+    "light": "vague"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 1,
+    "carbon_dioxide": 2,
+    "light": null
+   },
+   "detected_tags": [],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 1,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "side_question",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "conversation",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-03",
+   "split": "held_out",
+   "policy": "fixed",
+   "states": {
+    "purpose": "partial",
+    "carbon_dioxide": "partial",
+    "light": "vague"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 1,
+    "carbon_dioxide": 2,
+    "light": null
+   },
+   "detected_tags": [],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 1,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "side_question",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "conversation",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-04",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "purpose": "misconception_resolved",
+    "carbon_dioxide": "misconception_persists",
+    "light": "partial"
+   },
+   "finish": "budget",
+   "suggested": {
+    "purpose": 3,
+    "carbon_dioxide": 1,
+    "light": 2
+   },
+   "detected_tags": [
+    "co2_from_roots",
+    "food_from_soil"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "food_from_soil",
+     "signal": "misconception",
+     "level": 0,
+     "tag": "food_from_soil",
+     "assisted": false
+    },
+    {
+     "question": "q5",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-04",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "purpose": "misconception_resolved",
+    "carbon_dioxide": "misconception_persists",
+    "light": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 0,
+    "carbon_dioxide": 1,
+    "light": 2
+   },
+   "detected_tags": [
+    "co2_from_roots",
+    "food_from_soil"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "food_from_soil",
+     "signal": "misconception",
+     "level": 0,
+     "tag": "food_from_soil",
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-05",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "purpose": "partial",
+    "carbon_dioxide": "misconception_persists",
+    "light": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 2,
+    "carbon_dioxide": 1,
+    "light": 2
+   },
+   "detected_tags": [
+    "co2_from_roots"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "side_question",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "conversation",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-05",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "purpose": "partial",
+    "carbon_dioxide": "misconception_persists",
+    "light": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 2,
+    "carbon_dioxide": 1,
+    "light": 2
+   },
+   "detected_tags": [
+    "co2_from_roots"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "side_question",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "conversation",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-06",
+   "split": "held_out",
+   "policy": "adaptive",
+   "states": {
+    "purpose": "strong",
+    "carbon_dioxide": "misconception_persists",
+    "light": "misconception_persists"
+   },
+   "finish": "budget",
+   "suggested": {
+    "purpose": 3,
+    "carbon_dioxide": 1,
+    "light": 1
+   },
+   "detected_tags": [
+    "co2_from_roots",
+    "light_is_food"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "light_is_food",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "light_is_food",
+     "assisted": false
+    },
+    {
+     "question": "q6",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "light_is_food",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "light_is_food",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-06",
+   "split": "held_out",
+   "policy": "fixed",
+   "states": {
+    "purpose": "strong",
+    "carbon_dioxide": "misconception_persists",
+    "light": "misconception_persists"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 3,
+    "carbon_dioxide": 1,
+    "light": 1
+   },
+   "detected_tags": [
+    "co2_from_roots",
+    "light_is_food"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "light_is_food",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "light_is_food",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-07",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "purpose": "misconception_resolved",
+    "carbon_dioxide": "misconception_persists",
+    "light": "partial"
+   },
+   "finish": "budget",
+   "suggested": {
+    "purpose": 2,
+    "carbon_dioxide": 1,
+    "light": 2
+   },
+   "detected_tags": [
+    "co2_from_roots",
+    "food_from_soil"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "food_from_soil",
+     "signal": "misconception",
+     "level": 0,
+     "tag": "food_from_soil",
+     "assisted": false
+    },
+    {
+     "question": "q5",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-07",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "purpose": "misconception_resolved",
+    "carbon_dioxide": "misconception_persists",
+    "light": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 0,
+    "carbon_dioxide": 1,
+    "light": 2
+   },
+   "detected_tags": [
+    "co2_from_roots",
+    "food_from_soil"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "food_from_soil",
+     "signal": "misconception",
+     "level": 0,
+     "tag": "food_from_soil",
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-08",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "purpose": "strong",
+    "carbon_dioxide": "strong",
+    "light": "strong"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 3,
+    "carbon_dioxide": 3,
+    "light": 3
+   },
+   "detected_tags": [],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-08",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "purpose": "strong",
+    "carbon_dioxide": "strong",
+    "light": "strong"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 3,
+    "carbon_dioxide": 3,
+    "light": 3
+   },
+   "detected_tags": [],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-09",
+   "split": "held_out",
+   "policy": "adaptive",
+   "states": {
+    "purpose": "strong",
+    "carbon_dioxide": "misconception_persists",
+    "light": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 3,
+    "carbon_dioxide": 1,
+    "light": 2
+   },
+   "detected_tags": [
+    "co2_from_roots"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-09",
+   "split": "held_out",
+   "policy": "fixed",
+   "states": {
+    "purpose": "strong",
+    "carbon_dioxide": "misconception_persists",
+    "light": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 3,
+    "carbon_dioxide": 1,
+    "light": 2
+   },
+   "detected_tags": [
+    "co2_from_roots"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-10",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "purpose": "partial",
+    "carbon_dioxide": "strong",
+    "light": "misconception_persists"
+   },
+   "finish": "budget",
+   "suggested": {
+    "purpose": null,
+    "carbon_dioxide": 3,
+    "light": 1
+   },
+   "detected_tags": [
+    "light_is_food"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "hint_request",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "help_requested",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": true
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "light_is_food",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "light_is_food",
+     "assisted": false
+    },
+    {
+     "question": "q6",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "light_is_food",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "light_is_food",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-10",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "purpose": "partial",
+    "carbon_dioxide": "strong",
+    "light": "misconception_persists"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": null,
+    "carbon_dioxide": 3,
+    "light": 1
+   },
+   "detected_tags": [
+    "light_is_food"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "hint_request",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "help_requested",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": true
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "light_is_food",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "light_is_food",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-11",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "purpose": "vague",
+    "carbon_dioxide": "partial",
+    "light": "misconception_resolved"
+   },
+   "finish": "budget",
+   "suggested": {
+    "purpose": null,
+    "carbon_dioxide": 2,
+    "light": 3
+   },
+   "detected_tags": [
+    "light_is_food"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "light_is_food",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "light_is_food",
+     "assisted": false
+    },
+    {
+     "question": "q6",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-11",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "purpose": "vague",
+    "carbon_dioxide": "partial",
+    "light": "misconception_resolved"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": null,
+    "carbon_dioxide": 2,
+    "light": 1
+   },
+   "detected_tags": [
+    "light_is_food"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "light_is_food",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "light_is_food",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-12",
+   "split": "held_out",
+   "policy": "adaptive",
+   "states": {
+    "purpose": "misconception_persists",
+    "carbon_dioxide": "partial",
+    "light": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 0,
+    "carbon_dioxide": 2,
+    "light": 2
+   },
+   "detected_tags": [
+    "food_from_soil"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "food_from_soil",
+     "signal": "misconception",
+     "level": 0,
+     "tag": "food_from_soil",
+     "assisted": false
+    },
+    {
+     "question": "q5",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "food_from_soil",
+     "signal": "misconception",
+     "level": 0,
+     "tag": "food_from_soil",
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-12",
+   "split": "held_out",
+   "policy": "fixed",
+   "states": {
+    "purpose": "misconception_persists",
+    "carbon_dioxide": "partial",
+    "light": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 0,
+    "carbon_dioxide": 2,
+    "light": 2
+   },
+   "detected_tags": [
+    "food_from_soil"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "food_from_soil",
+     "signal": "misconception",
+     "level": 0,
+     "tag": "food_from_soil",
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-13",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "purpose": "misconception_persists",
+    "carbon_dioxide": "misconception_resolved",
+    "light": "strong"
+   },
+   "finish": "budget",
+   "suggested": {
+    "purpose": 0,
+    "carbon_dioxide": 3,
+    "light": 3
+   },
+   "detected_tags": [
+    "co2_from_roots",
+    "food_from_soil"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "food_from_soil",
+     "signal": "misconception",
+     "level": 0,
+     "tag": "food_from_soil",
+     "assisted": false
+    },
+    {
+     "question": "q5",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "food_from_soil",
+     "signal": "misconception",
+     "level": 0,
+     "tag": "food_from_soil",
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q3",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-13",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "purpose": "misconception_persists",
+    "carbon_dioxide": "misconception_resolved",
+    "light": "strong"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 0,
+    "carbon_dioxide": 1,
+    "light": 3
+   },
+   "detected_tags": [
+    "co2_from_roots",
+    "food_from_soil"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "food_from_soil",
+     "signal": "misconception",
+     "level": 0,
+     "tag": "food_from_soil",
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-14",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "purpose": "strong",
+    "carbon_dioxide": "partial",
+    "light": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 3,
+    "carbon_dioxide": 2,
+    "light": 2
+   },
+   "detected_tags": [],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-14",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "purpose": "strong",
+    "carbon_dioxide": "partial",
+    "light": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 3,
+    "carbon_dioxide": 2,
+    "light": 2
+   },
+   "detected_tags": [],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-15",
+   "split": "held_out",
+   "policy": "adaptive",
+   "states": {
+    "purpose": "vague",
+    "carbon_dioxide": "strong",
+    "light": "misconception_resolved"
+   },
+   "finish": "budget",
+   "suggested": {
+    "purpose": null,
+    "carbon_dioxide": 3,
+    "light": 3
+   },
+   "detected_tags": [
+    "light_is_food"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "light_is_food",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "light_is_food",
+     "assisted": false
+    },
+    {
+     "question": "q6",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-15",
+   "split": "held_out",
+   "policy": "fixed",
+   "states": {
+    "purpose": "vague",
+    "carbon_dioxide": "strong",
+    "light": "misconception_resolved"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": null,
+    "carbon_dioxide": 3,
+    "light": 1
+   },
+   "detected_tags": [
+    "light_is_food"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "light_is_food",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "light_is_food",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-16",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "purpose": "partial",
+    "carbon_dioxide": "misconception_persists",
+    "light": "misconception_persists"
+   },
+   "finish": "budget",
+   "suggested": {
+    "purpose": 1,
+    "carbon_dioxide": 1,
+    "light": 1
+   },
+   "detected_tags": [
+    "co2_from_roots",
+    "light_is_food"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 1,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "side_question",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "conversation",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "light_is_food",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "light_is_food",
+     "assisted": false
+    },
+    {
+     "question": "q6",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "light_is_food",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "light_is_food",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-16",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "purpose": "partial",
+    "carbon_dioxide": "misconception_persists",
+    "light": "misconception_persists"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 1,
+    "carbon_dioxide": 1,
+    "light": 1
+   },
+   "detected_tags": [
+    "co2_from_roots",
+    "light_is_food"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 1,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "side_question",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "conversation",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "light_is_food",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "light_is_food",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-17",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "purpose": "vague",
+    "carbon_dioxide": "vague",
+    "light": "vague"
+   },
+   "finish": "budget",
+   "suggested": {
+    "purpose": null,
+    "carbon_dioxide": null,
+    "light": null
+   },
+   "detected_tags": [],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-17",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "purpose": "vague",
+    "carbon_dioxide": "vague",
+    "light": "vague"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": null,
+    "carbon_dioxide": null,
+    "light": null
+   },
+   "detected_tags": [],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-18",
+   "split": "held_out",
+   "policy": "adaptive",
+   "states": {
+    "purpose": "strong",
+    "carbon_dioxide": "misconception_resolved",
+    "light": "strong"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 3,
+    "carbon_dioxide": 3,
+    "light": 3
+   },
+   "detected_tags": [
+    "co2_from_roots"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q3",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-18",
+   "split": "held_out",
+   "policy": "fixed",
+   "states": {
+    "purpose": "strong",
+    "carbon_dioxide": "misconception_resolved",
+    "light": "strong"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 3,
+    "carbon_dioxide": 1,
+    "light": 3
+   },
+   "detected_tags": [
+    "co2_from_roots"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "co2_from_roots",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "co2_from_roots",
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-19",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "purpose": "misconception_persists",
+    "carbon_dioxide": "strong",
+    "light": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 0,
+    "carbon_dioxide": 3,
+    "light": 2
+   },
+   "detected_tags": [
+    "food_from_soil"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "food_from_soil",
+     "signal": "misconception",
+     "level": 0,
+     "tag": "food_from_soil",
+     "assisted": false
+    },
+    {
+     "question": "q5",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "food_from_soil",
+     "signal": "misconception",
+     "level": 0,
+     "tag": "food_from_soil",
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-19",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "purpose": "misconception_persists",
+    "carbon_dioxide": "strong",
+    "light": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 0,
+    "carbon_dioxide": 3,
+    "light": 2
+   },
+   "detected_tags": [
+    "food_from_soil"
+   ],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "food_from_soil",
+     "signal": "misconception",
+     "level": 0,
+     "tag": "food_from_soil",
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-20",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "purpose": "strong",
+    "carbon_dioxide": "strong",
+    "light": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 3,
+    "carbon_dioxide": 3,
+    "light": 2
+   },
+   "detected_tags": [],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "side_question",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "conversation",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "photosynthesis-20",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "purpose": "strong",
+    "carbon_dioxide": "strong",
+    "light": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "purpose": 3,
+    "carbon_dioxide": 3,
+    "light": 2
+   },
+   "detected_tags": [],
+   "turns": [
+    {
+     "question": "q1",
+     "kind": "side_question",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "conversation",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "q4",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-01",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "part_whole": "strong",
+    "equivalence": "misconception_resolved",
+    "comparison": "misconception_persists"
+   },
+   "finish": "budget",
+   "suggested": {
+    "part_whole": 3,
+    "equivalence": 3,
+    "comparison": 1
+   },
+   "detected_tags": [
+    "add_to_top_and_bottom",
+    "bigger_denominator_bigger_fraction"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "add_to_top_and_bottom",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "add_to_top_and_bottom",
+     "assisted": false
+    },
+    {
+     "question": "f2_d",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "bigger_denominator_bigger_fraction",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "bigger_denominator_bigger_fraction",
+     "assisted": false
+    },
+    {
+     "question": "f3_d",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "bigger_denominator_bigger_fraction",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "bigger_denominator_bigger_fraction",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-01",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "part_whole": "strong",
+    "equivalence": "misconception_resolved",
+    "comparison": "misconception_persists"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 3,
+    "equivalence": 1,
+    "comparison": 1
+   },
+   "detected_tags": [
+    "add_to_top_and_bottom",
+    "bigger_denominator_bigger_fraction"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "add_to_top_and_bottom",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "add_to_top_and_bottom",
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "bigger_denominator_bigger_fraction",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "bigger_denominator_bigger_fraction",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-02",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "part_whole": "misconception_resolved",
+    "equivalence": "misconception_persists",
+    "comparison": "partial"
+   },
+   "finish": "budget",
+   "suggested": {
+    "part_whole": 3,
+    "equivalence": 1,
+    "comparison": null
+   },
+   "detected_tags": [
+    "add_to_top_and_bottom",
+    "unequal_parts_ok"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "unequal_parts_ok",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "unequal_parts_ok",
+     "assisted": false
+    },
+    {
+     "question": "f1_d",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "add_to_top_and_bottom",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "add_to_top_and_bottom",
+     "assisted": false
+    },
+    {
+     "question": "f2_d",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "add_to_top_and_bottom",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "add_to_top_and_bottom",
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "hint_request",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "help_requested",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-02",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "part_whole": "misconception_resolved",
+    "equivalence": "misconception_persists",
+    "comparison": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 1,
+    "equivalence": 1,
+    "comparison": null
+   },
+   "detected_tags": [
+    "add_to_top_and_bottom",
+    "unequal_parts_ok"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "unequal_parts_ok",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "unequal_parts_ok",
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "add_to_top_and_bottom",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "add_to_top_and_bottom",
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "hint_request",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "help_requested",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 0,
+     "tag": null,
+     "assisted": true
+    }
+   ]
+  },
+  {
+   "profile": "fractions-03",
+   "split": "held_out",
+   "policy": "adaptive",
+   "states": {
+    "part_whole": "partial",
+    "equivalence": "misconception_persists",
+    "comparison": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 2,
+    "equivalence": 1,
+    "comparison": 0
+   },
+   "detected_tags": [
+    "add_to_top_and_bottom"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "add_to_top_and_bottom",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "add_to_top_and_bottom",
+     "assisted": false
+    },
+    {
+     "question": "f2_d",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "add_to_top_and_bottom",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "add_to_top_and_bottom",
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 0,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-03",
+   "split": "held_out",
+   "policy": "fixed",
+   "states": {
+    "part_whole": "partial",
+    "equivalence": "misconception_persists",
+    "comparison": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 2,
+    "equivalence": 1,
+    "comparison": 0
+   },
+   "detected_tags": [
+    "add_to_top_and_bottom"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "add_to_top_and_bottom",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "add_to_top_and_bottom",
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 0,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-04",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "part_whole": "misconception_persists",
+    "equivalence": "misconception_persists",
+    "comparison": "misconception_resolved"
+   },
+   "finish": "budget",
+   "suggested": {
+    "part_whole": 1,
+    "equivalence": 1,
+    "comparison": 1
+   },
+   "detected_tags": [
+    "add_to_top_and_bottom",
+    "bigger_denominator_bigger_fraction",
+    "unequal_parts_ok"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "unequal_parts_ok",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "unequal_parts_ok",
+     "assisted": false
+    },
+    {
+     "question": "f1_d",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "unequal_parts_ok",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "unequal_parts_ok",
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "add_to_top_and_bottom",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "add_to_top_and_bottom",
+     "assisted": false
+    },
+    {
+     "question": "f2_d",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "add_to_top_and_bottom",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "add_to_top_and_bottom",
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "bigger_denominator_bigger_fraction",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "bigger_denominator_bigger_fraction",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-04",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "part_whole": "misconception_persists",
+    "equivalence": "misconception_persists",
+    "comparison": "misconception_resolved"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 1,
+    "equivalence": 1,
+    "comparison": 1
+   },
+   "detected_tags": [
+    "add_to_top_and_bottom",
+    "bigger_denominator_bigger_fraction",
+    "unequal_parts_ok"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "unequal_parts_ok",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "unequal_parts_ok",
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "add_to_top_and_bottom",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "add_to_top_and_bottom",
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "bigger_denominator_bigger_fraction",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "bigger_denominator_bigger_fraction",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-05",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "part_whole": "partial",
+    "equivalence": "misconception_persists",
+    "comparison": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 2,
+    "equivalence": 1,
+    "comparison": 1
+   },
+   "detected_tags": [
+    "add_to_top_and_bottom"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "add_to_top_and_bottom",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "add_to_top_and_bottom",
+     "assisted": false
+    },
+    {
+     "question": "f2_d",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "add_to_top_and_bottom",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "add_to_top_and_bottom",
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 1,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-05",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "part_whole": "partial",
+    "equivalence": "misconception_persists",
+    "comparison": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 2,
+    "equivalence": 1,
+    "comparison": 1
+   },
+   "detected_tags": [
+    "add_to_top_and_bottom"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "add_to_top_and_bottom",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "add_to_top_and_bottom",
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 1,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-06",
+   "split": "held_out",
+   "policy": "adaptive",
+   "states": {
+    "part_whole": "strong",
+    "equivalence": "misconception_resolved",
+    "comparison": "misconception_resolved"
+   },
+   "finish": "budget",
+   "suggested": {
+    "part_whole": 3,
+    "equivalence": 3,
+    "comparison": 3
+   },
+   "detected_tags": [
+    "add_to_top_and_bottom",
+    "bigger_denominator_bigger_fraction"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "add_to_top_and_bottom",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "add_to_top_and_bottom",
+     "assisted": false
+    },
+    {
+     "question": "f2_d",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "bigger_denominator_bigger_fraction",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "bigger_denominator_bigger_fraction",
+     "assisted": false
+    },
+    {
+     "question": "f3_d",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-06",
+   "split": "held_out",
+   "policy": "fixed",
+   "states": {
+    "part_whole": "strong",
+    "equivalence": "misconception_resolved",
+    "comparison": "misconception_resolved"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 3,
+    "equivalence": 1,
+    "comparison": 1
+   },
+   "detected_tags": [
+    "add_to_top_and_bottom",
+    "bigger_denominator_bigger_fraction"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "add_to_top_and_bottom",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "add_to_top_and_bottom",
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "bigger_denominator_bigger_fraction",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "bigger_denominator_bigger_fraction",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-07",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "part_whole": "misconception_resolved",
+    "equivalence": "partial",
+    "comparison": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 3,
+    "equivalence": 2,
+    "comparison": 0
+   },
+   "detected_tags": [
+    "unequal_parts_ok"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "unequal_parts_ok",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "unequal_parts_ok",
+     "assisted": false
+    },
+    {
+     "question": "f1_d",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 0,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-07",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "part_whole": "misconception_resolved",
+    "equivalence": "partial",
+    "comparison": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 1,
+    "equivalence": 2,
+    "comparison": 0
+   },
+   "detected_tags": [
+    "unequal_parts_ok"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "unequal_parts_ok",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "unequal_parts_ok",
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 0,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-08",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "part_whole": "strong",
+    "equivalence": "partial",
+    "comparison": "misconception_persists"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 3,
+    "equivalence": 2,
+    "comparison": 1
+   },
+   "detected_tags": [
+    "bigger_denominator_bigger_fraction"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "side_question",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "conversation",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "bigger_denominator_bigger_fraction",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "bigger_denominator_bigger_fraction",
+     "assisted": false
+    },
+    {
+     "question": "f3_d",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "bigger_denominator_bigger_fraction",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "bigger_denominator_bigger_fraction",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-08",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "part_whole": "strong",
+    "equivalence": "partial",
+    "comparison": "misconception_persists"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 3,
+    "equivalence": 2,
+    "comparison": 1
+   },
+   "detected_tags": [
+    "bigger_denominator_bigger_fraction"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "side_question",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "conversation",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "bigger_denominator_bigger_fraction",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "bigger_denominator_bigger_fraction",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-09",
+   "split": "held_out",
+   "policy": "adaptive",
+   "states": {
+    "part_whole": "strong",
+    "equivalence": "strong",
+    "comparison": "misconception_resolved"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 3,
+    "equivalence": 3,
+    "comparison": 3
+   },
+   "detected_tags": [
+    "bigger_denominator_bigger_fraction"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "bigger_denominator_bigger_fraction",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "bigger_denominator_bigger_fraction",
+     "assisted": false
+    },
+    {
+     "question": "f3_d",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-09",
+   "split": "held_out",
+   "policy": "fixed",
+   "states": {
+    "part_whole": "strong",
+    "equivalence": "strong",
+    "comparison": "misconception_resolved"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 3,
+    "equivalence": 3,
+    "comparison": 1
+   },
+   "detected_tags": [
+    "bigger_denominator_bigger_fraction"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "bigger_denominator_bigger_fraction",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "bigger_denominator_bigger_fraction",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-10",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "part_whole": "partial",
+    "equivalence": "partial",
+    "comparison": "misconception_persists"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 2,
+    "equivalence": 2,
+    "comparison": 1
+   },
+   "detected_tags": [
+    "bigger_denominator_bigger_fraction"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "bigger_denominator_bigger_fraction",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "bigger_denominator_bigger_fraction",
+     "assisted": false
+    },
+    {
+     "question": "f3_d",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "bigger_denominator_bigger_fraction",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "bigger_denominator_bigger_fraction",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-10",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "part_whole": "partial",
+    "equivalence": "partial",
+    "comparison": "misconception_persists"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 2,
+    "equivalence": 2,
+    "comparison": 1
+   },
+   "detected_tags": [
+    "bigger_denominator_bigger_fraction"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "bigger_denominator_bigger_fraction",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "bigger_denominator_bigger_fraction",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-11",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "part_whole": "misconception_resolved",
+    "equivalence": "vague",
+    "comparison": "strong"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 3,
+    "equivalence": 2,
+    "comparison": 3
+   },
+   "detected_tags": [
+    "unequal_parts_ok"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "unequal_parts_ok",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "unequal_parts_ok",
+     "assisted": false
+    },
+    {
+     "question": "f1_d",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "side_question",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "conversation",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-11",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "part_whole": "misconception_resolved",
+    "equivalence": "vague",
+    "comparison": "strong"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 1,
+    "equivalence": 2,
+    "comparison": 3
+   },
+   "detected_tags": [
+    "unequal_parts_ok"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "unequal_parts_ok",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "unequal_parts_ok",
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "side_question",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "conversation",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-12",
+   "split": "held_out",
+   "policy": "adaptive",
+   "states": {
+    "part_whole": "misconception_persists",
+    "equivalence": "partial",
+    "comparison": "misconception_resolved"
+   },
+   "finish": "budget",
+   "suggested": {
+    "part_whole": 1,
+    "equivalence": null,
+    "comparison": 1
+   },
+   "detected_tags": [
+    "bigger_denominator_bigger_fraction",
+    "unequal_parts_ok"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "unequal_parts_ok",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "unequal_parts_ok",
+     "assisted": false
+    },
+    {
+     "question": "f1_d",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "unequal_parts_ok",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "unequal_parts_ok",
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "hint_request",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "help_requested",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": true
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "bigger_denominator_bigger_fraction",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "bigger_denominator_bigger_fraction",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-12",
+   "split": "held_out",
+   "policy": "fixed",
+   "states": {
+    "part_whole": "misconception_persists",
+    "equivalence": "partial",
+    "comparison": "misconception_resolved"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 1,
+    "equivalence": null,
+    "comparison": 1
+   },
+   "detected_tags": [
+    "bigger_denominator_bigger_fraction",
+    "unequal_parts_ok"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "unequal_parts_ok",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "unequal_parts_ok",
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "hint_request",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "help_requested",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": true
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "bigger_denominator_bigger_fraction",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "bigger_denominator_bigger_fraction",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-13",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "part_whole": "strong",
+    "equivalence": "misconception_resolved",
+    "comparison": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 3,
+    "equivalence": 3,
+    "comparison": 0
+   },
+   "detected_tags": [
+    "add_to_top_and_bottom"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "side_question",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "conversation",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "add_to_top_and_bottom",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "add_to_top_and_bottom",
+     "assisted": false
+    },
+    {
+     "question": "f2_d",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 0,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-13",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "part_whole": "strong",
+    "equivalence": "misconception_resolved",
+    "comparison": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 3,
+    "equivalence": 1,
+    "comparison": 0
+   },
+   "detected_tags": [
+    "add_to_top_and_bottom"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "side_question",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "conversation",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "add_to_top_and_bottom",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "add_to_top_and_bottom",
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 0,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-14",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "part_whole": "partial",
+    "equivalence": "strong",
+    "comparison": "misconception_persists"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 2,
+    "equivalence": 3,
+    "comparison": 1
+   },
+   "detected_tags": [
+    "bigger_denominator_bigger_fraction"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "bigger_denominator_bigger_fraction",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "bigger_denominator_bigger_fraction",
+     "assisted": false
+    },
+    {
+     "question": "f3_d",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "bigger_denominator_bigger_fraction",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "bigger_denominator_bigger_fraction",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-14",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "part_whole": "partial",
+    "equivalence": "strong",
+    "comparison": "misconception_persists"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 2,
+    "equivalence": 3,
+    "comparison": 1
+   },
+   "detected_tags": [
+    "bigger_denominator_bigger_fraction"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "bigger_denominator_bigger_fraction",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "bigger_denominator_bigger_fraction",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-15",
+   "split": "held_out",
+   "policy": "adaptive",
+   "states": {
+    "part_whole": "misconception_persists",
+    "equivalence": "strong",
+    "comparison": "misconception_persists"
+   },
+   "finish": "budget",
+   "suggested": {
+    "part_whole": 1,
+    "equivalence": 3,
+    "comparison": 1
+   },
+   "detected_tags": [
+    "bigger_denominator_bigger_fraction",
+    "unequal_parts_ok"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "unequal_parts_ok",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "unequal_parts_ok",
+     "assisted": false
+    },
+    {
+     "question": "f1_d",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "unequal_parts_ok",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "unequal_parts_ok",
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "bigger_denominator_bigger_fraction",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "bigger_denominator_bigger_fraction",
+     "assisted": false
+    },
+    {
+     "question": "f3_d",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "bigger_denominator_bigger_fraction",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "bigger_denominator_bigger_fraction",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-15",
+   "split": "held_out",
+   "policy": "fixed",
+   "states": {
+    "part_whole": "misconception_persists",
+    "equivalence": "strong",
+    "comparison": "misconception_persists"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 1,
+    "equivalence": 3,
+    "comparison": 1
+   },
+   "detected_tags": [
+    "bigger_denominator_bigger_fraction",
+    "unequal_parts_ok"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "unequal_parts_ok",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "unequal_parts_ok",
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "bigger_denominator_bigger_fraction",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "bigger_denominator_bigger_fraction",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-16",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "part_whole": "partial",
+    "equivalence": "strong",
+    "comparison": "strong"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 2,
+    "equivalence": 3,
+    "comparison": 3
+   },
+   "detected_tags": [],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-16",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "part_whole": "partial",
+    "equivalence": "strong",
+    "comparison": "strong"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 2,
+    "equivalence": 3,
+    "comparison": 3
+   },
+   "detected_tags": [],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-17",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "part_whole": "misconception_resolved",
+    "equivalence": "vague",
+    "comparison": "strong"
+   },
+   "finish": "budget",
+   "suggested": {
+    "part_whole": 3,
+    "equivalence": null,
+    "comparison": 3
+   },
+   "detected_tags": [
+    "unequal_parts_ok"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "unequal_parts_ok",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "unequal_parts_ok",
+     "assisted": false
+    },
+    {
+     "question": "f1_d",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-17",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "part_whole": "misconception_resolved",
+    "equivalence": "vague",
+    "comparison": "strong"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 1,
+    "equivalence": null,
+    "comparison": 3
+   },
+   "detected_tags": [
+    "unequal_parts_ok"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "unequal_parts_ok",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "unequal_parts_ok",
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-18",
+   "split": "held_out",
+   "policy": "adaptive",
+   "states": {
+    "part_whole": "misconception_persists",
+    "equivalence": "misconception_resolved",
+    "comparison": "vague"
+   },
+   "finish": "budget",
+   "suggested": {
+    "part_whole": 1,
+    "equivalence": 3,
+    "comparison": null
+   },
+   "detected_tags": [
+    "add_to_top_and_bottom",
+    "unequal_parts_ok"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "unequal_parts_ok",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "unequal_parts_ok",
+     "assisted": false
+    },
+    {
+     "question": "f1_d",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "unequal_parts_ok",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "unequal_parts_ok",
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "add_to_top_and_bottom",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "add_to_top_and_bottom",
+     "assisted": false
+    },
+    {
+     "question": "f2_d",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-18",
+   "split": "held_out",
+   "policy": "fixed",
+   "states": {
+    "part_whole": "misconception_persists",
+    "equivalence": "misconception_resolved",
+    "comparison": "vague"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 1,
+    "equivalence": 1,
+    "comparison": null
+   },
+   "detected_tags": [
+    "add_to_top_and_bottom",
+    "unequal_parts_ok"
+   ],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "unequal_parts_ok",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "unequal_parts_ok",
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "add_to_top_and_bottom",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "add_to_top_and_bottom",
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-19",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "part_whole": "partial",
+    "equivalence": "vague",
+    "comparison": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 2,
+    "equivalence": 2,
+    "comparison": 0
+   },
+   "detected_tags": [],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "side_question",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "conversation",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 0,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-19",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "part_whole": "partial",
+    "equivalence": "vague",
+    "comparison": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 2,
+    "equivalence": 2,
+    "comparison": 0
+   },
+   "detected_tags": [],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "side_question",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "conversation",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 0,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-20",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "part_whole": "strong",
+    "equivalence": "partial",
+    "comparison": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 3,
+    "equivalence": null,
+    "comparison": 0
+   },
+   "detected_tags": [],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "hint_request",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "help_requested",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": true
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 0,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "fractions-20",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "part_whole": "strong",
+    "equivalence": "partial",
+    "comparison": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "part_whole": 3,
+    "equivalence": null,
+    "comparison": 0
+   },
+   "detected_tags": [],
+   "turns": [
+    {
+     "question": "f1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "hint_request",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "help_requested",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "f2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": true
+    },
+    {
+     "question": "f3",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 0,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-01",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "iteration": "misconception_resolved",
+    "range_bounds": "strong",
+    "while_termination": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": 3,
+    "range_bounds": 3,
+    "while_termination": 2
+   },
+   "detected_tags": [
+    "body_runs_once"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "body_runs_once",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "body_runs_once",
+     "assisted": false
+    },
+    {
+     "question": "p1_d",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-01",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "iteration": "misconception_resolved",
+    "range_bounds": "strong",
+    "while_termination": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": 1,
+    "range_bounds": 3,
+    "while_termination": 2
+   },
+   "detected_tags": [
+    "body_runs_once"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "body_runs_once",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "body_runs_once",
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-02",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "iteration": "strong",
+    "range_bounds": "partial",
+    "while_termination": "misconception_resolved"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": 3,
+    "range_bounds": 2,
+    "while_termination": 3
+   },
+   "detected_tags": [
+    "while_stops_itself"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "side_question",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "conversation",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "while_stops_itself",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "while_stops_itself",
+     "assisted": false
+    },
+    {
+     "question": "p3_d",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-02",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "iteration": "strong",
+    "range_bounds": "partial",
+    "while_termination": "misconception_resolved"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": 3,
+    "range_bounds": 2,
+    "while_termination": 1
+   },
+   "detected_tags": [
+    "while_stops_itself"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "side_question",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "conversation",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "while_stops_itself",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "while_stops_itself",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-03",
+   "split": "held_out",
+   "policy": "adaptive",
+   "states": {
+    "iteration": "misconception_resolved",
+    "range_bounds": "strong",
+    "while_termination": "strong"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": 3,
+    "range_bounds": 3,
+    "while_termination": 3
+   },
+   "detected_tags": [
+    "body_runs_once"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "body_runs_once",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "body_runs_once",
+     "assisted": false
+    },
+    {
+     "question": "p1_d",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-03",
+   "split": "held_out",
+   "policy": "fixed",
+   "states": {
+    "iteration": "misconception_resolved",
+    "range_bounds": "strong",
+    "while_termination": "strong"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": 1,
+    "range_bounds": 3,
+    "while_termination": 3
+   },
+   "detected_tags": [
+    "body_runs_once"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "body_runs_once",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "body_runs_once",
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-04",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "iteration": "strong",
+    "range_bounds": "partial",
+    "while_termination": "misconception_resolved"
+   },
+   "finish": "budget",
+   "suggested": {
+    "iteration": 3,
+    "range_bounds": null,
+    "while_termination": 3
+   },
+   "detected_tags": [
+    "while_stops_itself"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "hint_request",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "help_requested",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": true
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "while_stops_itself",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "while_stops_itself",
+     "assisted": false
+    },
+    {
+     "question": "p3_d",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-04",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "iteration": "strong",
+    "range_bounds": "partial",
+    "while_termination": "misconception_resolved"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": 3,
+    "range_bounds": null,
+    "while_termination": 1
+   },
+   "detected_tags": [
+    "while_stops_itself"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "hint_request",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "help_requested",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": true
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "while_stops_itself",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "while_stops_itself",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-05",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "iteration": "partial",
+    "range_bounds": "partial",
+    "while_termination": "vague"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": 2,
+    "range_bounds": 2,
+    "while_termination": 1
+   },
+   "detected_tags": [],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 1,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-05",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "iteration": "partial",
+    "range_bounds": "partial",
+    "while_termination": "vague"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": 2,
+    "range_bounds": 2,
+    "while_termination": 1
+   },
+   "detected_tags": [],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 1,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-06",
+   "split": "held_out",
+   "policy": "adaptive",
+   "states": {
+    "iteration": "strong",
+    "range_bounds": "partial",
+    "while_termination": "misconception_resolved"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": 3,
+    "range_bounds": 2,
+    "while_termination": 3
+   },
+   "detected_tags": [
+    "while_stops_itself"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "while_stops_itself",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "while_stops_itself",
+     "assisted": false
+    },
+    {
+     "question": "p3_d",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-06",
+   "split": "held_out",
+   "policy": "fixed",
+   "states": {
+    "iteration": "strong",
+    "range_bounds": "partial",
+    "while_termination": "misconception_resolved"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": 3,
+    "range_bounds": 2,
+    "while_termination": 1
+   },
+   "detected_tags": [
+    "while_stops_itself"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "while_stops_itself",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "while_stops_itself",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-07",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "iteration": "misconception_resolved",
+    "range_bounds": "misconception_persists",
+    "while_termination": "partial"
+   },
+   "finish": "budget",
+   "suggested": {
+    "iteration": 3,
+    "range_bounds": 1,
+    "while_termination": 2
+   },
+   "detected_tags": [
+    "body_runs_once",
+    "range_includes_stop"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "body_runs_once",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "body_runs_once",
+     "assisted": false
+    },
+    {
+     "question": "p1_d",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "range_includes_stop",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "range_includes_stop",
+     "assisted": false
+    },
+    {
+     "question": "p2_d",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "range_includes_stop",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "range_includes_stop",
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-07",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "iteration": "misconception_resolved",
+    "range_bounds": "misconception_persists",
+    "while_termination": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": 1,
+    "range_bounds": 1,
+    "while_termination": 2
+   },
+   "detected_tags": [
+    "body_runs_once",
+    "range_includes_stop"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "body_runs_once",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "body_runs_once",
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "range_includes_stop",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "range_includes_stop",
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-08",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "iteration": "vague",
+    "range_bounds": "misconception_resolved",
+    "while_termination": "strong"
+   },
+   "finish": "budget",
+   "suggested": {
+    "iteration": null,
+    "range_bounds": 3,
+    "while_termination": 3
+   },
+   "detected_tags": [
+    "range_includes_stop"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "range_includes_stop",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "range_includes_stop",
+     "assisted": false
+    },
+    {
+     "question": "p2_d",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-08",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "iteration": "vague",
+    "range_bounds": "misconception_resolved",
+    "while_termination": "strong"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": null,
+    "range_bounds": 1,
+    "while_termination": 3
+   },
+   "detected_tags": [
+    "range_includes_stop"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "range_includes_stop",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "range_includes_stop",
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-09",
+   "split": "held_out",
+   "policy": "adaptive",
+   "states": {
+    "iteration": "partial",
+    "range_bounds": "strong",
+    "while_termination": "misconception_persists"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": 2,
+    "range_bounds": 3,
+    "while_termination": 1
+   },
+   "detected_tags": [
+    "while_stops_itself"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "side_question",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "conversation",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "while_stops_itself",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "while_stops_itself",
+     "assisted": false
+    },
+    {
+     "question": "p3_d",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "while_stops_itself",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "while_stops_itself",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-09",
+   "split": "held_out",
+   "policy": "fixed",
+   "states": {
+    "iteration": "partial",
+    "range_bounds": "strong",
+    "while_termination": "misconception_persists"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": 2,
+    "range_bounds": 3,
+    "while_termination": 1
+   },
+   "detected_tags": [
+    "while_stops_itself"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "side_question",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "conversation",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "while_stops_itself",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "while_stops_itself",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-10",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "iteration": "misconception_persists",
+    "range_bounds": "misconception_resolved",
+    "while_termination": "misconception_persists"
+   },
+   "finish": "budget",
+   "suggested": {
+    "iteration": 1,
+    "range_bounds": 3,
+    "while_termination": 1
+   },
+   "detected_tags": [
+    "body_runs_once",
+    "range_includes_stop",
+    "while_stops_itself"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "body_runs_once",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "body_runs_once",
+     "assisted": false
+    },
+    {
+     "question": "p1_d",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "body_runs_once",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "body_runs_once",
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "range_includes_stop",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "range_includes_stop",
+     "assisted": false
+    },
+    {
+     "question": "p2_d",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "side_question",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "conversation",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "while_stops_itself",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "while_stops_itself",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-10",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "iteration": "misconception_persists",
+    "range_bounds": "misconception_resolved",
+    "while_termination": "misconception_persists"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": 1,
+    "range_bounds": 1,
+    "while_termination": 1
+   },
+   "detected_tags": [
+    "body_runs_once",
+    "range_includes_stop",
+    "while_stops_itself"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "body_runs_once",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "body_runs_once",
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "range_includes_stop",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "range_includes_stop",
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "side_question",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "conversation",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "while_stops_itself",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "while_stops_itself",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-11",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "iteration": "strong",
+    "range_bounds": "vague",
+    "while_termination": "strong"
+   },
+   "finish": "budget",
+   "suggested": {
+    "iteration": null,
+    "range_bounds": null,
+    "while_termination": 3
+   },
+   "detected_tags": [],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "hint_request",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "help_requested",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": true
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-11",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "iteration": "strong",
+    "range_bounds": "vague",
+    "while_termination": "strong"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": null,
+    "range_bounds": null,
+    "while_termination": 3
+   },
+   "detected_tags": [],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "hint_request",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "help_requested",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": true
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-12",
+   "split": "held_out",
+   "policy": "adaptive",
+   "states": {
+    "iteration": "partial",
+    "range_bounds": "misconception_persists",
+    "while_termination": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": 2,
+    "range_bounds": 1,
+    "while_termination": 2
+   },
+   "detected_tags": [
+    "range_includes_stop"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "range_includes_stop",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "range_includes_stop",
+     "assisted": false
+    },
+    {
+     "question": "p2_d",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "range_includes_stop",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "range_includes_stop",
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-12",
+   "split": "held_out",
+   "policy": "fixed",
+   "states": {
+    "iteration": "partial",
+    "range_bounds": "misconception_persists",
+    "while_termination": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": 2,
+    "range_bounds": 1,
+    "while_termination": 2
+   },
+   "detected_tags": [
+    "range_includes_stop"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "range_includes_stop",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "range_includes_stop",
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-13",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "iteration": "partial",
+    "range_bounds": "misconception_resolved",
+    "while_termination": "misconception_resolved"
+   },
+   "finish": "budget",
+   "suggested": {
+    "iteration": 2,
+    "range_bounds": 3,
+    "while_termination": 3
+   },
+   "detected_tags": [
+    "range_includes_stop",
+    "while_stops_itself"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "range_includes_stop",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "range_includes_stop",
+     "assisted": false
+    },
+    {
+     "question": "p2_d",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "while_stops_itself",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "while_stops_itself",
+     "assisted": false
+    },
+    {
+     "question": "p3_d",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-13",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "iteration": "partial",
+    "range_bounds": "misconception_resolved",
+    "while_termination": "misconception_resolved"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": 2,
+    "range_bounds": 1,
+    "while_termination": 1
+   },
+   "detected_tags": [
+    "range_includes_stop",
+    "while_stops_itself"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "range_includes_stop",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "range_includes_stop",
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "while_stops_itself",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "while_stops_itself",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-14",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "iteration": "vague",
+    "range_bounds": "misconception_persists",
+    "while_termination": "misconception_resolved"
+   },
+   "finish": "budget",
+   "suggested": {
+    "iteration": null,
+    "range_bounds": 1,
+    "while_termination": 1
+   },
+   "detected_tags": [
+    "range_includes_stop",
+    "while_stops_itself"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "side_question",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "conversation",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "range_includes_stop",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "range_includes_stop",
+     "assisted": false
+    },
+    {
+     "question": "p2_d",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "range_includes_stop",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "range_includes_stop",
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "while_stops_itself",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "while_stops_itself",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-14",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "iteration": "vague",
+    "range_bounds": "misconception_persists",
+    "while_termination": "misconception_resolved"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": null,
+    "range_bounds": 1,
+    "while_termination": 1
+   },
+   "detected_tags": [
+    "range_includes_stop",
+    "while_stops_itself"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "side_question",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "conversation",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "range_includes_stop",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "range_includes_stop",
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "while_stops_itself",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "while_stops_itself",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-15",
+   "split": "held_out",
+   "policy": "adaptive",
+   "states": {
+    "iteration": "strong",
+    "range_bounds": "misconception_persists",
+    "while_termination": "misconception_persists"
+   },
+   "finish": "budget",
+   "suggested": {
+    "iteration": 3,
+    "range_bounds": 1,
+    "while_termination": 1
+   },
+   "detected_tags": [
+    "range_includes_stop",
+    "while_stops_itself"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "range_includes_stop",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "range_includes_stop",
+     "assisted": false
+    },
+    {
+     "question": "p2_d",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "range_includes_stop",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "range_includes_stop",
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "while_stops_itself",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "while_stops_itself",
+     "assisted": false
+    },
+    {
+     "question": "p3_d",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "while_stops_itself",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "while_stops_itself",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-15",
+   "split": "held_out",
+   "policy": "fixed",
+   "states": {
+    "iteration": "strong",
+    "range_bounds": "misconception_persists",
+    "while_termination": "misconception_persists"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": 3,
+    "range_bounds": 1,
+    "while_termination": 1
+   },
+   "detected_tags": [
+    "range_includes_stop",
+    "while_stops_itself"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "range_includes_stop",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "range_includes_stop",
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "while_stops_itself",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "while_stops_itself",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-16",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "iteration": "strong",
+    "range_bounds": "strong",
+    "while_termination": "misconception_resolved"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": 3,
+    "range_bounds": 3,
+    "while_termination": 3
+   },
+   "detected_tags": [
+    "while_stops_itself"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "while_stops_itself",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "while_stops_itself",
+     "assisted": false
+    },
+    {
+     "question": "p3_d",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-16",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "iteration": "strong",
+    "range_bounds": "strong",
+    "while_termination": "misconception_resolved"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": 3,
+    "range_bounds": 3,
+    "while_termination": 1
+   },
+   "detected_tags": [
+    "while_stops_itself"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "while_stops_itself",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "while_stops_itself",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-17",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "iteration": "strong",
+    "range_bounds": "misconception_resolved",
+    "while_termination": "strong"
+   },
+   "finish": "budget",
+   "suggested": {
+    "iteration": null,
+    "range_bounds": 3,
+    "while_termination": 3
+   },
+   "detected_tags": [
+    "range_includes_stop"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "hint_request",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "help_requested",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": true
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "range_includes_stop",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "range_includes_stop",
+     "assisted": false
+    },
+    {
+     "question": "p2_d",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-17",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "iteration": "strong",
+    "range_bounds": "misconception_resolved",
+    "while_termination": "strong"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": null,
+    "range_bounds": 1,
+    "while_termination": 3
+   },
+   "detected_tags": [
+    "range_includes_stop"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "hint_request",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "help_requested",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": true
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "range_includes_stop",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "range_includes_stop",
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-18",
+   "split": "held_out",
+   "policy": "adaptive",
+   "states": {
+    "iteration": "misconception_persists",
+    "range_bounds": "partial",
+    "while_termination": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": 1,
+    "range_bounds": 2,
+    "while_termination": 2
+   },
+   "detected_tags": [
+    "body_runs_once"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "body_runs_once",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "body_runs_once",
+     "assisted": false
+    },
+    {
+     "question": "p1_d",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "body_runs_once",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "body_runs_once",
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-18",
+   "split": "held_out",
+   "policy": "fixed",
+   "states": {
+    "iteration": "misconception_persists",
+    "range_bounds": "partial",
+    "while_termination": "partial"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": 1,
+    "range_bounds": 2,
+    "while_termination": 2
+   },
+   "detected_tags": [
+    "body_runs_once"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "body_runs_once",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "body_runs_once",
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 2,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 2,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-19",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "iteration": "strong",
+    "range_bounds": "vague",
+    "while_termination": "misconception_persists"
+   },
+   "finish": "budget",
+   "suggested": {
+    "iteration": 3,
+    "range_bounds": null,
+    "while_termination": 1
+   },
+   "detected_tags": [
+    "while_stops_itself"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "while_stops_itself",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "while_stops_itself",
+     "assisted": false
+    },
+    {
+     "question": "p3_d",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "while_stops_itself",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "while_stops_itself",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-19",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "iteration": "strong",
+    "range_bounds": "vague",
+    "while_termination": "misconception_persists"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": 3,
+    "range_bounds": null,
+    "while_termination": 1
+   },
+   "detected_tags": [
+    "while_stops_itself"
+   ],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 1,
+     "true_tag": "while_stops_itself",
+     "signal": "misconception",
+     "level": 1,
+     "tag": "while_stops_itself",
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-20",
+   "split": "dev",
+   "policy": "adaptive",
+   "states": {
+    "iteration": "strong",
+    "range_bounds": "vague",
+    "while_termination": "strong"
+   },
+   "finish": "budget",
+   "suggested": {
+    "iteration": null,
+    "range_bounds": null,
+    "while_termination": 3
+   },
+   "detected_tags": [],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "hint_request",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "help_requested",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": true
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  },
+  {
+   "profile": "python_loops-20",
+   "split": "dev",
+   "policy": "fixed",
+   "states": {
+    "iteration": "strong",
+    "range_bounds": "vague",
+    "while_termination": "strong"
+   },
+   "finish": "objectives_exhausted",
+   "suggested": {
+    "iteration": null,
+    "range_bounds": null,
+    "while_termination": 3
+   },
+   "detected_tags": [],
+   "turns": [
+    {
+     "question": "p1",
+     "kind": "hint_request",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "help_requested",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p1",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": true
+    },
+    {
+     "question": "p2",
+     "kind": "answer",
+     "true_level": null,
+     "true_tag": null,
+     "signal": "ambiguous",
+     "level": null,
+     "tag": null,
+     "assisted": false
+    },
+    {
+     "question": "p3",
+     "kind": "answer",
+     "true_level": 3,
+     "true_tag": null,
+     "signal": "answered",
+     "level": 3,
+     "tag": null,
+     "assisted": false
+    }
+   ]
+  }
+ ]
+}

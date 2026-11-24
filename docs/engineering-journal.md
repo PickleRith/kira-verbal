@@ -1,5 +1,174 @@
 # Engineering journal
 
+## 2026-11-24 — Light editorial redesign (frontend only)
+
+- [ ] I can explain each changed module.
+- [ ] I ran tests and recorded results.
+
+### What I built
+- Design tokens (`app/globals.css`), Lora + Inter, primitives (`components/ui.tsx`) with
+  Lucide icons, `MarketingShell` / `AppShell` (deep-purple sidebar, phone drawer) /
+  `FocusShell`. All pages restyled; backend and API unchanged.
+- Voice: `lib/voice-state.ts` maps real events (token request, room, microphone permission,
+  `lk.agent.state`, session end) to seven UI states; `VoicePanel` has one central
+  microphone, a status badge, mute / end / retry; lavender-purple waveform.
+- Vitest for pure logic (`lib/*.test.ts`); CI runs it with `tsc --noEmit`.
+- `frontend/DESIGN_SYSTEM.md`, `docs/frontend-checklist.md`, README frontend section,
+  component hierarchy in `docs/architecture.md`.
+
+### Bug found on the way
+The font CSS variables were set on `<body>`, but Tailwind's `--font-serif`/`--font-sans` are
+defined on `:root` and resolve `var()` there, so they were invalid and everything fell back
+to the default sans. This was also true of the previous dark design (its serif never
+rendered). Fixed by putting the variables on `<html>`; verified with computed styles.
+
+### Contrast check
+WCAG ratios were computed for every text/background token pair (relative luminance formula):
+`#8156FF` on white is 4.46:1 and fails for body text, so purple text and purple buttons with
+white text use `#5B30D9` (7.3:1). All other text tokens are ≥ 4.6:1 on their backgrounds.
+
+### Tests (actual results)
+- Vitest 13 passed; `tsc` and eslint clean; production build OK; Playwright 3 passed
+  (now also checks the voice error state and retry from a real 503).
+- Live voice against LiveKit with Edge's fake microphone: idle → connecting → listening →
+  speaking → idle after "End voice"; badge showed "Muted" after mute.
+- Vitest 5 needs Node 22 and the 4.x install hit an npm 10.7 resolver crash, so 3.2.7 is used.
+
+### Comprehension questions
+1. Why does the voice badge never use a timer to move between states?
+2. Why is `#8156FF` allowed for the microphone button background but not for text?
+3. Why did moving two class names from `<body>` to `<html>` change every font on the site?
+
+## 2026-11-23 — Scores and grades for teachers and students
+
+- [ ] I can explain each changed module.
+- [ ] I ran tests and recorded results.
+
+### What I built
+- `app/domain/grading.py`: levels -> points (0–3 per criterion), percent (integer
+  half-up rounding), grade band. Unknown criteria are excluded from the points, never
+  zero, and make the grade "incomplete".
+- Reports return `score` and `suggested_score`; the board shows each check-in's score
+  (suggested until reviewed); the decision panel recomputes the grade live in the browser
+  (`frontend/lib/grading.ts`, same rule) as the teacher changes levels; each answer shows
+  the points its evidence suggested.
+- Students get `result` (approved score, each criterion's level and descriptor) only after
+  approval; a rejected check-in shows "Reviewed · not graded".
+
+### Tests (actual results)
+- Backend: 603 passed (grading unit tests incl. band boundaries and rounding; account flow
+  checks score at each stage and that nothing but the approved result reaches the student).
+- Browser: 3 passed; the main test checks the grade moves when a level changes and that the
+  student sees exactly the approved percentage.
+
+### Comprehension questions
+1. Why is an unknown criterion excluded from the points instead of counted as 0, and what
+   does the teacher have to do to turn "Incomplete" into a grade?
+2. Why does the browser compute the score itself, and which copy is the record?
+3. Why doesn't the student see the suggested score before approval?
+
+## 2026-11-23 — Accounts, review by question, waveform, dark redesign
+
+- [ ] I can explain each changed module.
+- [ ] I ran tests and recorded results.
+- [ ] I updated docs and committed code.
+
+### What I built
+- **Accounts** (migration 0006, `services/accounts.py`, `api/accounts.py`): student and
+  teacher registration and sign-in. scrypt password hashes, 7-day hashed sign-in tokens,
+  sign-in rate limit. A teacher gets a class with a six-character join code; a student
+  joins with it. Teacher routes accept a signed-in teacher's token as well as the old demo
+  classroom token.
+- **Student check-ins reach the teacher automatically:** `POST /v1/me/sessions` creates the
+  session in the student's class, so it shows on the teacher's board while in progress and
+  moves to "Needs review" when it ends. The student sees "Waiting for your teacher" /
+  "Reviewed", never levels. A signed-in student can resume on another device (token
+  rotation).
+- **Review by question:** the review page has three folder tabs: every answer with its
+  question, the student's words, the evidence it produced and level pickers for the
+  criteria it touches; the rubric view; the transcript. All share one selection.
+- **Live waveform** (`Waveform.tsx`): Web Audio analyser on the LiveKit microphone track
+  (and the agent's track), drawn to a canvas with automatic gain; never connected to the
+  speakers, never recorded.
+- **Dark editorial redesign:** stone-black palette with a lime accent, Newsreader +
+  Instrument Sans, noise overlay, serrated edges, folder tabs, sticky notes; glass top bar
+  with role-based navigation; new landing, login, register, student and teacher pages.
+- Purge keeps accounts and their classes (only old check-ins go).
+
+### Tests (actual results)
+- Backend: 589 passed (13 new account tests, purge and limit additions); ruff clean.
+- Frontend: tsc and eslint clean; production build OK.
+- Playwright: 3 tests (teacher signs up → student signs up with the code in a separate
+  browser context → check-in → board → review by question → revise → approve → export with
+  no name or email in the payload; sign-in redirects and bad password; no access to
+  others' check-ins). One unexplained failure in 13 runs on the day; 12 consecutive passes
+  after it. The trace was overwritten, so the cause is unknown.
+- Waveform checked against the real LiveKit dev stack with Edge's fake microphone (a test
+  tone), not with a human voice.
+
+### Comprehension questions
+1. Why does a student's check-in appear on the teacher's board without any "submit to
+   teacher" step, and which column decides it?
+2. Why does logging in with an unknown email still compute a password hash?
+3. What happens to a student's old session token when they resume on another device, and
+   why is the voice worker unaffected?
+
+## 2026-11-23 — Days 6 and 7: evaluation, security, packaging
+
+- [ ] I can explain each changed module.
+- [ ] I ran tests and recorded results.
+- [ ] I updated docs and committed code.
+
+### What I built
+- **Latency:** `RESPONDER_SCOPE=side_turns` (the responder runs only where its line
+  matters) and evaluator effort `low`. Ordinary turns went from 2.9–4.7 s to 1.8–2.4 s over
+  the API.
+- **Voice crash fix:** each voice job runs in its own process (`VOICE_JOB_EXECUTOR=process`).
+  LiveKit defaults to threads on Windows, and two overlapping calls crashed the native audio
+  resampler ("Assertion failed: LSX_FFT_BR == NULL").
+- **Limits** (`api/limits.py`): Redis fixed-window rate limits per client and per session,
+  429 with Retry-After, 413 for bodies over 16 KB, fail-open if Redis is down.
+- **Retention** (`app/purge.py`): deletes sessions past the retention period with everything
+  attached; dry-run mode.
+- **Benchmark** (`app/evals/simulation.py`, `scripts/run_benchmark.py`,
+  `data/evals/answer_bank.v1.json`): 60 scripted learners, adaptive vs fixed-question
+  baseline, dev/held-out split, token usage and cost from the API's own usage reports.
+- **Browser test** (`frontend/e2e/workflow.spec.ts`, Playwright): launch → answer with a
+  side question and the roots misconception → review → revise with reason → approve →
+  export and check the downloaded JSON.
+- **UI polish:** focused learner layout with no teacher navigation, the answer shown at once
+  with a "thinking" indicator, auto-scroll, time left, clearer finished state.
+- **Packaging:** `backend/Dockerfile`, `frontend/Dockerfile`, `compose.full.yaml` (whole
+  stack in one command), CI jobs for the browser test and image builds.
+- **Docs:** evaluation, security, deployment, demo script; README rewritten with
+  screenshots and real results.
+
+### Results (actual)
+- Backend: **575 passed**; ruff clean. Frontend: tsc, eslint, build clean; **3
+  browser tests passed**.
+- Benchmark with Claude Haiku 5.5 (effort low): 120 sessions, 209 calls, 0 errors, $0.054.
+  Level within one 222/227 (98%), exact 206/227 (91%); misconception tags 107 true, 0 false,
+  0 missed; 65/70 learner misconceptions followed up (fixed baseline: 0/70). Details and
+  failure analysis in `docs/evaluation.md`.
+- Containers: both images build; `compose.full.yaml` came up healthy and the full browser
+  flow passed against it in fake mode.
+
+### Bugs found while doing this
+- The answer bank used one JSON key for two things; the second silently replaced the first.
+  A consistency test now checks the bank against the lessons.
+- Alembic's logging setup disabled the app's loggers whenever migrations ran in the same
+  process, so app log lines vanished (in tests). Fixed with `disable_existing_loggers=False`.
+- `compose.full.yaml` shared a project name with the dev compose file and replaced the dev
+  database container (data volume untouched). It now has its own project name.
+
+### Not done / not verified
+- **Not deployed.** No public host, HTTPS, or clean-browser smoke test on a real URL.
+- **No demo video.**
+- Voice not re-measured after the latency changes; interruptions and silence handling only
+  exercised informally.
+- The CI workflow's new jobs have not run on GitHub yet (nothing was pushed).
+- Evidence quotes were not manually reviewed for whether they support their level.
+
 ## 2026-11-23 — UI/UX redesign
 
 - [ ] I can explain each changed module.

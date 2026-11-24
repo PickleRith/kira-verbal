@@ -28,6 +28,12 @@ ERROR_MAP: dict[type[e.AssessmentError], tuple[int, str]] = {
     e.ReportNotReadyError: (409, "report_not_ready"),
     e.ReportNotApprovedError: (409, "report_not_approved"),
     e.InvalidReviewError: (422, "invalid_review"),
+    e.NotSignedInError: (401, "not_signed_in"),
+    e.InvalidCredentialsError: (401, "invalid_credentials"),
+    e.EmailTakenError: (409, "email_taken"),
+    e.WrongRoleError: (403, "wrong_role"),
+    e.ClassNotFoundError: (404, "class_not_found"),
+    e.NoClassError: (409, "no_class"),
 }
 RETRYABLE = {e.TurnInProgressError, e.EvaluationUnavailableError}
 

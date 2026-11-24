@@ -87,7 +87,11 @@ def migrated_engine(database_url: str, alembic_cfg: Config) -> Iterator[Engine]:
 def truncate_all(engine: Engine) -> None:
     """Start each test from empty tables, whatever earlier tests committed."""
     with engine.begin() as connection:
-        connection.execute(text("TRUNCATE turns, sessions, workspaces, lesson_versions CASCADE"))
+        connection.execute(
+            text(
+                "TRUNCATE auth_tokens, users, turns, sessions, workspaces, lesson_versions CASCADE"
+            )
+        )
 
 
 @pytest.fixture

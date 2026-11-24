@@ -11,6 +11,8 @@ Constraints here are correctness guarantees, not just documentation:
 
 * workspaces: one demo teacher's classroom. Sessions created by a teacher belong to it;
   reports are visible only inside it.
+* users / auth_tokens: demo accounts (migration 0006). A teacher owns one class; a student
+  joins one with its code, and the check-ins they take land in that class's review queue.
 * reports / reviews / export_events: append-only (trigger, migration 0005). A review never
   edits a report; it creates a new revision. unique(session_id, revision) serializes
   concurrent reviews; one export per report revision, unique idempotency_key.
@@ -111,6 +113,10 @@ class SessionRow(Base):
     # access for anyone).
     workspace_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid, ForeignKey("workspaces.id", ondelete="CASCADE"), index=True
+    )
+    # The student account that took this check-in (NULL for demo and anonymous learners).
+    learner_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("users.id", ondelete="SET NULL"), index=True
     )
 
 
@@ -214,11 +220,54 @@ class EvidenceRow(Base):
 
 
 class WorkspaceRow(Base):
+    """A class. Account classes have a join code and an owning teacher (users.workspace_id);
+    demo classrooms (no account) are opened with a teacher token instead."""
+
     __tablename__ = "workspaces"
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True)
-    teacher_token_sha256: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    teacher_token_sha256: Mapped[str | None] = mapped_column(String(64), unique=True)
+    name: Mapped[str | None] = mapped_column(Text)
+    join_code: Mapped[str | None] = mapped_column(String(12), unique=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+USER_ROLES = "('student','teacher')"
+
+
+class UserRow(Base):
+    __tablename__ = "users"
+    __table_args__ = (
+        CheckConstraint(f"role IN {USER_ROLES}", name="ck_users_role"),
+        CheckConstraint("email = lower(email)", name="ck_users_email_lower"),
+        Index(
+            "uq_users_teacher_workspace",
+            "workspace_id",
+            unique=True,
+            postgresql_where=text("role = 'teacher'"),
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True)
+    email: Mapped[str] = mapped_column(String(254), nullable=False, unique=True)
+    display_name: Mapped[str] = mapped_column(String(80), nullable=False)
+    role: Mapped[str] = mapped_column(String(16), nullable=False)
+    password_hash: Mapped[str] = mapped_column(Text, nullable=False)  # scrypt; never the password
+    workspace_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("workspaces.id", ondelete="SET NULL"), index=True
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class AuthTokenRow(Base):
+    __tablename__ = "auth_tokens"
+
+    token_sha256: Mapped[str] = mapped_column(String(64), primary_key=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
 REPORT_STATUSES = "('ready_for_review','approved','rejected')"

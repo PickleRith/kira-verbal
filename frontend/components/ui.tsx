@@ -1,6 +1,54 @@
-// Shared UI kit: app shell (dark rail + accent line), cards, buttons, status pills,
-// section headers, tool tiles and a small inline icon set (no icon dependency).
+// UI primitives for the light editorial system (see DESIGN_SYSTEM.md). Presentation only:
+// no data fetching or business rules here.
+//
+// Buttons: black rectangle (primary), outline (secondary), ghost, purple (AI actions).
+// Cards: white, thin border, 12px radius. Pills: small, 6px radius (not full pills).
+// Icons: Lucide outline icons through the `Icon` map, so call sites stay stable.
 
+import {
+  ArrowRight,
+  ArrowUpRight,
+  AudioLines,
+  BookOpen,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  CircleCheck,
+  CircleExclamationPoint,
+  ClipboardCheck,
+  Clock,
+  Copy,
+  Download,
+  Flag,
+  GraduationCap,
+  House,
+  KeyRound,
+  Layers,
+  LayoutGrid,
+  Lightbulb,
+  LoaderCircle,
+  Lock,
+  LogOut,
+  Mail,
+  Menu,
+  MessageSquare,
+  Mic,
+  MicOff,
+  PhoneOff,
+  Plus,
+  Quote,
+  RotateCcw,
+  RotateCcwClock,
+  SendHorizontal,
+  Shield,
+  Sparkles,
+  TriangleExclamationPoint,
+  User,
+  Users,
+  Volume2,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 
@@ -11,234 +59,81 @@ export function cx(...classes: (string | false | null | undefined)[]) {
 // --- icons ----------------------------------------------------------------------------
 
 type IconProps = { className?: string };
-const base = "h-5 w-5 shrink-0";
 
-function Svg({ className, children }: IconProps & { children: ReactNode }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.8}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      className={cx(base, className)}
-    >
-      {children}
-    </svg>
-  );
+function wrap(Glyph: LucideIcon) {
+  function IconGlyph({ className }: IconProps) {
+    return <Glyph aria-hidden="true" strokeWidth={1.75} className={cx("h-5 w-5 shrink-0", className)} />;
+  }
+  return IconGlyph;
 }
 
 export const Icon = {
-  Mic: (p: IconProps) => (
-    <Svg {...p}>
-      <rect x="9" y="3" width="6" height="11" rx="3" />
-      <path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
-    </Svg>
-  ),
-  MicOff: (p: IconProps) => (
-    <Svg {...p}>
-      <path d="M3 3l18 18M9 9v2a3 3 0 0 0 5.1 2.1M15 10V6a3 3 0 0 0-5.7-1.3" />
-      <path d="M5 11a7 7 0 0 0 11.5 5.4M19 11a7 7 0 0 1-.6 2.8M12 18v3" />
-    </Svg>
-  ),
-  Home: (p: IconProps) => (
-    <Svg {...p}>
-      <path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z" />
-    </Svg>
-  ),
-  Clipboard: (p: IconProps) => (
-    <Svg {...p}>
-      <rect x="5" y="4" width="14" height="17" rx="2" />
-      <path d="M9 4h6v3H9zM9 12l2 2 4-4M9 17h6" />
-    </Svg>
-  ),
-  Book: (p: IconProps) => (
-    <Svg {...p}>
-      <path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z" />
-      <path d="M4 19V5M8 7h7" />
-    </Svg>
-  ),
-  Sparkle: (p: IconProps) => (
-    <Svg {...p}>
-      <path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z" />
-      <path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z" />
-    </Svg>
-  ),
-  Chat: (p: IconProps) => (
-    <Svg {...p}>
-      <path d="M5 5h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 4V6a1 1 0 0 1 1-1z" />
-    </Svg>
-  ),
-  User: (p: IconProps) => (
-    <Svg {...p}>
-      <circle cx="12" cy="8" r="4" />
-      <path d="M4 21a8 8 0 0 1 16 0" />
-    </Svg>
-  ),
-  Check: (p: IconProps) => (
-    <Svg {...p}>
-      <path d="M5 12.5l4.5 4.5L19 7.5" />
-    </Svg>
-  ),
-  Clock: (p: IconProps) => (
-    <Svg {...p}>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7v5l3 2" />
-    </Svg>
-  ),
-  Alert: (p: IconProps) => (
-    <Svg {...p}>
-      <path d="M12 3l10 18H2z" />
-      <path d="M12 10v4M12 17.5v.5" />
-    </Svg>
-  ),
-  X: (p: IconProps) => (
-    <Svg {...p}>
-      <path d="M6 6l12 12M18 6L6 18" />
-    </Svg>
-  ),
-  Download: (p: IconProps) => (
-    <Svg {...p}>
-      <path d="M12 4v11M7 10l5 5 5-5M5 20h14" />
-    </Svg>
-  ),
-  ArrowRight: (p: IconProps) => (
-    <Svg {...p}>
-      <path d="M5 12h14M13 6l6 6-6 6" />
-    </Svg>
-  ),
-  ChevronRight: (p: IconProps) => (
-    <Svg {...p}>
-      <path d="M9 6l6 6-6 6" />
-    </Svg>
-  ),
-  Send: (p: IconProps) => (
-    <Svg {...p}>
-      <path d="M4 12l16-8-6 16-2.5-6.5z" />
-    </Svg>
-  ),
-  Lightbulb: (p: IconProps) => (
-    <Svg {...p}>
-      <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z" />
-    </Svg>
-  ),
-  Flag: (p: IconProps) => (
-    <Svg {...p}>
-      <path d="M5 21V4M5 4h11l-2 4 2 4H5" />
-    </Svg>
-  ),
-  History: (p: IconProps) => (
-    <Svg {...p}>
-      <path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2" />
-    </Svg>
-  ),
-  Shield: (p: IconProps) => (
-    <Svg {...p}>
-      <path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z" />
-    </Svg>
-  ),
-  Plus: (p: IconProps) => (
-    <Svg {...p}>
-      <path d="M12 5v14M5 12h14" />
-    </Svg>
-  ),
+  Mic: wrap(Mic),
+  MicOff: wrap(MicOff),
+  Home: wrap(House),
+  Clipboard: wrap(ClipboardCheck),
+  Book: wrap(BookOpen),
+  Sparkle: wrap(Sparkles),
+  Chat: wrap(MessageSquare),
+  User: wrap(User),
+  Users: wrap(Users),
+  Check: wrap(Check),
+  CheckCircle: wrap(CircleCheck),
+  Clock: wrap(Clock),
+  Alert: wrap(TriangleExclamationPoint),
+  Error: wrap(CircleExclamationPoint),
+  X: wrap(X),
+  Download: wrap(Download),
+  ArrowRight: wrap(ArrowRight),
+  ArrowUpRight: wrap(ArrowUpRight),
+  ChevronRight: wrap(ChevronRight),
+  ChevronLeft: wrap(ChevronLeft),
+  Send: wrap(SendHorizontal),
+  Lightbulb: wrap(Lightbulb),
+  Flag: wrap(Flag),
+  History: wrap(RotateCcwClock),
+  Shield: wrap(Shield),
+  Plus: wrap(Plus),
+  LogOut: wrap(LogOut),
+  Copy: wrap(Copy),
+  Mail: wrap(Mail),
+  Lock: wrap(Lock),
+  Key: wrap(KeyRound),
+  Waveform: wrap(AudioLines),
+  Quote: wrap(Quote),
+  Layers: wrap(Layers),
+  Menu: wrap(Menu),
+  Retry: wrap(RotateCcw),
+  EndCall: wrap(PhoneOff),
+  Speaker: wrap(Volume2),
+  Grid: wrap(LayoutGrid),
+  Cap: wrap(GraduationCap),
+  Loader: wrap(LoaderCircle),
 };
 
-// --- brand mark (Kira Verbal's own: a mic on a violet tile) ------------------------------
+// --- brand mark: Kira Verbal's own (a microphone on a black square) ----------------------
 
-export function BrandMark({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
-  const box = { sm: "h-8 w-8 rounded-lg", md: "h-10 w-10 rounded-xl", lg: "h-14 w-14 rounded-2xl" }[size];
-  const icon = { sm: "h-4 w-4", md: "h-5 w-5", lg: "h-7 w-7" }[size];
+export function BrandMark({ size = "md", inverted = false }: { size?: "sm" | "md" | "lg"; inverted?: boolean }) {
+  const box = { sm: "h-7 w-7 rounded-md", md: "h-8 w-8 rounded-md", lg: "h-12 w-12 rounded-lg" }[size];
+  const icon = { sm: "h-4 w-4", md: "h-[18px] w-[18px]", lg: "h-6 w-6" }[size];
   return (
     <span
       className={cx(
         box,
-        "inline-flex items-center justify-center bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-[0_4px_14px_-4px_rgb(139_79_240/0.7)]",
+        "relative inline-flex shrink-0 items-center justify-center",
+        inverted ? "bg-white text-purple-deep" : "bg-ink text-white",
       )}
     >
       <Icon.Mic className={icon} />
+      <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-mint" aria-hidden="true" />
     </span>
   );
 }
 
-// --- app shell -----------------------------------------------------------------------
+// --- typography ------------------------------------------------------------------------------
 
-type NavKey = "home" | "teacher" | "learner" | null;
-
-const NAV: { key: Exclude<NavKey, null>; href: string; label: string; icon: (p: IconProps) => ReactNode }[] = [
-  { key: "home", href: "/", label: "Home", icon: Icon.Home },
-  { key: "teacher", href: "/teacher", label: "Teacher dashboard", icon: Icon.Clipboard },
-  { key: "learner", href: "/#lessons", label: "Try as a learner", icon: Icon.Chat },
-];
-
-export function AppShell({
-  active,
-  children,
-}: {
-  active: NavKey;
-  children: ReactNode;
-}) {
-  return (
-    <div className="min-h-screen border-t-[3px] border-brand-400 bg-canvas">
-      {/* Desktop rail */}
-      <nav
-        aria-label="Main"
-        className="fixed inset-y-0 left-0 z-20 hidden w-[68px] flex-col items-center gap-2 border-t-[3px] border-brand-400 bg-gradient-to-b from-brand-900 to-brand-950 py-4 md:flex"
-      >
-        <Link href="/" aria-label="Kira Verbal home" className="mb-4">
-          <BrandMark />
-        </Link>
-        {NAV.map(({ key, href, label, icon: NavIcon }) => (
-          <Link
-            key={key}
-            href={href}
-            title={label}
-            aria-label={label}
-            aria-current={active === key ? "page" : undefined}
-            className={cx(
-              "group relative flex h-11 w-11 items-center justify-center rounded-xl transition",
-              active === key
-                ? "bg-white/15 text-white"
-                : "text-brand-200/70 hover:bg-white/10 hover:text-white",
-            )}
-          >
-            <NavIcon />
-            <span className="pointer-events-none absolute left-full ml-3 whitespace-nowrap rounded-md bg-ink px-2 py-1 text-xs text-white opacity-0 transition group-hover:opacity-100">
-              {label}
-            </span>
-          </Link>
-        ))}
-      </nav>
-
-      {/* Mobile top bar */}
-      <nav
-        aria-label="Main"
-        className="sticky top-0 z-20 flex items-center gap-2 bg-gradient-to-r from-brand-900 to-brand-950 px-4 py-2.5 md:hidden"
-      >
-        <Link href="/" aria-label="Kira Verbal home" className="mr-2">
-          <BrandMark size="sm" />
-        </Link>
-        {NAV.map(({ key, href, label, icon: NavIcon }) => (
-          <Link
-            key={key}
-            href={href}
-            aria-label={label}
-            aria-current={active === key ? "page" : undefined}
-            className={cx(
-              "flex h-9 w-9 items-center justify-center rounded-lg",
-              active === key ? "bg-white/15 text-white" : "text-brand-200/70",
-            )}
-          >
-            <NavIcon />
-          </Link>
-        ))}
-      </nav>
-
-      <div className="md:pl-[68px]">{children}</div>
-    </div>
-  );
+export function Eyebrow({ children, className }: { children: ReactNode; className?: string }) {
+  return <p className={cx("text-sm font-medium text-muted", className)}>{children}</p>;
 }
 
 export function PageHeader({
@@ -253,31 +148,14 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <header className="flex flex-wrap items-end justify-between gap-4">
+    <header className="flex flex-wrap items-end justify-between gap-6">
       <div className="min-w-0">
-        {eyebrow ? <div className="text-sm text-muted">{eyebrow}</div> : null}
-        <h1 className="mt-1 text-[26px] font-semibold tracking-tight text-ink">{title}</h1>
-        {subtitle ? <div className="mt-1.5 text-[15px] text-muted">{subtitle}</div> : null}
+        {eyebrow ? <div className="mb-2">{typeof eyebrow === "string" ? <Eyebrow>{eyebrow}</Eyebrow> : eyebrow}</div> : null}
+        <h1 className="text-[36px] text-ink md:text-[44px]">{title}</h1>
+        {subtitle ? <div className="mt-3 max-w-2xl text-base text-muted">{subtitle}</div> : null}
       </div>
       {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
     </header>
-  );
-}
-
-// --- surfaces ------------------------------------------------------------------------
-
-export function Card({
-  className,
-  children,
-  ...rest
-}: ComponentProps<"section">) {
-  return (
-    <section
-      {...rest}
-      className={cx("rounded-2xl border border-line bg-white shadow-card", className)}
-    >
-      {children}
-    </section>
   );
 }
 
@@ -293,30 +171,93 @@ export function SectionHeader({
   id?: string;
 }) {
   return (
-    <div className="mb-3 flex items-center justify-between gap-3">
-      <h2 id={id} className="flex items-center gap-2 text-lg font-semibold text-ink">
+    <div className="mb-4 flex items-end justify-between gap-3">
+      <h2 id={id} className="flex items-center gap-2.5 text-[28px] text-ink">
         {title}
-        {count !== undefined ? (
-          <span className="rounded-full bg-ink px-2 py-0.5 text-xs font-semibold text-white">{count}</span>
-        ) : null}
+        {count !== undefined ? <Count>{count}</Count> : null}
       </h2>
       {action}
     </div>
   );
 }
 
+// A small dark counter, like "Grading queue 54".
+export function Count({ children, tone = "dark" }: { children: ReactNode; tone?: "dark" | "light" }) {
+  return (
+    <span
+      className={cx(
+        "inline-flex min-w-6 items-center justify-center rounded-md px-1.5 py-0.5 font-sans text-xs font-semibold leading-none",
+        tone === "dark" ? "bg-ink text-white" : "bg-sunken text-muted",
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+
+// --- surfaces ------------------------------------------------------------------------
+
+export function Card({ className, children, ...rest }: ComponentProps<"section">) {
+  return (
+    <section {...rest} className={cx("rounded-xl border border-line bg-surface", className)}>
+      {children}
+    </section>
+  );
+}
+
+// A highlight card (class code, calls to action): mint or lavender fill, ink text.
+export function NoteCard({
+  title,
+  children,
+  footer,
+  tone = "mint",
+  className,
+}: {
+  title: ReactNode;
+  children?: ReactNode;
+  footer?: ReactNode;
+  tone?: "mint" | "lavender";
+  className?: string;
+}) {
+  return (
+    <div
+      className={cx(
+        "rounded-xl border border-ink p-6 text-ink md:p-8",
+        tone === "mint" ? "bg-mint" : "bg-lavender",
+        className,
+      )}
+    >
+      <h3 className="text-[26px] text-ink">{title}</h3>
+      {children ? <div className="mt-2 text-[15px] text-ink/80">{children}</div> : null}
+      {footer ? <div className="mt-6 border-t border-ink/20 pt-4 text-sm">{footer}</div> : null}
+    </div>
+  );
+}
+
+// Small label laid over media.
+export function MediaLabel({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <span className={cx("inline-flex items-center gap-1.5 rounded-md border border-line bg-surface px-2 py-1 text-xs text-muted", className)}>
+      {children}
+    </span>
+  );
+}
+
 // --- buttons -------------------------------------------------------------------------
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "success" | "pill";
+type ButtonVariant = "primary" | "secondary" | "ghost" | "ai" | "success" | "danger";
 
 const BUTTON: Record<ButtonVariant, string> = {
-  primary:
-    "bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-[0_6px_16px_-8px_rgb(95_43_192/0.9)] hover:from-brand-600 hover:to-brand-800",
-  secondary: "border border-line bg-white text-ink hover:border-brand-200 hover:bg-brand-50",
-  ghost: "text-muted hover:bg-row hover:text-ink",
-  success: "bg-emerald-600 text-white hover:bg-emerald-700",
-  pill: "rounded-full border border-line bg-white px-4 text-ink hover:border-brand-200 hover:bg-brand-50",
+  primary: "bg-ink text-white hover:bg-[#333333]",
+  secondary: "border border-line-strong bg-transparent text-ink hover:bg-raised",
+  ghost: "text-muted hover:bg-raised hover:text-ink",
+  ai: "bg-purple-ink text-white hover:bg-[#4a22c2]", // purple with AA-contrast white text
+  success: "bg-ok text-white hover:bg-[#0f5631]",
+  danger: "border border-bad/40 bg-transparent text-bad hover:bg-bad-soft",
 };
+
+const BUTTON_BASE =
+  "kv-ease inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-45";
 
 export function Button({
   variant = "primary",
@@ -325,14 +266,7 @@ export function Button({
   ...rest
 }: ComponentProps<"button"> & { variant?: ButtonVariant }) {
   return (
-    <button
-      {...rest}
-      className={cx(
-        "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50",
-        BUTTON[variant],
-        className,
-      )}
-    >
+    <button {...rest} className={cx(BUTTON_BASE, BUTTON[variant], className)}>
       {children}
     </button>
   );
@@ -345,30 +279,23 @@ export function ButtonLink({
   ...rest
 }: ComponentProps<typeof Link> & { variant?: ButtonVariant }) {
   return (
-    <Link
-      {...rest}
-      className={cx(
-        "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition",
-        BUTTON[variant],
-        className,
-      )}
-    >
+    <Link {...rest} className={cx(BUTTON_BASE, BUTTON[variant], className)}>
       {children}
     </Link>
   );
 }
 
-// --- status pills (like Overdue / Due Today / Due in 2 days) ---------------------------
+// --- status pills ----------------------------------------------------------------------
 
 export type Tone = "red" | "amber" | "green" | "purple" | "gray" | "blue";
 
 const TONE: Record<Tone, string> = {
-  red: "bg-rose-50 text-rose-700 ring-rose-200",
-  amber: "bg-amber-50 text-amber-800 ring-amber-200",
-  green: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-  purple: "bg-brand-50 text-brand-700 ring-brand-200",
-  gray: "bg-row text-muted ring-line",
-  blue: "bg-sky-50 text-sky-700 ring-sky-200",
+  red: "bg-bad-soft text-bad",
+  amber: "bg-warn-soft text-warn",
+  green: "bg-ok-soft text-ok",
+  purple: "bg-lavender-soft text-purple-ink",
+  gray: "bg-sunken text-muted",
+  blue: "bg-info-soft text-info",
 };
 
 export function Pill({
@@ -385,7 +312,7 @@ export function Pill({
   return (
     <span
       className={cx(
-        "inline-flex items-center gap-1 whitespace-nowrap rounded-md px-2 py-0.5 text-xs font-medium ring-1 ring-inset",
+        "inline-flex items-center gap-1 whitespace-nowrap rounded-md px-2 py-0.5 text-xs font-medium",
         TONE[tone],
         className,
       )}
@@ -397,6 +324,23 @@ export function Pill({
 }
 
 // --- callouts ------------------------------------------------------------------------
+
+const CALLOUT: Record<Tone, string> = {
+  red: "border-bad/30 bg-bad-soft",
+  amber: "border-warn/30 bg-warn-soft",
+  green: "border-ok/30 bg-ok-soft",
+  purple: "border-purple/30 bg-lavender-soft",
+  gray: "border-line bg-raised",
+  blue: "border-info/30 bg-info-soft",
+};
+const CALLOUT_TITLE: Record<Tone, string> = {
+  red: "text-bad",
+  amber: "text-warn",
+  green: "text-ok",
+  purple: "text-purple-ink",
+  gray: "text-ink",
+  blue: "text-info",
+};
 
 export function Callout({
   tone = "purple",
@@ -411,81 +355,41 @@ export function Callout({
   role?: "alert" | "status";
   icon?: ReactNode;
 }) {
-  const style: Record<Tone, string> = {
-    red: "border-rose-200 bg-rose-50 text-rose-900",
-    amber: "border-amber-200 bg-amber-50 text-amber-900",
-    green: "border-emerald-200 bg-emerald-50 text-emerald-900",
-    purple: "border-brand-200 bg-brand-50 text-brand-900",
-    gray: "border-line bg-row text-ink",
-    blue: "border-sky-200 bg-sky-50 text-sky-900",
-  };
   return (
-    <div role={role} className={cx("flex gap-3 rounded-xl border p-3.5 text-sm", style[tone])}>
-      {icon ? <span className="mt-0.5">{icon}</span> : null}
+    <div role={role} className={cx("flex gap-3 rounded-lg border p-4 text-sm text-ink", CALLOUT[tone])}>
+      {icon ? <span className={cx("mt-0.5", CALLOUT_TITLE[tone])}>{icon}</span> : null}
       <div className="min-w-0">
-        {title ? <p className="font-semibold">{title}</p> : null}
+        {title ? <p className={cx("font-semibold", CALLOUT_TITLE[tone])}>{title}</p> : null}
         {children ? <div className={title ? "mt-0.5" : ""}>{children}</div> : null}
       </div>
     </div>
   );
 }
 
-// --- tool tiles (like "Lesson Studio / Course Studio / Assessment") ---------------------
+// --- form fields -----------------------------------------------------------------------
 
-export function ToolTile({
-  icon,
+export function Field({
   label,
   hint,
-  active = false,
-  onClick,
-  href,
-  tint = "bg-brand-50 text-brand-600",
-}: {
-  icon: ReactNode;
-  label: ReactNode;
-  hint?: ReactNode;
-  active?: boolean;
-  onClick?: () => void;
-  href?: string;
-  tint?: string;
-}) {
-  const body = (
-    <>
-      <span
-        className={cx(
-          "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg",
-          active ? "bg-white/15 text-white" : tint,
-        )}
-      >
-        {icon}
-      </span>
-      <span className="min-w-0 text-left">
-        <span className={cx("block truncate text-sm font-medium", active ? "text-white" : "text-ink")}>
-          {label}
-        </span>
-        {hint ? (
-          <span className={cx("block truncate text-xs", active ? "text-brand-100" : "text-muted")}>{hint}</span>
-        ) : null}
-      </span>
-    </>
-  );
-  const cls = cx(
-    "flex min-h-[58px] w-full items-center gap-3 rounded-xl border px-3.5 py-2.5 transition",
-    active
-      ? "border-transparent bg-gradient-to-br from-brand-600 to-brand-800 shadow-lift"
-      : "border-line bg-white hover:border-brand-200 hover:bg-brand-50/50",
-  );
-  if (href) {
-    return (
-      <Link href={href} className={cls}>
-        {body}
-      </Link>
-    );
-  }
+  icon,
+  className,
+  id,
+  ...input
+}: ComponentProps<"input"> & { label: ReactNode; hint?: ReactNode; icon?: ReactNode }) {
+  const inputId = id ?? (typeof input.name === "string" ? `f-${input.name}` : undefined);
   return (
-    <button type="button" onClick={onClick} aria-pressed={active} className={cls}>
-      {body}
-    </button>
+    <label htmlFor={inputId} className={cx("block text-sm", className)}>
+      <span className="block font-medium text-ink">{label}</span>
+      <span className="kv-ease mt-1.5 flex items-center rounded-md border border-line-strong bg-surface transition-colors focus-within:border-purple focus-within:ring-2 focus-within:ring-lavender-soft">
+        {icon ? <span className="ml-3 text-faint">{icon}</span> : null}
+        <input
+          id={inputId}
+          {...input}
+          className="w-full rounded-md bg-transparent px-3 py-2.5 text-[15px] text-ink outline-none placeholder:text-faint focus-visible:outline-none"
+        />
+      </span>
+      {hint ? <span className="mt-1.5 block text-xs text-faint">{hint}</span> : null}
+    </label>
   );
 }
 
@@ -493,40 +397,47 @@ export function ToolTile({
 
 export function Disclaimer({ className }: { className?: string }) {
   return (
-    <p className={cx("flex items-start gap-2 text-xs leading-relaxed text-faint", className)}>
+    <p className={cx("flex items-start gap-2 text-xs text-faint", className)}>
       <Icon.Shield className="mt-px h-4 w-4" />
       <span>
-        Independent portfolio prototype. Not affiliated with or endorsed by Kira Learning. Synthetic
-        learners and data only; no real student records.
+        Independent portfolio prototype. Not affiliated with or endorsed by Kira Learning. Demo accounts and
+        synthetic data only: use made-up names and emails, never real student records.
       </span>
     </p>
   );
 }
 
 export function Spinner({ className }: { className?: string }) {
-  return (
-    <span
-      aria-hidden="true"
-      className={cx(
-        "inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent",
-        className,
-      )}
-    />
-  );
+  return <Icon.Loader className={cx("h-4 w-4 animate-spin motion-reduce:animate-none", className)} />;
 }
 
-export function LevelDots({ level, total = 4 }: { level: number | null; total?: number }) {
+// One segment per point (levels 0-3 -> 3 segments), the same as the student's results.
+export function LevelDots({ level, total = 3 }: { level: number | null; total?: number }) {
   return (
     <span className="inline-flex gap-1" aria-hidden="true">
       {Array.from({ length: total }, (_, i) => (
-        <span
-          key={i}
-          className={cx(
-            "h-1.5 w-4 rounded-full",
-            level !== null && i <= level ? "bg-brand-500" : "bg-line",
-          )}
-        />
+        <span key={i} className={cx("h-1.5 w-5 rounded-sm", level !== null && i < level ? "bg-purple" : "bg-sunken")} />
       ))}
     </span>
+  );
+}
+
+export function Stat({ label, children, accent = false }: { label: string; children: ReactNode; accent?: boolean }) {
+  return (
+    <div className={cx("rounded-xl border p-4", accent ? "border-purple/40 bg-lavender-soft" : "border-line bg-surface")}>
+      <p className="text-xs font-medium text-muted">{label}</p>
+      <div className="mt-1 font-serif text-[30px] leading-tight text-ink">{children}</div>
+    </div>
+  );
+}
+
+// Empty state used by lists.
+export function EmptyState({ title, children, icon }: { title: string; children?: ReactNode; icon?: ReactNode }) {
+  return (
+    <div className="flex flex-col items-center px-4 py-10 text-center">
+      {icon ? <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-sunken text-muted">{icon}</span> : null}
+      <p className="mt-3 font-serif text-[20px] text-ink">{title}</p>
+      {children ? <p className="mt-1 max-w-sm text-sm text-muted">{children}</p> : null}
+    </div>
   );
 }

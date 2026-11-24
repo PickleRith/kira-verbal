@@ -31,6 +31,7 @@ from livekit.agents import (
     AgentServer,
     AgentSession,
     JobContext,
+    JobExecutorType,
     JobProcess,
     ModelSettings,
     StopResponse,
@@ -56,6 +57,8 @@ server = AgentServer(
         dev_default=1, prod_default=min(math.ceil(os.cpu_count() or 1), 4)
     ),
     initialize_process_timeout=30.0,
+    # See Settings.voice_job_executor: isolates each call's native audio state.
+    job_executor_type=JobExecutorType(settings.voice_job_executor),
 )
 
 

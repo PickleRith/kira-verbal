@@ -1,0 +1,248 @@
+{
+  "version": 1,
+  "provenance": "Synthetic learner answers written for this project with an AI coding assistant on 2026-11-23, labelled at writing time (level and misconception tag per answer) before any evaluator was run on them. Not real learners. Not reviewed by an educator. Labels are the author's intent against the lesson rubric.",
+  "states": {
+    "strong": "open answer at level 3",
+    "partial": "open answer at level 2",
+    "misconception_resolved": "open answer shows the misconception (level 1); the diagnostic answer is correct (level 3)",
+    "misconception_persists": "open answer and diagnostic answer both show the misconception (level 1)",
+    "vague": "answers too vague to judge (unknown), also after a request for more detail"
+  },
+  "generic": {
+    "hint_request": "Can I have a hint?",
+    "vague_clarify": ["It's just what I said, kind of.", "Like I said, that's all I can think of."]
+  },
+  "lessons": {
+    "photosynthesis": {
+      "side_question": "What is glucose?",
+      "objectives": {
+        "purpose": {
+          "open_question": "q1",
+          "diagnostic_question": "q5",
+          "misconception": "food_from_soil",
+          "strong": [
+            "Photosynthesis is how a plant makes its own food. It takes in carbon dioxide and water, uses energy from sunlight to turn them into sugar, and gives off oxygen.",
+            "The plant uses light to combine water and carbon dioxide into glucose, which is its food, and oxygen comes out as a leftover."
+          ],
+          "partial": [
+            "It's when plants make their own food using sunlight.",
+            "Plants use the sun and water to make sugar for themselves."
+          ],
+          "misconception_answers": [
+            "It's how plants eat. They suck up their food from the soil through the roots.",
+            "Plants take in food that is already in the dirt, and the roots bring it up into the plant."
+          ],
+          "diagnostic_resolved": [
+            "Most of it must come from the air and water, because the plant builds itself out of carbon dioxide and water using sunlight, not out of the soil.",
+            "From carbon dioxide in the air mostly. The tree turns it and water into sugar using light and that becomes the wood, and it lets out oxygen."
+          ],
+          "diagnostic_persists": [
+            "I still think it comes from the soil, the tree eats the food in the dirt and turns it into wood.",
+            "From the soil. The roots take in food from the ground and that becomes the tree."
+          ],
+          "vague": ["It's a thing plants do.", "Something with plants and nature, I think."]
+        },
+        "carbon_dioxide": {
+          "open_question": "q2",
+          "diagnostic_question": "q3",
+          "misconception": "co2_from_roots",
+          "strong": [
+            "It gets carbon dioxide from the air. The gas goes in through tiny holes in the leaves called stomata.",
+            "From the air around it. It enters the leaves through little openings called stomata."
+          ],
+          "partial": ["From the air.", "It takes it out of the air around the plant somehow."],
+          "misconception_answers": [
+            "From the soil, through its roots.",
+            "The roots soak up carbon dioxide from the ground along with the water."
+          ],
+          "diagnostic_resolved": [
+            "Leaves have tiny holes called stomata. Carbon dioxide from the air goes in through them and oxygen goes out, so the gas comes in through the leaves.",
+            "Through small openings on the underside of the leaf called stomata. Carbon dioxide comes in from the air there and oxygen leaves."
+          ],
+          "diagnostic_persists": [
+            "Leaves don't really take gases in, they only let air out. The carbon dioxide still comes up from the roots.",
+            "I don't think leaves take in carbon dioxide, that comes from the soil through the roots. Leaves just breathe out."
+          ],
+          "vague": ["From around it somewhere.", "It just gets it."]
+        },
+        "light": {
+          "open_question": "q4",
+          "diagnostic_question": "q6",
+          "misconception": "light_is_food",
+          "strong": [
+            "Sunlight gives the plant the energy it needs. Chlorophyll in the leaves captures the light and that energy is used to make sugar.",
+            "Light is the energy source. The green chlorophyll absorbs it and the plant uses that energy to turn carbon dioxide and water into sugar."
+          ],
+          "partial": ["It gives the plant energy.", "The plant needs sunlight for energy to live."],
+          "misconception_answers": [
+            "Sunlight is the plant's food. The plant eats the light and it becomes part of the plant.",
+            "The plant takes in sunlight as its food and stores the light inside to grow."
+          ],
+          "diagnostic_resolved": [
+            "It doesn't become part of the plant. The light is energy that chlorophyll captures, and it powers making sugar from carbon dioxide and water.",
+            "No, the light is just the energy. Chlorophyll captures it and it is used to make the sugar. The stuff of the plant comes from air and water."
+          ],
+          "diagnostic_persists": [
+            "Yes, the light becomes part of the plant. The plant keeps the sunlight inside as its food.",
+            "It turns into the plant's body. The light is what the plant is made of as it grows."
+          ],
+          "vague": ["It helps.", "Plants like the sun."]
+        }
+      }
+    },
+    "fractions": {
+      "side_question": "What is a denominator?",
+      "objectives": {
+        "part_whole": {
+          "open_question": "f1",
+          "diagnostic_question": "f1_d",
+          "misconception": "unequal_parts_ok",
+          "strong": [
+            "It means one whole is cut into 4 equal parts and you have 3 of them, like 3 slices of a pizza cut into 4 equal slices.",
+            "The 4 says the whole is split into four equal pieces and the 3 says how many of those pieces you count."
+          ],
+          "partial": [
+            "It means 3 out of 4 pieces of something.",
+            "You have 3 parts out of 4 parts of a whole thing."
+          ],
+          "misconception_answers": [
+            "It means you cut something into 4 pieces and take 3. The pieces can be any size, it still counts as 3/4.",
+            "3 pieces out of 4 pieces. It doesn't matter how big each piece is, they don't have to be equal."
+          ],
+          "diagnostic_resolved": [
+            "No, because the pieces are different sizes. A quarter means one of 4 equal parts of the whole, so the pizza has to be cut into 4 equal pieces.",
+            "Not exactly. A fourth means one of four equal parts of the whole, and these parts are not equal, so my piece could be more or less than a fourth."
+          ],
+          "diagnostic_persists": [
+            "Yes, it was one piece out of four pieces, so that is 1/4 no matter the size.",
+            "Yes. There are 4 pieces and I ate 1, so it's 1/4 even if they are different sizes."
+          ],
+          "vague": ["It's a number.", "It's like a math thing with a line."]
+        },
+        "equivalence": {
+          "open_question": "f2",
+          "diagnostic_question": "f2_d",
+          "misconception": "add_to_top_and_bottom",
+          "strong": [
+            "Yes. If you multiply the top and bottom of 1/2 by 2 you get 2/4, so it is the same amount, just cut into more pieces.",
+            "Yes, they are equal. Two quarters of a pizza cover the same amount as one half, because each half is split into two quarters."
+          ],
+          "partial": ["Yes, they are the same amount.", "Yes they're equal, I just know 2/4 is a half."],
+          "misconception_answers": [
+            "Yes. You can add the same number to the top and the bottom and the fraction stays equal, that's how you get other fractions that are the same.",
+            "They're the same because whenever you add the same number to both the top and the bottom it stays the same fraction."
+          ],
+          "diagnostic_resolved": [
+            "No, I don't agree. Adding 1 to both changes the amount, 3/4 is bigger than 2/3. You have to multiply the top and bottom by the same number to keep it equal.",
+            "No. 2/3 and 3/4 are different amounts. Adding doesn't keep fractions equal, only multiplying or dividing both parts by the same number does."
+          ],
+          "diagnostic_persists": [
+            "Yes I agree, they added the same number to both so it stays equal.",
+            "Yes, that works. If you do the same thing to the top and the bottom, like adding 1, the fraction is still the same."
+          ],
+          "vague": ["Maybe.", "I think so, not sure why."]
+        },
+        "comparison": {
+          "open_question": "f3",
+          "diagnostic_question": "f3_d",
+          "misconception": "bigger_denominator_bigger_fraction",
+          "strong": [
+            "1/3 is larger. If you cut the same thing into 3 parts, each part is bigger than if you cut it into 5 parts.",
+            "1/3, because sharing a cake among 3 people gives everyone a bigger piece than sharing it among 5. More parts means smaller parts."
+          ],
+          "partial": ["1/3 is larger.", "1/3 is bigger, because thirds are bigger."],
+          "misconception_answers": [
+            "1/5 is larger because 5 is bigger than 3.",
+            "1/5, since the bigger the bottom number the bigger the fraction."
+          ],
+          "diagnostic_resolved": [
+            "1/3, because cutting the bar into 3 pieces makes bigger pieces than cutting it into 8. More parts of the same bar means each part is smaller.",
+            "I'd take 1/3. Eight pieces of the same bar would each be much smaller than three pieces, because more parts means smaller parts."
+          ],
+          "diagnostic_persists": [
+            "1/8, because 8 is more than 3 so it's more chocolate.",
+            "1/8 is bigger since it has the bigger number on the bottom, so I'd pick that."
+          ],
+          "vague": ["That one.", "The first one I guess."]
+        }
+      }
+    },
+    "python_loops": {
+      "side_question": "What does iterate mean?",
+      "objectives": {
+        "iteration": {
+          "open_question": "p1",
+          "diagnostic_question": "p1_d",
+          "misconception": "body_runs_once",
+          "strong": [
+            "A for loop goes through a sequence like a list one item at a time. It runs the code inside once for each item, and the loop variable holds the current item.",
+            "It repeats its body once for every item in a list or range, in order, setting the variable to each item in turn."
+          ],
+          "partial": ["It repeats some code several times.", "It makes the code run again and again."],
+          "misconception_answers": [
+            "It takes the whole list and runs the code on it one time.",
+            "It runs the code inside only once, using all the items in the list together."
+          ],
+          "diagnostic_resolved": [
+            "It runs 3 times, once for each item. name is set to a, then b, then c in order, and it prints that one each time.",
+            "Three times, once per item. The variable name is a the first time, then b, then c, and it prints one item each time through the loop."
+          ],
+          "diagnostic_persists": [
+            "It runs once and prints the whole list, a b c, together.",
+            "Just one time. It prints all three letters at once because the loop gets the whole list."
+          ],
+          "vague": ["It loops.", "It does stuff in Python."]
+        },
+        "range_bounds": {
+          "open_question": "p2",
+          "diagnostic_question": "p2_d",
+          "misconception": "range_includes_stop",
+          "strong": [
+            "i is 1, 2, 3 and 4. It starts at 1 and stops before 5, because the stop value is not included.",
+            "1, 2, 3, 4. The range starts at the first number and goes up to but does not include the second number."
+          ],
+          "partial": ["1, 2, 3, 4.", "It goes 1, 2, 3, 4."],
+          "misconception_answers": [
+            "1, 2, 3, 4, 5.",
+            "It counts from 1 to 5, so 1, 2, 3, 4 and 5, including 5."
+          ],
+          "diagnostic_resolved": [
+            "It runs 3 times, with i as 0, 1 and 2. The last value is 2 because the stop value 3 itself is not included.",
+            "Three times. i starts at 0 and the last value is 2, since range stops before 3 and never includes the stop number."
+          ],
+          "diagnostic_persists": [
+            "It runs 4 times, 0, 1, 2, 3, and the last value of i is 3.",
+            "The last value is 3 because range(3) goes up to 3 and includes it."
+          ],
+          "vague": ["Some numbers.", "A few values."]
+        },
+        "while_termination": {
+          "open_question": "p3",
+          "diagnostic_question": "p3_d",
+          "misconception": "while_stops_itself",
+          "strong": [
+            "A while loop checks its condition before every repeat. It stops when the condition becomes false, so the code inside has to change something to make that happen.",
+            "It keeps going as long as the condition is true. Each time round it checks again, and something in the body, like adding to a counter, must eventually make the condition false."
+          ],
+          "partial": [
+            "It stops when the condition is false.",
+            "When the condition isn't true anymore it stops."
+          ],
+          "misconception_answers": [
+            "It stops by itself after it has run for a while.",
+            "It just eventually stops on its own once it has repeated enough times."
+          ],
+          "diagnostic_resolved": [
+            "It never stops. count stays 0, so the condition count < 3 is checked each time and is always true. The body has to change count to make it false.",
+            "It would loop forever printing 0. The condition is rechecked every time but nothing in the body changes count, so it never becomes false."
+          ],
+          "diagnostic_persists": [
+            "It prints 0 three times and then stops by itself.",
+            "It prints 0 a few times and after a while the loop ends on its own."
+          ],
+          "vague": ["When it's done.", "It ends at the end."]
+        }
+      }
+    }
+  }
+}

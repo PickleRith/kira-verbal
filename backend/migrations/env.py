@@ -10,7 +10,8 @@ from app.db.models import Base
 
 config = context.config
 if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    # Keep loggers that already exist (the app's) enabled; the default disables them.
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 # Tests pass an explicit URL via config.attributes so they never touch the dev DB.
 config.set_main_option(

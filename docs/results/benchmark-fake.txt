@@ -1,0 +1,95 @@
+# Kira Verbal benchmark
+evaluator fake-keyword-v3 | prompt evaluator-v2 | effort n/a
+profiles 60 (seed 20261123) | max_turns 5 | sessions run 120 | failed 0
+evaluator calls 113 (cached repeats excluded) | errors 0 | wall time 0s | python 3.11.9 on Windows
+evaluator latency s: median 0.00 | p95 0.00 | max 0.00 (nearest-rank, n=113)
+
+## adaptive / all
+sessions 60 | turns per session 4.28 | finish {'budget': 21, 'objectives_exhausted': 39}
+criteria with a suggested level      169/180 (94%)
+answer level exact                   113/210 (54%)
+answer level within one              207/210 (99%)
+judgeable answers left unknown       0/210 (0%)
+vague answers kept unknown           9/26 (35%)
+hint/side turns wrongly scored       0/21 (0%)
+final level within one               151/154 (98%)
+final unknown kept unknown           11/26 (42%)
+learner misconceptions detected      49/70 (70%)
+learner misconceptions followed up   47/70 (67%)
+misconception tags: TP 66 FP 3 FN 30
+rejected evidence items              0
+
+## adaptive / dev
+sessions 42 | turns per session 4.40 | finish {'budget': 18, 'objectives_exhausted': 24}
+criteria with a suggested level      116/126 (92%)
+answer level exact                   77/145 (53%)
+answer level within one              142/145 (98%)
+judgeable answers left unknown       0/145 (0%)
+vague answers kept unknown           8/22 (36%)
+hint/side turns wrongly scored       0/18 (0%)
+final level within one               101/104 (97%)
+final unknown kept unknown           10/22 (45%)
+learner misconceptions detected      34/47 (72%)
+learner misconceptions followed up   33/47 (70%)
+misconception tags: TP 44 FP 3 FN 18
+rejected evidence items              0
+
+## adaptive / held_out
+sessions 18 | turns per session 4.00 | finish {'objectives_exhausted': 15, 'budget': 3}
+criteria with a suggested level      53/54 (98%)
+answer level exact                   36/65 (55%)
+answer level within one              65/65 (100%)
+judgeable answers left unknown       0/65 (0%)
+vague answers kept unknown           1/4 (25%)
+hint/side turns wrongly scored       0/3 (0%)
+final level within one               50/50 (100%)
+final unknown kept unknown           1/4 (25%)
+learner misconceptions detected      15/23 (65%)
+learner misconceptions followed up   14/23 (61%)
+misconception tags: TP 22 FP 0 FN 12
+rejected evidence items              0
+
+## fixed / all
+sessions 60 | turns per session 3.38 | finish {'objectives_exhausted': 60}
+criteria with a suggested level      162/180 (90%)
+answer level exact                   96/163 (59%)
+answer level within one              163/163 (100%)
+judgeable answers left unknown       0/163 (0%)
+vague answers kept unknown           9/19 (47%)
+hint/side turns wrongly scored       0/21 (0%)
+final level within one               154/154 (100%)
+final unknown kept unknown           18/26 (69%)
+learner misconceptions detected      49/70 (70%)
+learner misconceptions followed up   0/70 (0%)
+misconception tags: TP 49 FP 0 FN 21
+rejected evidence items              0
+
+## fixed / dev
+sessions 42 | turns per session 3.48 | finish {'objectives_exhausted': 42}
+criteria with a suggested level      110/126 (87%)
+answer level exact                   67/112 (60%)
+answer level within one              112/112 (100%)
+judgeable answers left unknown       0/112 (0%)
+vague answers kept unknown           8/16 (50%)
+hint/side turns wrongly scored       0/18 (0%)
+final level within one               104/104 (100%)
+final unknown kept unknown           16/22 (73%)
+learner misconceptions detected      34/47 (72%)
+learner misconceptions followed up   0/47 (0%)
+misconception tags: TP 34 FP 0 FN 13
+rejected evidence items              0
+
+## fixed / held_out
+sessions 18 | turns per session 3.17 | finish {'objectives_exhausted': 18}
+criteria with a suggested level      52/54 (96%)
+answer level exact                   29/51 (57%)
+answer level within one              51/51 (100%)
+judgeable answers left unknown       0/51 (0%)
+vague answers kept unknown           1/3 (33%)
+hint/side turns wrongly scored       0/3 (0%)
+final level within one               50/50 (100%)
+final unknown kept unknown           2/4 (50%)
+learner misconceptions detected      15/23 (65%)
+learner misconceptions followed up   0/23 (0%)
+misconception tags: TP 15 FP 0 FN 8
+rejected evidence items              0
