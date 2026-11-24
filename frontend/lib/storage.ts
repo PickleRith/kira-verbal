@@ -46,3 +46,12 @@ export const sessionStore = {
   setPending: (sessionId: string, pending: PendingTurn | null) =>
     write(pendingKey(sessionId), pending ? JSON.stringify(pending) : null),
 };
+
+// The demo teacher token for this browser's classroom. Anyone with it can see that
+// classroom's synthetic reports, so it lives only in this browser.
+const TEACHER_KEY = "kira-verbal:teacher-token";
+
+export const teacherStore = {
+  getToken: () => read(TEACHER_KEY),
+  setToken: (token: string | null) => write(TEACHER_KEY, token),
+};

@@ -34,11 +34,18 @@ INTRO = (
     "no trick questions. You can ask for a hint, or say stop to finish. "
 )
 CLOSING = {
-    "timeout": "Time's up for this assessment. Thank you for your answers.",
-    "learner_exit": "You've finished early. Thank you for your answers.",
+    "timeout": (
+        "Time's up, so the assessment is finished. "
+        "Your teacher will review the answers you gave and decide your results."
+    ),
+    "learner_exit": (
+        "You've finished early, so the assessment is over. "
+        "Your teacher will review the answers you gave and decide your results."
+    ),
 }
 DEFAULT_CLOSING = (
-    "That's the end of the assessment. Thank you! Your teacher will review your answers."
+    "That was the last question, so the assessment is finished. "
+    "Your teacher will review your answers and decide your results."
 )
 RETRY_ANSWER = "Sorry, I couldn't process that just now. Could you say your answer again?"
 LOST_ANSWER = "Sorry, I lost that answer. Could you say it again?"

@@ -4,7 +4,13 @@
 import type {
   CreateSessionResponse,
   ErrorCode,
+  ExportResponse,
   LessonSummary,
+  ReportView,
+  ReviewRequest,
+  TeacherSessionCreated,
+  TeacherSessionItem,
+  WorkspaceCreated,
   SessionView,
   TurnInput,
   TurnResponse,
@@ -90,4 +96,30 @@ export const api = {
       body: { expected_state_version: expectedStateVersion },
       token,
     }),
+
+  // --- teacher (token = the demo classroom's teacher token) ---------------------------
+  createWorkspace: () =>
+    request<WorkspaceCreated>("/v1/teacher/workspaces", { method: "POST" }),
+
+  checkWorkspace: (teacherToken: string) =>
+    request<{ workspace_id: string }>("/v1/teacher/workspace", { token: teacherToken }),
+
+  teacherCreateSession: (teacherToken: string, lessonId: string, learnerId: string) =>
+    request<TeacherSessionCreated>("/v1/teacher/sessions", {
+      method: "POST",
+      body: { lesson_id: lessonId, synthetic_learner_id: learnerId },
+      token: teacherToken,
+    }),
+
+  teacherSessions: (teacherToken: string) =>
+    request<TeacherSessionItem[]>("/v1/teacher/sessions", { token: teacherToken }),
+
+  getReport: (teacherToken: string, sessionId: string) =>
+    request<ReportView>(`/v1/sessions/${sessionId}/report`, { token: teacherToken }),
+
+  reviewReport: (teacherToken: string, reportId: string, body: ReviewRequest) =>
+    request<ReportView>(`/v1/reports/${reportId}/review`, { method: "POST", body, token: teacherToken }),
+
+  exportReport: (teacherToken: string, reportId: string) =>
+    request<ExportResponse>(`/v1/reports/${reportId}/export`, { method: "POST", token: teacherToken }),
 };

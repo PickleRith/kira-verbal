@@ -26,6 +26,16 @@ This isolates synthetic demo sessions from each other. It is not school authenti
 | `POST /v1/sessions/{id}/turns` | Submit one finalized answer | 200 |
 | `POST /v1/sessions/{id}/finish` | Learner exits early → `incomplete` (idempotent) | 200 |
 | `POST /v1/sessions/{id}/voice-token` | LiveKit room token that dispatches the voice worker; 503 `voice_unavailable` if not configured, 409 if the session is closed | 200 |
+| `POST /v1/teacher/workspaces` | Create a demo classroom; returns `teacher_token` once | 201 |
+| `GET /v1/teacher/workspace` | Check a teacher token | 200 |
+| `POST /v1/teacher/sessions` | Launch a session in the classroom; returns the learner's `session_token` | 201 |
+| `GET /v1/teacher/sessions` | The classroom's sessions with report status and wellbeing flags | 200 |
+| `GET /v1/sessions/{id}/report` | Teacher-only report: evidence, levels, transcript, audit trail (`pending` while running) | 200 |
+| `POST /v1/reports/{id}/review` | Approve (levels for every criterion, reason if changed) or reject (reason); creates a new revision | 200 |
+| `POST /v1/reports/{id}/export` | Idempotent export of the latest approved revision to the mock Kira adapter | 200 |
+
+Teacher routes use `Authorization: Bearer <teacher_token>`. Details:
+[reports.md](reports.md).
 
 The voice worker authenticates with a per-session credential (`v1.<session>.<expiry>.<hmac>`)
 in the same `Authorization: Bearer` header. It is accepted only for its own session and only
@@ -103,6 +113,11 @@ Body: `{"error": "<code>", "message": "…", "state_version": <int|null>}`.
 | 409 | `session_closed` | Session completed/incomplete | Show finished state |
 | 409 | `session_expired` | Deadline passed | Show finished state |
 | 422 | (FastAPI) | Invalid body | Fix input |
+| 401 | `teacher_not_found` | Missing or unknown teacher token (a learner token is not one) | Open the teacher dashboard |
+| 404 | `report_not_found` | Unknown report, or another classroom's | Stop |
+| 409 | `stale_revision` | Reviewed/exported a revision that isn't the latest | Refetch the report, review again |
+| 409 | `report_not_approved` | Export of a revision that isn't approved | Approve first |
+| 422 | `invalid_review` | Missing/extra criteria, level outside 0–3, or a missing reason | Fix the review |
 | 503 | `evaluation_unavailable` | Evaluator failed/timed out (`Retry-After: 1`); answer released | Refetch, resend same id with new version |
 
 Rate limiting (429) is planned for Day 6.

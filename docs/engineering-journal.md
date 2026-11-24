@@ -1,5 +1,106 @@
 # Engineering journal
 
+## 2026-11-23 — UI/UX redesign
+
+- [ ] I can explain each changed module.
+
+### What changed
+- **Design system** (`app/globals.css` tokens, `components/ui.tsx`):
+  - violet brand scale, ink/muted/line neutrals, Inter;
+  - app shell with a dark violet nav rail on desktop and a top bar on mobile, plus a thin
+    accent line;
+  - cards, buttons, status pills, tool tiles, section headers with count badges, callouts,
+    and an inline icon set (no new dependency).
+- **The visual language is modelled on the Kira Learning app screenshot** the user supplied:
+  purple rail, gradient active tiles, a queue with coloured status pills, soft cards.
+  **No Kira logo, name, artwork or copy is used.** Kira Verbal has its own mic mark, and
+  the "not affiliated" disclaimer is shown on every page.
+- **Pages:**
+  - Home: hero, tool tiles, lesson list, "How it works" panel.
+  - Teacher dashboard: lesson tiles, review queue sorted "Needs review" first, classroom
+    stats.
+  - Review: two columns; criteria with a segmented 0–3/Unknown level control and the
+    rubric descriptor shown live, a chat-style transcript with quoted words highlighted,
+    a sticky decision panel, and an audit timeline.
+  - Learner: conversation bubbles, a current-question card, a composer with Ctrl+Enter,
+    and a round mic button with live state.
+- All behaviour and recovery logic is unchanged: only render code was replaced.
+
+### Checked
+- `tsc`, `eslint` and `next build` are clean.
+- Drove the full flow in headless Edge (playwright-core in a scratch folder, not added to
+  the project): home → create classroom → launch → learner answers (Claude evaluator) →
+  finish → queue → review. Screenshots at 1440 px and 390 px, with **no console errors**.
+- Fixed from the screenshots: on mobile the Send button wrapped to the left; the "answers
+  so far" count included side turns; double focus rings on text fields.
+- Found while testing: `.env.example` allowed only `http://localhost:3000`, so the app
+  failed CORS at `127.0.0.1:3000`. The example now lists both.
+
+## 2026-11-23 — Day 5: teacher dashboard and export
+
+- [ ] I can explain each changed module.
+- [ ] I ran tests and recorded results.
+- [ ] I updated docs and committed code.
+
+### What I built
+- **Demo classrooms:** `workspaces` with a teacher token. Teachers launch sessions for
+  synthetic learners inside their classroom and see only those.
+- **Report lifecycle:** pending (live preview) → ready_for_review (revision 1, created once
+  when first opened after the session ends) → approved/rejected. Each decision is a new
+  revision plus a `reviews` audit row.
+- **Review rules:** approve needs levels for exactly the lesson's criteria (0–3 or null) and
+  a reason for any change. Reject needs a reason. A stale revision is a 409.
+- **Export:** only the latest approved revision, once per revision, with a deterministic
+  idempotency key. Event committed first, then delivered (outbox order) to the mock Kira
+  receiver, which applies each key once.
+- **Append-only audit:** a DB trigger blocks UPDATE/DELETE on reports, reviews and
+  export_events. Deleting a whole session still cascades (retention path).
+- **UI:**
+  - `/teacher`: create classroom, launch, session list with report status and
+    "Needs follow-up" flags.
+  - `/teacher/{id}`: evidence per criterion with exact quotes linked to highlighted
+    transcript turns, level editing, approve/reject, export + JSON download, audit trail.
+- **API:** 7 routes in `api/teacher.py`, `services/reports.py`, migration 0005. The
+  assessment service gained `apply_timers` and `workspace_id`.
+
+### Request flow (review)
+`ReportReview.submit` → `api.reviewReport` → `api/teacher.py:review_report` →
+`ReportService.review`: lock the session row → the reviewed revision must be the latest →
+`_validate_review` → insert revision N+1 and the review row in one transaction → return
+the refreshed `ReportView`.
+
+### Why this design
+- **Why export is a separate boundary:** suggestions never leave the system on their own.
+  Only an explicit, approved, versioned decision crosses over, and in a retry-safe form.
+- **How a review is auditable:** nothing is overwritten. Every decision is a new revision
+  with who, when, the levels and why. The database refuses edits. Evidence carries the
+  evaluator and prompt versions.
+- **Report created lazily, not at session end.** Evidence is frozen once a session is
+  terminal, so the result is the same. It avoids touching the turn transaction, and
+  opening a report also applies deadlines.
+
+### Results (actual)
+- `pytest -q`: **555 passed**. That includes 25 new integration tests
+  (`tests/integration/test_reports.py`): authorization and isolation, lifecycle, exact-quote
+  links, unknowns kept, reasons required, stale and concurrent reviews (4 concurrent → 1
+  saved), approval required to export, duplicate export (1 row, receiver applied once),
+  re-revision export, side turns excluded, append-only for 5 statements, cascade deletion.
+  Also 5 unit tests for the payload.
+- Ruff check and format are clean. `tsc`, `npm run lint` and `npm run build` are clean.
+- Live smoke against the running stack with the Claude Haiku evaluator:
+  - learner token → 401;
+  - suggestions purpose 3, carbon_dioxide 1 + `co2_from_roots`, light unknown;
+  - export before approval → `report_not_approved`;
+  - edited approval → revision 2;
+  - old revision → 409;
+  - second export `replayed: true` with the same id.
+- Bug found while testing: PL/pgSQL resolves `OLD.<column>` in an untaken CASE branch, so
+  one shared trigger function failed on every table. Split into two functions.
+
+### Not verified
+- The teacher pages were type-checked, built and served (200), but not clicked through in a
+  browser by me. No Playwright test yet (Day 6).
+
 ## 2026-11-23 — Conversation layer (between Day 4 and Day 5)
 
 - [ ] I can explain each changed module.

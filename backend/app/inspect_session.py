@@ -2,8 +2,8 @@
 
     python -m app.inspect_session <session_id>
 
-Reads the local database directly. It exists until the teacher dashboard (Day 5) and is
-not exposed over HTTP, so it needs no authorization of its own.
+Reads the local database directly and is not exposed over HTTP, so it needs no
+authorization of its own. The teacher dashboard (/teacher) shows the same data in the app.
 """
 
 from __future__ import annotations

@@ -70,7 +70,7 @@ def prewarm(proc: JobProcess) -> None:
 server.setup_fnc = prewarm
 
 FILLER_AFTER_SECONDS = 1.5
-FILLER = "Thanks. One moment."
+FILLER = "One moment."  # no "thanks": the reply that follows may acknowledge the answer
 
 
 class AssessmentVoiceAgent(Agent):

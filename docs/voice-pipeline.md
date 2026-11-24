@@ -70,8 +70,9 @@ question.
 - Turns are handled one at a time (a lock). Each learner turn bumps a generation counter. If the
   learner speaks again while an earlier answer is still being evaluated, the earlier reply is
   **not spoken**; the newer turn speaks the current prompt instead.
-- If the evaluator takes more than 1.5 s, a short acknowledgement ("Thanks. One moment.") plays.
-  It is not added to the chat context.
+- If the evaluator takes more than 1.5 s, a short filler ("One moment.") plays. It is not
+  added to the chat context, and it deliberately has no "thanks": the reply that follows may
+  acknowledge the answer, and two thank-yous in a row sounded robotic in testing.
 
 ## Failure handling
 
@@ -83,7 +84,7 @@ question.
 | Evaluator outage | API 503 → "Sorry, I couldn't process that just now. Could you say your answer again?" |
 | Network error to API | Retried with the **same** `client_turn_id` (safe); then "…You can keep going by typing" |
 | Silence | After 20 s (`VOICE_USER_AWAY_SECONDS`): "Take your time. <question>", at most twice per question |
-| Session finished | Closing line, then the worker shuts the session down after playout |
+| Session finished | "That was the last question, so the assessment is finished. Your teacher will review your answers and decide your results." The browser stays connected until the agent leaves after saying it (30 s safety limit), so the line isn't cut off |
 | Room disconnects | Panel shows "Resume voice"; the transcript is refreshed; nothing is lost |
 
 ## Latency

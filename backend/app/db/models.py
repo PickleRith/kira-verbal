@@ -9,6 +9,12 @@ Constraints here are correctness guarantees, not just documentation:
   (session, sequence). Partial unique indexes let a failed attempt be retried with the same
   client_turn_id while still forbidding two committed copies of one turn.
 
+* workspaces: one demo teacher's classroom. Sessions created by a teacher belong to it;
+  reports are visible only inside it.
+* reports / reviews / export_events: append-only (trigger, migration 0005). A review never
+  edits a report; it creates a new revision. unique(session_id, revision) serializes
+  concurrent reviews; one export per report revision, unique idempotency_key.
+
 Timestamps are written from the application clock (UTC) so tests can control time.
 """
 
@@ -28,6 +34,7 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    UniqueConstraint,
     Uuid,
     func,
     text,
@@ -100,6 +107,11 @@ class SessionRow(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     deadline_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    # Set for sessions a teacher created; NULL for anonymous home-page sessions (no report
+    # access for anyone).
+    workspace_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("workspaces.id", ondelete="CASCADE"), index=True
+    )
 
 
 class TurnRow(Base):
@@ -198,4 +210,68 @@ class EvidenceRow(Base):
     rejection_reason: Mapped[str | None] = mapped_column(Text)
     evaluator_version: Mapped[str] = mapped_column(String(128), nullable=False)
     model: Mapped[str | None] = mapped_column(String(128))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class WorkspaceRow(Base):
+    __tablename__ = "workspaces"
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True)
+    teacher_token_sha256: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+REPORT_STATUSES = "('ready_for_review','approved','rejected')"
+
+
+class ReportRow(Base):
+    __tablename__ = "reports"
+    __table_args__ = (
+        UniqueConstraint("session_id", "revision", name="uq_reports_session_revision"),
+        CheckConstraint("revision >= 1", name="ck_reports_revision"),
+        CheckConstraint(f"status IN {REPORT_STATUSES}", name="ck_reports_status"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True)
+    session_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("sessions.id", ondelete="CASCADE"), nullable=False
+    )
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[str] = mapped_column(String(24), nullable=False)
+    criteria: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, nullable=False)
+    summary: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
+    created_by: Mapped[str] = mapped_column(String(64), nullable=False)  # "system" / reviewer
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class ReviewRow(Base):
+    __tablename__ = "reviews"
+    __table_args__ = (
+        CheckConstraint("decision IN ('approve','reject')", name="ck_reviews_decision"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True)
+    report_id: Mapped[uuid.UUID] = mapped_column(  # the revision the teacher was looking at
+        Uuid, ForeignKey("reports.id", ondelete="CASCADE"), nullable=False
+    )
+    result_report_id: Mapped[uuid.UUID] = mapped_column(  # the revision this review created
+        Uuid, ForeignKey("reports.id", ondelete="CASCADE"), nullable=False, unique=True
+    )
+    reviewer_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    decision: Mapped[str] = mapped_column(String(16), nullable=False)
+    approved_levels: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
+    reason: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class ExportEventRow(Base):
+    __tablename__ = "export_events"
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True)
+    report_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("reports.id", ondelete="CASCADE"), nullable=False, unique=True
+    )
+    schema_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(160), nullable=False, unique=True)
+    payload: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

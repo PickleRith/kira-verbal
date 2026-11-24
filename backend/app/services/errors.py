@@ -55,3 +55,30 @@ class VoiceUnavailableError(AssessmentError):
 
 class EvaluationUnavailableError(AssessmentError):
     """Evaluator failed or timed out. The turn was released; the client may retry."""
+
+
+# --- teacher / reports ----------------------------------------------------------------
+
+
+class TeacherNotFoundError(AssessmentError):
+    """Missing, malformed or unknown teacher token."""
+
+
+class ReportNotFoundError(AssessmentError):
+    """Unknown report OR not in this teacher's workspace (indistinguishable on purpose)."""
+
+
+class StaleRevisionError(AssessmentError):
+    """The report revision acted on is not the latest; refetch and review again."""
+
+
+class ReportNotReadyError(AssessmentError):
+    """The session is still running, so there is no report to review or export yet."""
+
+
+class ReportNotApprovedError(AssessmentError):
+    """Only the latest approved revision can be exported."""
+
+
+class InvalidReviewError(AssessmentError):
+    """The review is incomplete: missing levels, unknown criteria, or a missing reason."""

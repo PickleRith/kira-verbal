@@ -13,6 +13,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { ApiError, api } from "@/lib/api";
 
+import { Button, Callout, Card, Icon, Spinner, cx } from "./ui";
+
 type Status = "off" | "connecting" | "live" | "ended";
 
 const AGENT_STATE_LABEL: Record<string, string> = {
@@ -23,15 +25,20 @@ const AGENT_STATE_LABEL: Record<string, string> = {
   speaking: "Speaking",
 };
 const POLL_MS = 2000; // refresh the on-screen transcript while voice is active
+// After the session ends the worker speaks the closing line and then leaves the room.
+// If that never happens (network, worker crash), hang up ourselves after this long.
+const CLOSING_GRACE_MS = 30_000;
 
 export function VoicePanel({
   sessionId,
   token,
   onActivity,
+  finished = false,
 }: {
   sessionId: string;
   token: string;
   onActivity: () => void;
+  finished?: boolean; // the assessment is over: no new voice, but let the closing line play
 }) {
   const [status, setStatus] = useState<Status>("off");
   const [agentState, setAgentState] = useState<string | null>(null);
@@ -49,6 +56,15 @@ export function VoicePanel({
   }, []);
 
   useEffect(() => teardown, [teardown]); // disconnect when leaving the page
+
+  useEffect(() => {
+    if (!finished || status !== "live") return;
+    const id = window.setTimeout(() => {
+      teardown();
+      setStatus("ended");
+    }, CLOSING_GRACE_MS);
+    return () => window.clearTimeout(id);
+  }, [finished, status, teardown]);
 
   useEffect(() => {
     if (status !== "live") return;
@@ -82,6 +98,15 @@ export function VoicePanel({
     room.on(RoomEvent.ParticipantAttributesChanged, (_changed, participant) => {
       const state = participant.attributes["lk.agent.state"];
       if (state) setAgentState(state);
+    });
+    // The agent leaves after speaking the closing line (or if the worker stops). With no
+    // one left to talk to, end voice here instead of leaving the learner in an empty room.
+    room.on(RoomEvent.ParticipantDisconnected, () => {
+      if (roomRef.current === room && room.remoteParticipants.size === 0) {
+        teardown();
+        setStatus("ended");
+        onActivity();
+      }
     });
     room.on(RoomEvent.Disconnected, () => {
       if (roomRef.current === room) {
@@ -125,29 +150,61 @@ export function VoicePanel({
     onActivity();
   }
 
+  const live = status === "live";
+  if (finished && !live) return null; // over, and nothing left to hear
+  const speaking = agentState === "speaking";
+  const listening = agentState === "listening";
+
   return (
-    <section className="mt-6 rounded-md border border-gray-200 p-4" aria-label="Voice answers">
-      <div className="flex flex-wrap items-center gap-2">
-        {status === "live" ? (
+    <Card className="mt-3 p-4" aria-label="Voice answers">
+      <div className="flex flex-wrap items-center gap-3">
+        {live ? (
           <>
-            <span className="text-sm font-medium" role="status">
-              Voice on · {AGENT_STATE_LABEL[agentState ?? "initializing"] ?? agentState}
+            <span className="relative flex h-12 w-12 items-center justify-center">
+              {listening && micOn ? (
+                <span className="kv-pulse absolute inset-0 rounded-full bg-brand-400" />
+              ) : null}
+              <span
+                className={cx(
+                  "relative flex h-12 w-12 items-center justify-center rounded-full text-white",
+                  micOn ? "bg-gradient-to-br from-brand-500 to-brand-700" : "bg-faint",
+                )}
+              >
+                {micOn ? <Icon.Mic /> : <Icon.MicOff />}
+              </span>
             </span>
-            <button
-              type="button"
-              onClick={() => void toggleMic()}
-              aria-pressed={!micOn}
-              className="ml-auto rounded-md border border-gray-300 px-3 py-1.5 text-sm"
-            >
-              {micOn ? "Mute mic" : "Unmute mic"}
-            </button>
-            <button
-              type="button"
-              onClick={stop}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm"
-            >
-              Stop voice
-            </button>
+            <div className="min-w-0" role="status">
+              <p className="text-sm font-semibold text-ink">
+                {micOn ? AGENT_STATE_LABEL[agentState ?? "initializing"] ?? agentState : "Microphone muted"}
+              </p>
+              <p className="text-xs text-muted">
+                {finished
+                  ? "The assessment is finished. Voice will end after this message."
+                  : speaking
+                    ? "You can interrupt at any time."
+                    : "Voice is on. Speak your answer."}
+              </p>
+            </div>
+            {speaking ? (
+              <span className="flex h-6 items-end gap-0.5" aria-hidden="true">
+                {[8, 16, 11, 20, 13, 9].map((h, i) => (
+                  <span
+                    key={i}
+                    className="w-1 animate-pulse rounded-full bg-brand-500"
+                    style={{ height: h, animationDelay: `${i * 120}ms` }}
+                  />
+                ))}
+              </span>
+            ) : null}
+            <div className="ml-auto flex gap-2">
+              <Button variant="secondary" onClick={() => void toggleMic()} aria-pressed={!micOn} className="px-3 py-2">
+                {micOn ? <Icon.MicOff className="h-4 w-4" /> : <Icon.Mic className="h-4 w-4" />}
+                {micOn ? "Mute" : "Unmute"}
+              </Button>
+              <Button variant="secondary" onClick={stop} className="px-3 py-2">
+                <Icon.X className="h-4 w-4" /> Stop voice
+              </Button>
+            </div>
           </>
         ) : (
           <>
@@ -155,24 +212,28 @@ export function VoicePanel({
               type="button"
               onClick={() => void start()}
               disabled={status === "connecting"}
-              className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+              aria-label={status === "ended" ? "Resume voice" : "Answer by voice"}
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-lift transition hover:scale-105 disabled:opacity-60"
             >
-              {status === "connecting" ? "Connecting…" : status === "ended" ? "Resume voice" : "Answer by voice"}
+              {status === "connecting" ? <Spinner className="h-5 w-5" /> : <Icon.Mic />}
             </button>
-            <span className="text-sm text-gray-600">or type below.</span>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-ink">
+                {status === "connecting" ? "Connecting…" : status === "ended" ? "Resume voice" : "Answer by voice"}
+              </p>
+              <p className="text-xs text-muted">Or type below. Audio is never saved.</p>
+            </div>
           </>
         )}
       </div>
-      <p className="mt-2 text-xs text-gray-500">
-        Your speech is transcribed and sent as your answer. This app does not save audio.
-        You can interrupt the questions at any time.
-      </p>
       {message ? (
-        <p role="status" className="mt-2 text-sm text-amber-900">
-          {message}
-        </p>
+        <div className="mt-3">
+          <Callout tone="amber" role="status" icon={<Icon.Alert className="h-4 w-4" />}>
+            {message}
+          </Callout>
+        </div>
       ) : null}
       <div ref={audioRef} hidden />
-    </section>
+    </Card>
   );
 }

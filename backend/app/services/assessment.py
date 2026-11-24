@@ -165,8 +165,15 @@ class AssessmentService:
     # --- public operations ----------------------------------------------------------
 
     def create_session(
-        self, lesson_id: str, lesson_version: int | None, synthetic_learner_id: str
+        self,
+        lesson_id: str,
+        lesson_version: int | None,
+        synthetic_learner_id: str,
+        *,
+        workspace_id: uuid.UUID | None = None,
     ) -> tuple[StudentSessionView, str]:
+        """`workspace_id` is set when a teacher creates the session; only that teacher's
+        workspace can then see its report."""
         lesson = (
             self.lessons.get(lesson_id, lesson_version)
             if lesson_version is not None
@@ -184,6 +191,7 @@ class AssessmentService:
         row = SessionRow(
             id=uuid.uuid4(),
             synthetic_learner_id=synthetic_learner_id,
+            workspace_id=workspace_id,
             lesson_id=lesson.id,
             lesson_version=lesson.version,
             access_token_sha256=hash_secret(token),
@@ -466,7 +474,12 @@ class AssessmentService:
             template = fallback_reply(request)
             return template, self.responder.version if template is None else "fallback:empty"
         allowed = " ".join((transcript, asked.prompt, request.next_question.prompt, lesson.title))
-        problem = check_reply(reply, lesson=lesson, allowed_context=allowed)
+        problem = check_reply(
+            reply,
+            lesson=lesson,
+            allowed_context=allowed,
+            allow_thanks=intent is LearnerIntent.WELLBEING_CONCERN,
+        )
         if problem is not None:
             logger.info("responder reply rejected by guard: %s", problem)
             return fallback_reply(request), f"fallback:{problem}"
@@ -507,27 +520,38 @@ class AssessmentService:
             raise LessonNotFoundError(f"{row.lesson_id} v{row.lesson_version} missing")
         return lesson
 
+    def apply_timers(self, session_id: uuid.UUID) -> None:
+        """T0 for internal callers that are already authorized another way (the teacher
+        report service): apply lease expiry and the deadline. No-op for unknown ids."""
+        with self._db.begin() as db:
+            row = repo.get_session(db, session_id, lock=True)
+            if row is not None:
+                self._apply_timers(db, row)
+
     def _refresh(self, session_id: uuid.UUID, token: str) -> None:
         """T0: apply lease expiry and deadline in their own committed transaction."""
         with self._db.begin() as db:
-            row = self._load(db, session_id, token, lock=True)
-            now = self.clock()
+            self._apply_timers(db, self._load(db, session_id, token, lock=True))
+
+    def _apply_timers(self, db: Session, row: SessionRow) -> None:
+        session_id = row.id
+        now = self.clock()
+        status = SessionStatus(row.status)
+        if (
+            status is SessionStatus.EVALUATING
+            and row.lease_expires_at is not None
+            and row.lease_expires_at <= now
+        ):
+            for stuck in repo.processing_turns(db, session_id):
+                stuck.status = "failed"
+            logger.warning("recovered expired processing lease for session %s", session_id)
+            row.status = transition(status, SessionEvent.RECOVERABLE_ERROR).value
+            row.state_version += 1
+            row.lease_expires_at = None
+            row.updated_at = now
             status = SessionStatus(row.status)
-            if (
-                status is SessionStatus.EVALUATING
-                and row.lease_expires_at is not None
-                and row.lease_expires_at <= now
-            ):
-                for stuck in repo.processing_turns(db, session_id):
-                    stuck.status = "failed"
-                logger.warning("recovered expired processing lease for session %s", session_id)
-                row.status = transition(status, SessionEvent.RECOVERABLE_ERROR).value
-                row.state_version += 1
-                row.lease_expires_at = None
-                row.updated_at = now
-                status = SessionStatus(row.status)
-            if status is SessionStatus.AWAITING_ANSWER and now > row.deadline_at:
-                self._close(row, SessionEvent.TIMEOUT_OR_EXIT, "timeout")
+        if status is SessionStatus.AWAITING_ANSWER and now > row.deadline_at:
+            self._close(row, SessionEvent.TIMEOUT_OR_EXIT, "timeout")
 
     def _release_claim(self, session_id: uuid.UUID, turn_id: uuid.UUID, claimed: int) -> int:
         with self._db.begin() as db:

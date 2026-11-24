@@ -8,6 +8,8 @@ A reply is rejected if it:
 
 * is empty, or longer than MAX_REPLY_CHARS;
 * contains a link, an email-like "@", markdown, or a line break;
+* thanks the learner, unless it is a reply to a wellbeing concern: a "thanks" after
+  every answer sounds robotic (and the voice filler already acknowledges the wait);
 * gives evaluative feedback ("correct", "not quite", "great job" ...): an assessment
   that tells the learner they are right or wrong is no longer measuring what they know;
 * uses an answer-key term: a content word from any criterion's top-level (level 3)
@@ -30,6 +32,7 @@ from app.domain.models import Lesson
 MAX_REPLY_CHARS = 300
 
 _WORD = re.compile(r"[a-z]+")
+_THANKS = re.compile(r"\b(thanks|thank you|thankyou)\b")
 _LINK_OR_MARKUP = re.compile(r"https?://|www\.|@|[*#`\[\]<>]|\n")
 _EVALUATIVE = re.compile(
     r"\b(correct|correctly|incorrect|wrong|exactly|right answer|not quite|almost|"
@@ -81,7 +84,9 @@ def answer_key_terms(lesson: Lesson) -> frozenset[str]:
     return _TERMS_CACHE[key]
 
 
-def check_reply(reply: str, *, lesson: Lesson, allowed_context: str) -> str | None:
+def check_reply(
+    reply: str, *, lesson: Lesson, allowed_context: str, allow_thanks: bool = False
+) -> str | None:
     """Return None if the reply may be used, else a short machine-readable reason.
 
     `allowed_context` is text the learner has already seen or said this turn: their own
@@ -97,6 +102,8 @@ def check_reply(reply: str, *, lesson: Lesson, allowed_context: str) -> str | No
     lowered = text.lower().replace("’", "'")
     if _EVALUATIVE.search(lowered):
         return "evaluative"
+    if not allow_thanks and _THANKS.search(lowered):
+        return "thanks"
     leaked = (_stems(lowered) & answer_key_terms(lesson)) - _stems(allowed_context)
     if leaked:
         return "answer_key_term"

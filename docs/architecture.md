@@ -1,6 +1,6 @@
 # Architecture
 
-Status: Day 4 + conversation layer. Components marked *(planned)* do not exist in code yet.
+Status: Day 5. Components marked *(planned)* do not exist in code yet.
 
 ## Diagram
 
@@ -19,7 +19,7 @@ flowchart TD
   O --> DB[(PostgreSQL durable records)]
   API --> DB
   API -.-> R[(Redis: readiness only so far)]
-  API --> X[Mock Kira export adapter - planned]
+  API --> RP[Report service: revisions, reviews, audit] --> X[Mock Kira export adapter]
 ```
 
 ## Component responsibilities
@@ -44,6 +44,9 @@ flowchart TD
 | Voice token + worker credential | `providers/livekit_tokens.py`, `services/voice_credentials.py` | Room token that dispatches the worker; per-session HMAC credential for the worker |
 | Voice worker | `backend/app/voice/` | `worker.py` (LiveKit), `transport.py` (turn forwarding, testable), `client.py` (HTTP) |
 | Responder | `backend/app/providers/responder.py`, `responder_prompt.py` | The short line said before each question; Claude (`claude-haiku-5-5`) or templates |
+| Report service | `backend/app/services/reports.py`, `api/teacher.py` | Classrooms, report lifecycle, review with revision check, idempotent export. See [reports.md](reports.md) |
+| Mock Kira adapter | `backend/app/providers/kira_mock.py` | Export payload `kira-verbal.mastery-update.v1`; fake receiver that applies each key once |
+| Teacher UI | `frontend/components/TeacherDashboard.tsx`, `ReportReview.tsx` | Launch sessions, review evidence, approve/revise/reject, export, audit trail |
 | Reply guardrails | `backend/app/services/conversation.py` | Length, no feedback, no answer-key terms; template otherwise. See [conversation.md](conversation.md) |
 
 ## Dependency direction
@@ -88,4 +91,8 @@ api ──► services ──► domain
   with `finish_reason = learner_request` (the state machine only allows evaluating →
   completed for a policy finish). Pressing "Finish early" makes it `incomplete` /
   `learner_exit`. Reports (Day 5) must show uncovered objectives as unknown either way.
-- **Demo auth is a per-session bearer token**, not real accounts.
+- **Demo auth is per-session and per-classroom bearer tokens**, not real accounts. Teacher
+  tokens see only their own classroom; learner tokens never see reports.
+- **Reports are append-only revisions.** A review never edits; it adds a revision and an
+  audit row. A database trigger enforces it. Only the latest approved revision exports,
+  once, under a deterministic idempotency key.

@@ -35,7 +35,7 @@ Q2_CONTEXT = "Where does a plant get carbon dioxide? Photosynthesis"
     "reply",
     [
         "That's a good question. I'd like to hear your own thinking first.",
-        "Thanks for explaining. Let's move on.",
+        "Okay. Let's move on.",
         "No problem, take your time.",
         "Sure, I'll say it again.",
     ],
@@ -56,6 +56,8 @@ def test_neutral_replies_pass(photosynthesis: Lesson, reply):
         ("Not quite, but close.", "evaluative"),
         ("Great job on that one.", "evaluative"),
         ("You're right about that.", "evaluative"),
+        ("Thanks for explaining. Let's move on.", "thanks"),
+        ("Thank you! Next question.", "thanks"),
         # Answer-key leaks: words from a level-3 descriptor the learner never said.
         ("Good question! Stomata are tiny openings.", "answer_key_term"),
         ("Think about the air around it.", "answer_key_term"),
@@ -111,8 +113,13 @@ def request(lesson: Lesson, intent: LearnerIntent, next_step, **kwargs) -> Respo
 def test_side_turn_templates(photosynthesis: Lesson, intent, contains):
     reply = fallback_reply(request(photosynthesis, intent, "repeat_question"))
     assert reply is not None and contains in reply
-    # The templates themselves pass the guard (they are what we fall back to).
-    assert check_reply(reply, lesson=photosynthesis, allowed_context=Q2_CONTEXT) is None
+    # The templates themselves pass the guard (they are what we fall back to), with the
+    # same thanks exception the orchestrator applies to wellbeing replies.
+    allow = intent is LearnerIntent.WELLBEING_CONCERN
+    assert (
+        check_reply(reply, lesson=photosynthesis, allowed_context=Q2_CONTEXT, allow_thanks=allow)
+        is None
+    )
 
 
 def test_templates_for_policy_steps(photosynthesis: Lesson):
@@ -223,3 +230,14 @@ def test_unusable_replies_raise(photosynthesis: Lesson, message):
 def test_blank_reply_means_no_line(photosynthesis: Lesson):
     responder = AnthropicResponder(StubClient(reply_message({"reply": "  "})), model="m")
     assert responder.respond(request(photosynthesis, LearnerIntent.ANSWER, "new_question")) is None
+
+
+def test_thanks_is_allowed_only_when_the_caller_permits_it(photosynthesis: Lesson):
+    reply = "Thank you for telling me. Please talk to an adult you trust."
+    assert check_reply(reply, lesson=photosynthesis, allowed_context="") == "thanks"
+    assert check_reply(reply, lesson=photosynthesis, allowed_context="", allow_thanks=True) is None
+
+
+def test_prompt_forbids_routine_thanks():
+    assert "Don't thank the learner" in SYSTEM_PROMPT
+    assert PROMPT_VERSION == "responder-v2"

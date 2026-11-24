@@ -17,7 +17,8 @@ teacher effort than running oral assessments by hand.
 | Day 3: Claude evaluator, evidence validation, abstention, independent/assisted scoring | Built; live API run pending credentials |
 | Day 4: voice via LiveKit (worker, room tokens, voice panel, text fallback) | Built; live voice run pending LiveKit credentials |
 | Conversation layer: side turns, guarded responder replies (text and voice) | Built; live Claude responder run pending credentials |
-| Day 5–7: teacher review, evaluation, deploy | Not started |
+| Day 5: teacher dashboard, review with audit trail, mock Kira export | Built |
+| Day 6–7: evaluation, security, deploy | Not started |
 
 Progress and real test results are in the [engineering journal](docs/engineering-journal.md).
 
@@ -55,7 +56,9 @@ npm install
 npm run dev                           # http://localhost:3000
 ```
 
-Open http://localhost:3000, pick a lesson, and answer as a demo learner. Try the roots
+Open http://localhost:3000 → **Open teacher dashboard** → create a classroom, launch a
+session for a synthetic learner, answer it in the learner tab, then review, approve or
+revise, and export. (Or pick a lesson on the home page to answer as an anonymous learner.) Try the roots
 misconception on photosynthesis ("From the soil through its roots.") to see the adaptive
 follow-up. No API keys are needed: by default the evaluator is a deterministic keyword fake.
 To use Claude instead, set `EVALUATOR_PROVIDER=llm` and either `LLM_API_KEY` or
@@ -108,6 +111,7 @@ docs/                    architecture, journal; more docs per milestone
 - [Assessment policy, evidence validation and scoring](docs/assessment-policy.md)
 - [Voice pipeline](docs/voice-pipeline.md)
 - [Conversation layer and guardrails](docs/conversation.md)
+- [Teacher review, audit trail and export](docs/reports.md)
 - [ADR 0001: idempotency in Postgres, not Redis](docs/adr/0001-database-idempotency.md)
 - [Engineering journal](docs/engineering-journal.md)
 

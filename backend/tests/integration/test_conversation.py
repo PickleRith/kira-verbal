@@ -96,10 +96,10 @@ def test_refetch_shows_the_same_lead_in_and_the_transcript_shows_replies(
 def test_model_reply_is_used_when_it_passes_the_guard(
     service: AssessmentService, seeded_engine: Engine
 ):
-    service.responder = ScriptedResponder("Thanks for sharing that. Let's keep going.")
+    service.responder = ScriptedResponder("Okay, let's keep going.")
     learner = Learner(service)
     r = learner.say(GOOD_Q1)
-    assert r.prompt.lead_in == "Thanks for sharing that. Let's keep going."
+    assert r.prompt.lead_in == "Okay, let's keep going."
     assert r.prompt.text == "Where does a plant get carbon dioxide?"
     assert turn_rows(seeded_engine, learner.id)[0].reply_source == "scripted-v1"
 
@@ -196,3 +196,18 @@ def test_responder_sees_the_learner_and_recent_exchanges_but_no_rubric(
     assert request.intent is LearnerIntent.SUBJECT_QUESTION
     assert request.next_step == "repeat_question"
     assert [e.learner_text for e in request.recent] == [GOOD_Q1]
+
+
+def test_thanks_after_an_answer_falls_back_but_is_allowed_for_a_wellbeing_reply(
+    service: AssessmentService, seeded_engine: Engine
+):
+    service.responder = ScriptedResponder("Thanks for that. Next one.")
+    learner = Learner(service)
+    r = learner.say(GOOD_Q1)
+    assert r.prompt.lead_in is None  # template for a new question: no line at all
+    assert turn_rows(seeded_engine, learner.id)[0].reply_source == "fallback:thanks"
+
+    service.responder = ScriptedResponder("Thank you for telling me. Please talk to your teacher.")
+    other = Learner(service)
+    r = other.say("I'm scared to go home today")
+    assert r.prompt.lead_in == "Thank you for telling me. Please talk to your teacher."

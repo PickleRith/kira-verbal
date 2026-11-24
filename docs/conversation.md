@@ -60,6 +60,7 @@ learner's words as data. Code enforces the parts it can check, whatever the mode
 | Not empty, at most 300 characters, no line breaks | Spoken aloud; long replies are a bug |
 | No links, `@`, markdown | Nothing to click, nothing to render |
 | No evaluative phrases ("correct", "not quite", "great job", "you're right") | Telling a learner they're right or wrong changes what the assessment measures |
+| No "thanks" / "thank you", except in a wellbeing reply | A thank-you after every answer sounded robotic in the first live voice test |
 | No answer-key terms | Content words from any criterion's level-3 descriptor (e.g. "stomata", "air", "chlorophyll") are blocked unless the learner said them first or they appear in the question |
 | Authored text is never generated | The question and hint are appended by code, word for word |
 | Learner text is fenced | Every `</` in learner text is neutralised; no tools are offered |
@@ -69,9 +70,9 @@ line; a leaked answer would corrupt the evidence. Every turn records where its r
 from in `turns.reply_source`:
 
 - `fake-template-v1`: the template, used in fake mode;
-- `anthropic:<model>:responder-v1`: Claude's line, used;
+- `anthropic:<model>:responder-v2`: Claude's line, used;
 - `fallback:<reason>`: the template, because of `answer_key_term`, `evaluative`,
-  `too_long`, `link_or_markup`, `empty`, `error` (failure or timeout) or `plan_changed`;
+  `too_long`, `thanks`, `link_or_markup`, `empty`, `error` (failure or timeout) or `plan_changed`;
 - `none:finished`: the session ended.
 
 That makes the block rate measurable once real runs exist.

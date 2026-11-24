@@ -20,7 +20,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
-from app.api import health, sessions
+from app.api import health, sessions, teacher
 from app.api.errors import register_error_handlers
 from app.config import Settings, get_settings
 from app.db.session import make_engine, make_session_factory
@@ -30,6 +30,7 @@ from app.providers.llm import AnthropicEvaluator, Evaluator, build_anthropic_cli
 from app.providers.responder import AnthropicResponder, FakeResponder, Responder
 from app.services.assessment import AssessmentConfig, AssessmentService
 from app.services.lessons import LessonStore
+from app.services.reports import ReportService
 
 
 def configure_logging() -> None:
@@ -116,6 +117,7 @@ def create_app(
             ),
             responder=responder or build_responder(settings),
         )
+        app.state.reports = ReportService(session_factory, app.state.assessment)
 
         def check_database() -> None:
             with engine.connect() as connection:
@@ -156,6 +158,7 @@ def create_app(
     register_error_handlers(app)
     app.include_router(health.router)
     app.include_router(sessions.router)
+    app.include_router(teacher.router)
     return app
 
 
