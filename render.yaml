@@ -3,8 +3,8 @@
 # values marked `sync: false` (secrets) once, at creation. See docs/deployment.md.
 #
 # Free plans: web services sleep after 15 minutes idle (first request then takes ~1 min);
-# free Postgres is deleted 30 days after creation (14-day grace); free Key Value is
-# in-memory (only rate-limit counters live there, so losing it loses nothing).
+# free Postgres is deleted 30 days after creation (14-day grace). No Redis: rate limits
+# are counted in the API's memory (one instance).
 #
 # Everything here is on free plans. The voice agent is hosted on LiveKit Cloud, not here
 # (root Dockerfile, `lk agent create`; see docs/deployment.md).
@@ -32,11 +32,10 @@ services:
         fromDatabase:
           name: kira-verbal-db
           property: connectionString
+      # No Redis: a workspace may only have one free Key Value instance. With one API
+      # instance, rate-limit counts kept in memory are equivalent (app/api/limits.py).
       - key: REDIS_URL
-        fromService:
-          type: keyvalue
-          name: kira-verbal-redis
-          property: connectionString
+        value: none
       - key: FRONTEND_ORIGIN
         value: https://kira-verbal-web.onrender.com
       - key: FORWARDED_ALLOW_IPS
@@ -85,13 +84,6 @@ services:
     envVars:
       - key: NEXT_PUBLIC_API_BASE_URL
         value: https://kira-verbal-api.onrender.com
-
-  # --- Redis-compatible store for rate limiting. Internal connections only. ---
-  - type: keyvalue
-    name: kira-verbal-redis
-    plan: free
-    region: oregon
-    ipAllowList: []
 
 databases:
   - name: kira-verbal-db

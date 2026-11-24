@@ -20,7 +20,9 @@ same ports 3000 and 8000.
 
 1. Render dashboard → **New → Blueprint** → connect GitHub → pick `kira-verbal`, branch `main`.
 2. Render reads `render.yaml` and proposes: `kira-verbal-api` and `kira-verbal-web` (free
-   web services), `kira-verbal-db` (free Postgres), `kira-verbal-redis` (free Key Value).
+   web services) and `kira-verbal-db` (free Postgres). No Redis: Render allows one free Key
+   Value per workspace, and with a single API instance the rate limiter counts in memory
+   (`REDIS_URL=none`).
 3. It asks for the API's secrets (marked `sync: false`); paste them there, never in the file:
    `LLM_API_KEY` (set a monthly spend limit on the Anthropic account first), the LiveKit
    project's `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`, and

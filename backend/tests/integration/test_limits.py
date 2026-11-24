@@ -105,3 +105,24 @@ def test_limiter_fails_open_when_redis_is_down(seeded_engine, database_url, eval
             for _ in range(3)
         ]
     assert codes == [201, 201, 201]
+
+
+def test_without_redis_limits_are_counted_in_memory(seeded_engine, database_url, evaluator):
+    """REDIS_URL blank (e.g. a free host with no Redis): limits still apply, /ready is OK."""
+    settings = Settings(
+        database_url=database_url,
+        redis_url="",
+        rate_limit_enabled=True,
+        rate_limit_create_per_minute=2,
+    )
+    assert settings.redis_url is None
+    assert Settings(database_url=database_url, redis_url="none").redis_url is None
+    app = create_app(settings, evaluator=evaluator)
+    with TestClient(app) as api:
+        codes = [
+            api.post("/v1/sessions", json={"lesson_id": "photosynthesis"}).status_code
+            for _ in range(3)
+        ]
+        ready = api.get("/ready")
+    assert codes == [201, 201, 429]
+    assert ready.status_code == 200 and "redis" not in ready.text

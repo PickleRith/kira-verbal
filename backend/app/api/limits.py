@@ -12,6 +12,10 @@ submission must be bounded per caller. Limits are fixed one-minute windows:
 Over the limit -> 429 `rate_limited` with Retry-After (seconds to the next window).
 A body larger than MAX_BODY_BYTES -> 413 `payload_too_large` before it is parsed.
 
+Without Redis (REDIS_URL blank) the counts are kept in this process's memory: correct
+for a single API instance, and the windows reset on restart. With Redis, every
+instance shares the counts.
+
 Redis is coordination only. If it is unreachable the limiter FAILS OPEN (requests pass,
 a warning is logged): losing rate limiting must not take the assessment down, and
 correctness never depends on it. /health and /ready are never limited.
@@ -24,6 +28,7 @@ from __future__ import annotations
 
 import logging
 import re
+import threading
 import time
 from dataclasses import dataclass
 
@@ -75,11 +80,28 @@ def _error(status: int, code: str, message: str, headers: dict[str, str] | None 
     return JSONResponse(body.model_dump(), status_code=status, headers=headers)
 
 
+class MemoryCounter:
+    """Fixed-window counts in process memory, used when no Redis is configured."""
+
+    def __init__(self) -> None:
+        self._counts: dict[tuple[str, int], int] = {}
+        self._lock = threading.Lock()
+
+    def hit(self, key: str, window: int) -> int:
+        with self._lock:
+            if len(self._counts) > 10_000:  # drop finished windows now and then
+                self._counts = {k: v for k, v in self._counts.items() if k[1] >= window}
+            count = self._counts.get((key, window), 0) + 1
+            self._counts[(key, window)] = count
+            return count
+
+
 class RequestLimitsMiddleware(BaseHTTPMiddleware):
     def __init__(self, app, config: LimitConfig) -> None:  # noqa: ANN001 - ASGI app
         super().__init__(app)
         self.config = config
         self._last_warning = 0.0
+        self._memory = MemoryCounter()
 
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         length = request.headers.get("content-length")
@@ -90,7 +112,7 @@ class RequestLimitsMiddleware(BaseHTTPMiddleware):
             client_ip = request.client.host if request.client else "unknown"
             bucket = classify(request.method, request.url.path, client_ip, self.config)
             client: redis.Redis | None = getattr(request.app.state, "redis", None)
-            if bucket is not None and client is not None:
+            if bucket is not None:
                 key, limit = bucket
                 retry_after = await run_in_threadpool(self._hit, client, key, limit)
                 if retry_after is not None:
@@ -102,10 +124,13 @@ class RequestLimitsMiddleware(BaseHTTPMiddleware):
                     )
         return await call_next(request)
 
-    def _hit(self, client: redis.Redis, key: str, limit: int) -> int | None:
+    def _hit(self, client: redis.Redis | None, key: str, limit: int) -> int | None:
         """Count this request. Return seconds to wait if over the limit, else None."""
         now = time.time()
         window = int(now // WINDOW_SECONDS)
+        if client is None:
+            count = self._memory.hit(key, window)
+            return max(1, int((window + 1) * WINDOW_SECONDS - now) + 1) if count > limit else None
         try:
             pipe = client.pipeline()
             pipe.incr(f"kv:rl:{key}:{window}")

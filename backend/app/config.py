@@ -31,7 +31,9 @@ class Settings(BaseSettings):
     # where Docker's 127.0.0.1-only port binding does not listen, so every connection
     # stalls until a timeout before falling back to IPv4.
     database_url: str = "postgresql+psycopg://kira:kira@127.0.0.1:5432/kira"
-    redis_url: str = "redis://127.0.0.1:6379/0"
+    # Blank or "none" = no Redis: the rate limiter counts in memory (correct for a single
+    # API instance, e.g. a free hosting plan), and /ready doesn't check Redis.
+    redis_url: str | None = "redis://127.0.0.1:6379/0"
     # Comma-separated CORS allowlist. Both spellings: browsers treat them as different origins.
     frontend_origin: str = "http://localhost:3000,http://127.0.0.1:3000"
     lessons_dir: Path = REPO_ROOT / "data" / "lessons"
@@ -112,6 +114,7 @@ class Settings(BaseSettings):
         )
 
     @field_validator(
+        "redis_url",
         "llm_api_key",
         "livekit_url",
         "livekit_api_key",
@@ -128,6 +131,14 @@ class Settings(BaseSettings):
         if isinstance(value, str) and not value.strip():
             return None
         return value.strip() if isinstance(value, str) else value
+
+    @field_validator("redis_url", mode="before")
+    @classmethod
+    def _redis_can_be_off(cls, value: object) -> object:
+        # "none" / "off" also mean "no Redis" (handy where a platform rejects empty values).
+        if isinstance(value, str) and value.strip().lower() in {"none", "off"}:
+            return None
+        return value
 
     @field_validator("database_url", mode="before")
     @classmethod

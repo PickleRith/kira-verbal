@@ -91,10 +91,12 @@ def create_app(
 
         engine = make_engine(settings.database_url)
         session_factory = make_session_factory(engine)
-        redis_client = redis.Redis.from_url(
-            settings.redis_url, socket_connect_timeout=2, socket_timeout=2
+        redis_client = (
+            redis.Redis.from_url(settings.redis_url, socket_connect_timeout=2, socket_timeout=2)
+            if settings.redis_url
+            else None
         )
-        app.state.redis = redis_client  # used by the rate limiter
+        app.state.redis = redis_client  # used by the rate limiter; None = count in memory
         executor = ThreadPoolExecutor(max_workers=8, thread_name_prefix="evaluator")
 
         lesson_store = LessonStore(session_factory)
@@ -131,23 +133,23 @@ def create_app(
                 connection.execute(text("SELECT 1"))
 
         def check_redis() -> None:
-            if not redis_client.ping():
+            if redis_client is not None and not redis_client.ping():
                 raise RuntimeError("redis ping returned false")
 
         def check_lessons() -> None:
             if len(catalog) == 0:
                 raise RuntimeError("no lessons loaded")
 
-        app.state.readiness_checks = readiness_checks or {
-            "database": check_database,
-            "redis": check_redis,
-            "lessons": check_lessons,
-        }
+        default_checks = {"database": check_database, "lessons": check_lessons}
+        if redis_client is not None:
+            default_checks["redis"] = check_redis
+        app.state.readiness_checks = readiness_checks or default_checks
         try:
             yield
         finally:
             executor.shutdown(wait=False, cancel_futures=True)
-            redis_client.close()
+            if redis_client is not None:
+                redis_client.close()
             engine.dispose()
 
     app = FastAPI(
