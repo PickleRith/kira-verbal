@@ -2,13 +2,29 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 from pathlib import Path
 from typing import Any
 
-import pytest
+# Tests must never depend on the developer's .env, and must never make paid API calls or
+# reach LiveKit. Environment variables override .env values in pydantic-settings, so pin
+# the providers to fake and blank every credential (blank means "not configured").
+# This runs at import time, before any test builds a Settings object.
+for _name, _value in {
+    "EVALUATOR_PROVIDER": "fake",
+    "RESPONDER_PROVIDER": "fake",
+    "LLM_API_KEY": "",
+    "LIVEKIT_URL": "",
+    "LIVEKIT_API_KEY": "",
+    "LIVEKIT_API_SECRET": "",
+    "VOICE_WORKER_SECRET": "",
+}.items():
+    os.environ[_name] = _value
 
-from app.config import REPO_ROOT
-from app.domain.models import Lesson
+import pytest  # noqa: E402
+
+from app.config import REPO_ROOT  # noqa: E402
+from app.domain.models import Lesson  # noqa: E402
 
 LESSONS_DIR = REPO_ROOT / "data" / "lessons"
 

@@ -39,6 +39,7 @@ import hmac
 import json
 import logging
 import secrets
+import time
 import uuid
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
@@ -231,6 +232,7 @@ class AssessmentService:
 
     def submit_turn(self, session_id: uuid.UUID, token: str, turn_input: TurnInput) -> TurnResponse:
         fingerprint = request_fingerprint(turn_input)
+        started = time.perf_counter()
         self._refresh(session_id, token)
 
         # T1: claim
@@ -297,6 +299,7 @@ class AssessmentService:
 
         # Evaluate with no transaction open.
         question = lesson.question(turn_input.question_id)
+        evaluate_started = time.perf_counter()
         try:
             result = self._evaluate(
                 EvaluationRequest(lesson, question, turn_input.transcript, assisted)
@@ -309,6 +312,7 @@ class AssessmentService:
             ) from None
         # Validation is deterministic and checks quotes against the stored transcript, so a
         # fabricated quote or an undeclared tag can never reach the policy or the scores.
+        evaluator_ms = (time.perf_counter() - evaluate_started) * 1000
         assessment = validate_output(lesson, question, turn_input.transcript, result)
         signal, tag = assessment.signal, assessment.misconception_tag
 
@@ -328,9 +332,11 @@ class AssessmentService:
                 )
                 for t in snapshot[-RECENT_EXCHANGES:]
             )
+        reply_started = time.perf_counter()
         reply, reply_source = self._reply(
             lesson, question, turn_input.transcript, result.intent, planned, recent
         )
+        reply_ms = (time.perf_counter() - reply_started) * 1000
 
         # T2: commit
         with self._db.begin() as db:
@@ -393,6 +399,17 @@ class AssessmentService:
                 finish_reason=row.finish_reason,  # type: ignore[arg-type]
             )
             turn.response = response.model_dump(mode="json")
+        # Timing only: never the transcript.
+        logger.info(
+            "turn_timing session=%s total_ms=%.0f evaluator_ms=%.0f reply_ms=%.0f "
+            "evaluator=%s reply_source=%s",
+            session_id,
+            (time.perf_counter() - started) * 1000,
+            evaluator_ms,
+            reply_ms,
+            result.evaluator_version,
+            reply_source,
+        )
         return response
 
     # --- internals ------------------------------------------------------------------

@@ -117,6 +117,34 @@ measured** yet.
 - **The worker can't reach the API.** Set `KIRA_API_URL`. On Windows use `127.0.0.1`, not
   `localhost`.
 
+## First live run (2026-11-23)
+
+Project `kira-verbal` on LiveKit Cloud (US East B), Windows dev machine, evaluator and
+responder both on `claude-haiku-5-5`. One five-turn photosynthesis session, then three text
+turns for a timing breakdown.
+
+- **The whole path works:** dispatch, STT, turn detection, `/turns`, TTS, the closing line,
+  and disconnect handling. STT transcribed all 5 turns correctly, and every intent and
+  signal was correct.
+- **The agent joined about 11 s late.** In dev mode no process is kept warm, and the cold
+  start exceeded the 10 s initialize timeout, so only the retry worked. Fixed: 1 warm
+  process in dev, a 30 s timeout, and a prewarm for slow imports. After the fix, the process
+  is ready at startup (2.9 s) before any job arrives.
+- **End of turn to first audio: 3.4–4.1 s** (4 measured turns). Breakdown (API
+  `turn_timing` log):
+
+  | Stage | Measured |
+  |---|---|
+  | Evaluator (Claude, effort medium) | 1.5–3.1 s |
+  | Responder (Claude, effort low) | 1.3–1.5 s |
+  | API, DB and policy | < 0.1 s |
+  | TTS to first audio | ~0.3 s |
+
+  The plan's stretch target (p95 ≤ 1.5 s) is **not met**. With an LLM judging every answer
+  on the critical path, it can't be met as designed. The biggest lever is turning off the
+  responder for voice (−1.3 s).
+- Interruptions and silence re-prompts were not specifically exercised in this run.
+
 ## Status
 
 The worker was built from the LiveKit docs and checked against the installed SDKs

@@ -10,6 +10,7 @@ Run locally:  uvicorn app.main:app --reload --port 8000
 
 from __future__ import annotations
 
+import logging
 from collections.abc import AsyncIterator, Callable, Mapping
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
@@ -29,6 +30,17 @@ from app.providers.llm import AnthropicEvaluator, Evaluator, build_anthropic_cli
 from app.providers.responder import AnthropicResponder, FakeResponder, Responder
 from app.services.assessment import AssessmentConfig, AssessmentService
 from app.services.lessons import LessonStore
+
+
+def configure_logging() -> None:
+    """Uvicorn configures only its own loggers; give ours a handler so INFO lines (turn
+    timing) appear. Our log lines never contain learner transcripts."""
+    app_logger = logging.getLogger("app")
+    if not app_logger.handlers:
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s"))
+        app_logger.addHandler(handler)
+        app_logger.setLevel(logging.INFO)
 
 
 def build_evaluator(settings: Settings) -> Evaluator:
@@ -66,6 +78,7 @@ def create_app(
 ) -> FastAPI:
     """Build the app. Tests inject `readiness_checks`, `evaluator` and `responder`."""
     settings = settings or get_settings()
+    configure_logging()
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:

@@ -19,6 +19,8 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import math
+import os
 import time
 from collections.abc import AsyncIterable
 
@@ -29,6 +31,7 @@ from livekit.agents import (
     AgentServer,
     AgentSession,
     JobContext,
+    JobProcess,
     ModelSettings,
     StopResponse,
     TurnHandlingOptions,
@@ -36,6 +39,7 @@ from livekit.agents import (
     inference,
     llm,
 )
+from livekit.agents.worker import ServerEnvOption  # not re-exported at top level
 
 from app.config import REPO_ROOT, get_settings
 from app.voice.client import KiraClient
@@ -44,7 +48,26 @@ from app.voice.transport import VoiceTurnBridge
 load_dotenv(REPO_ROOT / ".env")  # LiveKit SDK reads LIVEKIT_URL / _API_KEY / _API_SECRET
 logger = logging.getLogger("kira-verbal.voice")
 settings = get_settings()
-server = AgentServer()
+server = AgentServer(
+    # Dev mode warms no processes by default, so the first job started cold. Measured on
+    # Windows (2026-11-23): that cold start exceeded the default 10 s initialize timeout and
+    # the agent joined ~11 s late. Keep one warm in dev; leave the production default alone.
+    num_idle_processes=ServerEnvOption(
+        dev_default=1, prod_default=min(math.ceil(os.cpu_count() or 1), 4)
+    ),
+    initialize_process_timeout=30.0,
+)
+
+
+def prewarm(proc: JobProcess) -> None:
+    """Do slow first-use imports before a job is assigned. The worker log showed the event
+    loop blocked ~620 ms importing httpcore on the first API call, during the greeting."""
+    import httpcore._sync.http11  # noqa: F401
+    import httpx  # noqa: F401
+    import numpy.fft  # noqa: F401
+
+
+server.setup_fnc = prewarm
 
 FILLER_AFTER_SECONDS = 1.5
 FILLER = "Thanks. One moment."
