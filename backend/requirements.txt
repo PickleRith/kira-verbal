@@ -1,0 +1,5 @@
+# Voice agent image (backend/Dockerfile, hosted on LiveKit Cloud). Same pins as the [voice]
+# extra in pyproject.toml; tests/unit/test_voice_requirements.py keeps them identical.
+# LiveKit's CLI (`lk agent create`) also reads this file to recognise the agent project.
+livekit-agents==1.8.13
+httpx==0.28.1

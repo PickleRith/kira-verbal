@@ -16,9 +16,9 @@ ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 PIP_NO_CACHE_DIR=1 PIP_DISABLE_
 WORKDIR /app
 
 # Dependencies first for layer caching, then the code.
-COPY pyproject.toml ./
+COPY pyproject.toml requirements.txt ./
 COPY app ./app
-RUN pip install ".[voice]"
+RUN pip install -r requirements.txt .
 
 RUN useradd --create-home --uid 10001 agent
 USER agent
