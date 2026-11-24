@@ -1,0 +1,106 @@
+# Render Blueprint for Kira Verbal (https://render.com/docs/blueprint-spec).
+# Create it from the dashboard: New > Blueprint > pick this repository. Render asks for the
+# values marked `sync: false` (secrets) once, at creation. See docs/deployment.md.
+#
+# Free plans: web services sleep after 15 minutes idle (first request then takes ~1 min);
+# free Postgres is deleted 30 days after creation (14-day grace); free Key Value is
+# in-memory (only rate-limit counters live there, so losing it loses nothing).
+#
+# The two public URLs below assume Render gives the services these names as subdomains. If a
+# name is taken, Render adds a suffix: then update NEXT_PUBLIC_API_BASE_URL (and redeploy the
+# web service, it is baked in at build time) and FRONTEND_ORIGIN to the real URLs.
+
+services:
+  # --- API (FastAPI). Runs migrations and the lesson seed on start (backend/start.sh). ---
+  - type: web
+    name: kira-verbal-api
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: kira-verbal-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: kira-verbal-redis
+          property: connectionString
+      - key: FRONTEND_ORIGIN
+        value: https://kira-verbal-web.onrender.com
+      - key: FORWARDED_ALLOW_IPS
+        value: "*"
+      - key: RATE_LIMIT_ENABLED
+        value: "true"
+      # Claude. Set a monthly spend limit on the Anthropic account before going public.
+      - key: EVALUATOR_PROVIDER
+        value: llm
+      - key: RESPONDER_PROVIDER
+        value: llm
+      - key: RESPONDER_SCOPE
+        value: side_turns
+      - key: LLM_MODEL
+        value: claude-haiku-5-5
+      - key: LLM_EFFORT
+        value: low
+      - key: LLM_API_KEY
+        sync: false
+      # Voice is off until the worker below is enabled; then also set LIVEKIT_URL,
+      # LIVEKIT_API_KEY, LIVEKIT_API_SECRET and VOICE_WORKER_SECRET here.
+
+  # --- Website (Next.js). NEXT_PUBLIC_API_BASE_URL is a Docker build arg (baked in). ---
+  - type: web
+    name: kira-verbal-web
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    healthCheckPath: /
+    autoDeployTrigger: commit
+    envVars:
+      - key: NEXT_PUBLIC_API_BASE_URL
+        value: https://kira-verbal-api.onrender.com
+
+  # --- Redis-compatible store for rate limiting. Internal connections only. ---
+  - type: keyvalue
+    name: kira-verbal-redis
+    plan: free
+    region: oregon
+    ipAllowList: []
+
+  # --- Voice worker (optional, paid: background workers have no free plan). ---
+  # Uncomment, then add the LiveKit settings and VOICE_WORKER_SECRET to the API as well.
+  # - type: worker
+  #   name: kira-verbal-voice
+  #   runtime: docker
+  #   # plan: omitted -> Render's default paid worker size
+  #   region: oregon
+  #   dockerfilePath: ./backend/Dockerfile
+  #   dockerContext: .
+  #   dockerCommand: python -m app.voice.worker start
+  #   envVars:
+  #     - key: APP_ENV
+  #       value: production
+  #     - key: KIRA_API_URL
+  #       value: https://kira-verbal-api.onrender.com
+  #     - key: LIVEKIT_URL
+  #       sync: false
+  #     - key: LIVEKIT_API_KEY
+  #       sync: false
+  #     - key: LIVEKIT_API_SECRET
+  #       sync: false
+  #     - key: VOICE_WORKER_SECRET
+  #       sync: false
+
+databases:
+  - name: kira-verbal-db
+    plan: free
+    region: oregon

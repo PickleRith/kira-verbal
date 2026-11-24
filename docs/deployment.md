@@ -1,6 +1,6 @@
 # Deployment
 
-**Status: not deployed.** The container images build and the full stack runs locally with
+**Status: deploy configuration ready for Render (`render.yaml`); not yet deployed.** The container images build and the full stack runs locally with
 one command (below). Putting it on a public host needs accounts and secrets only the owner
 has; this page is the checklist for doing that.
 
@@ -15,6 +15,27 @@ Free fake mode by default. Settings in `.env` (see `.env.example`) are passed th
 `EVALUATOR_PROVIDER=llm` plus `LLM_API_KEY` switches on Claude. Add `--profile voice` to also
 run the voice worker (needs the LiveKit settings). Stop the dev servers first: it uses the
 same ports 3000 and 8000.
+
+## Deploy on Render (blueprint in `render.yaml`)
+
+1. Render dashboard → **New → Blueprint** → connect GitHub → pick `kira-verbal`, branch `main`.
+2. Render reads `render.yaml` and proposes: `kira-verbal-api` and `kira-verbal-web` (free
+   web services), `kira-verbal-db` (free Postgres), `kira-verbal-redis` (free Key Value).
+3. It asks for `LLM_API_KEY` (marked `sync: false`). Paste the Anthropic key there, never
+   in the file. Set a monthly spend limit on the Anthropic account first.
+4. Apply. The API runs migrations and seeds the lessons on start.
+5. Check the real URLs on the dashboard. If either service did not get the subdomain the
+   file assumes (`kira-verbal-api.onrender.com`, `kira-verbal-web.onrender.com`), set the
+   API's `FRONTEND_ORIGIN` and the web service's `NEXT_PUBLIC_API_BASE_URL` to the real
+   URLs and redeploy the web service (that value is baked in at build time).
+6. Smoke test (below). `https://<api>/ready` should return 200.
+
+Free-plan limits to know: services sleep after 15 minutes idle (the first request then takes
+about a minute); **free Postgres is deleted 30 days after creation**; background workers and
+cron jobs are not free, so voice is off and the retention purge isn't scheduled unless you
+add them (the worker block in `render.yaml` is ready to uncomment). The Blueprint keys were
+taken from Render's spec; the nesting of `fromDatabase`/`fromService` follows its prose
+description and is validated by Render when the Blueprint is created.
 
 ## Topology
 

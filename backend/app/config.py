@@ -126,6 +126,17 @@ class Settings(BaseSettings):
             return None
         return value.strip() if isinstance(value, str) else value
 
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def _use_psycopg_driver(cls, value: object) -> object:
+        # Hosting providers (e.g. Render) hand out postgres:// or postgresql:// URLs, which
+        # SQLAlchemy maps to psycopg2. This project installs psycopg 3, so name it explicitly.
+        if isinstance(value, str):
+            for prefix in ("postgres://", "postgresql://"):
+                if value.startswith(prefix):
+                    return "postgresql+psycopg://" + value[len(prefix) :]
+        return value
+
     @model_validator(mode="after")
     def _voice_secret_is_strong(self) -> Settings:
         secret = self.voice_worker_secret

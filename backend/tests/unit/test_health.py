@@ -61,3 +61,12 @@ def test_blank_optional_settings_mean_not_configured():
     )
     assert settings.voice_worker_secret is None and not settings.voice_configured
     assert settings.llm_api_key.get_secret_value() == "key"
+
+
+def test_hosted_database_urls_use_psycopg():
+    from app.config import Settings
+
+    for url in ("postgres://u:p@h:5432/d", "postgresql://u:p@h:5432/d"):
+        assert Settings(database_url=url).database_url == "postgresql+psycopg://u:p@h:5432/d"
+    already = "postgresql+psycopg://u:p@h/d"
+    assert Settings(database_url=already).database_url == already
