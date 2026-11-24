@@ -20,14 +20,11 @@ same ports 3000 and 8000.
 
 1. Render dashboard → **New → Blueprint** → connect GitHub → pick `kira-verbal`, branch `main`.
 2. Render reads `render.yaml` and proposes: `kira-verbal-api` and `kira-verbal-web` (free
-   web services), `kira-verbal-db` (free Postgres), `kira-verbal-redis` (free Key Value) and
-   `kira-verbal-voice` (background worker, **paid**: `0.5c-512mb`).
-3. It asks for the secrets (marked `sync: false`); paste them there, never in the file:
-   - API: `LLM_API_KEY` (set a monthly spend limit on the Anthropic account first).
-   - API **and** worker, identical values in both: `LIVEKIT_URL`, `LIVEKIT_API_KEY`,
-     `LIVEKIT_API_SECRET` (your LiveKit Cloud project) and `VOICE_WORKER_SECRET` (any
-     random string of 32+ characters, e.g.
-     `python -c "import secrets; print(secrets.token_urlsafe(48))"`).
+   web services), `kira-verbal-db` (free Postgres), `kira-verbal-redis` (free Key Value).
+3. It asks for the API's secrets (marked `sync: false`); paste them there, never in the file:
+   `LLM_API_KEY` (set a monthly spend limit on the Anthropic account first), the LiveKit
+   project's `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`, and
+   `VOICE_WORKER_SECRET`: the value from `.env.voice-agent` (see below).
 4. Apply. The API runs migrations and seeds the lessons on start.
 5. Check the real URLs on the dashboard. If either service did not get the subdomain the
    file assumes (`kira-verbal-api.onrender.com`, `kira-verbal-web.onrender.com`), set the
@@ -41,11 +38,31 @@ retention purge isn't scheduled. If the API has been asleep, the first page load
 voice works once the page has loaded.
 
 Voice in production uses its own agent name (`VOICE_AGENT_NAME=kira-verbal-voice-prod`
-on the API and the worker), so a developer's local worker connected to the same LiveKit
-project never receives production sessions. The worker keeps one warm process
-(`VOICE_IDLE_PROCESSES=1`) to fit in 512 MB. The Blueprint keys were
+on the API and the agent), so a developer's local worker connected to the same LiveKit
+project never receives production sessions. The Blueprint keys were
 taken from Render's spec; the nesting of `fromDatabase`/`fromService` follows its prose
 description and is validated by Render when the Blueprint is created.
+
+## Voice agent on LiveKit Cloud
+
+The voice worker runs on LiveKit Cloud's agent hosting (free Build plan: 1 deployment,
+1,000 agent-session minutes a month, 5 concurrent sessions; idle agents scale to zero, so
+the first session after a quiet spell waits 10–20 s for the agent to start).
+
+- Image: the root `Dockerfile` (build context = repository root).
+- LiveKit injects `LIVEKIT_URL` / `LIVEKIT_API_KEY` / `LIVEKIT_API_SECRET` itself.
+- The agent's own settings are LiveKit Cloud secrets, kept locally in the git-ignored
+  `.env.voice-agent`: `KIRA_API_URL` (the API's public URL), `VOICE_AGENT_NAME`
+  (`kira-verbal-voice-prod`, the same as on the API) and `VOICE_WORKER_SECRET` (the same
+  value as on the API).
+
+```powershell
+# from the repository root, against the same LiveKit project the API uses
+lk agent create --region us-east --secrets-file .env.voice-agent .
+lk agent deploy .                                   # later versions
+lk agent update-secrets --secrets "KIRA_API_URL=https://<real api url>"   # if the URL differs
+lk agent status ; lk agent logs
+```
 
 ## Topology
 

@@ -11,3 +11,11 @@
 **/.env
 **/.env.local
 docs
+
+# Not needed by the API (Render) or the voice agent (LiveKit Cloud) images built from here.
+frontend
+.github
+.claude
+**/tests
+*.md
+scripts
