@@ -54,7 +54,8 @@ server = AgentServer(
     # Windows (2026-11-23): that cold start exceeded the default 10 s initialize timeout and
     # the agent joined ~11 s late. Keep one warm in dev; leave the production default alone.
     num_idle_processes=ServerEnvOption(
-        dev_default=1, prod_default=min(math.ceil(os.cpu_count() or 1), 4)
+        dev_default=1,
+        prod_default=settings.voice_idle_processes or min(math.ceil(os.cpu_count() or 1), 4),
     ),
     initialize_process_timeout=30.0,
     # See Settings.voice_job_executor: isolates each call's native audio state.

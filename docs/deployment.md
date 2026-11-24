@@ -20,9 +20,14 @@ same ports 3000 and 8000.
 
 1. Render dashboard → **New → Blueprint** → connect GitHub → pick `kira-verbal`, branch `main`.
 2. Render reads `render.yaml` and proposes: `kira-verbal-api` and `kira-verbal-web` (free
-   web services), `kira-verbal-db` (free Postgres), `kira-verbal-redis` (free Key Value).
-3. It asks for `LLM_API_KEY` (marked `sync: false`). Paste the Anthropic key there, never
-   in the file. Set a monthly spend limit on the Anthropic account first.
+   web services), `kira-verbal-db` (free Postgres), `kira-verbal-redis` (free Key Value) and
+   `kira-verbal-voice` (background worker, **paid**: `0.5c-512mb`).
+3. It asks for the secrets (marked `sync: false`); paste them there, never in the file:
+   - API: `LLM_API_KEY` (set a monthly spend limit on the Anthropic account first).
+   - API **and** worker, identical values in both: `LIVEKIT_URL`, `LIVEKIT_API_KEY`,
+     `LIVEKIT_API_SECRET` (your LiveKit Cloud project) and `VOICE_WORKER_SECRET` (any
+     random string of 32+ characters, e.g.
+     `python -c "import secrets; print(secrets.token_urlsafe(48))"`).
 4. Apply. The API runs migrations and seeds the lessons on start.
 5. Check the real URLs on the dashboard. If either service did not get the subdomain the
    file assumes (`kira-verbal-api.onrender.com`, `kira-verbal-web.onrender.com`), set the
@@ -31,9 +36,14 @@ same ports 3000 and 8000.
 6. Smoke test (below). `https://<api>/ready` should return 200.
 
 Free-plan limits to know: services sleep after 15 minutes idle (the first request then takes
-about a minute); **free Postgres is deleted 30 days after creation**; background workers and
-cron jobs are not free, so voice is off and the retention purge isn't scheduled unless you
-add them (the worker block in `render.yaml` is ready to uncomment). The Blueprint keys were
+about a minute); **free Postgres is deleted 30 days after creation**; cron jobs are not free, so the
+retention purge isn't scheduled. If the API has been asleep, the first page load wakes it;
+voice works once the page has loaded.
+
+Voice in production uses its own agent name (`VOICE_AGENT_NAME=kira-verbal-voice-prod`
+on the API and the worker), so a developer's local worker connected to the same LiveKit
+project never receives production sessions. The worker keeps one warm process
+(`VOICE_IDLE_PROCESSES=1`) to fit in 512 MB. The Blueprint keys were
 taken from Render's spec; the nesting of `fromDatabase`/`fromService` follows its prose
 description and is validated by Render when the Blueprint is created.
 

@@ -94,6 +94,9 @@ class Settings(BaseSettings):
     # the worker with "Assertion failed: LSX_FFT_BR == NULL" on 2026-11-23. "thread" is the
     # fallback if process spawning fails on a particular Windows Python build.
     voice_job_executor: Literal["process", "thread"] = "process"
+    # Warm job processes kept ready in production. Unset = min(CPU count, 4). In a container
+    # os.cpu_count() can report the host's CPUs, not the plan's, so small instances set this.
+    voice_idle_processes: int | None = None
     # Unused: kept so old .env files still parse. Plan originally named these providers.
     deepgram_api_key: SecretStr | None = None
     elevenlabs_api_key: SecretStr | None = None

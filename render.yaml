@@ -6,9 +6,11 @@
 # free Postgres is deleted 30 days after creation (14-day grace); free Key Value is
 # in-memory (only rate-limit counters live there, so losing it loses nothing).
 #
-# The two public URLs below assume Render gives the services these names as subdomains. If a
+# Voice: the worker is a paid instance (0.5 CPU, 512 MB); everything else is on free plans.
+#
+# The public URLs below assume Render gives the services these names as subdomains. If a
 # name is taken, Render adds a suffix: then update NEXT_PUBLIC_API_BASE_URL (and redeploy the
-# web service, it is baked in at build time) and FRONTEND_ORIGIN to the real URLs.
+# web service, it is baked in at build time), FRONTEND_ORIGIN and the worker's KIRA_API_URL.
 
 services:
   # --- API (FastAPI). Runs migrations and the lesson seed on start (backend/start.sh). ---
@@ -52,8 +54,20 @@ services:
         value: low
       - key: LLM_API_KEY
         sync: false
-      # Voice is off until the worker below is enabled; then also set LIVEKIT_URL,
-      # LIVEKIT_API_KEY, LIVEKIT_API_SECRET and VOICE_WORKER_SECRET here.
+      # Voice (LiveKit Cloud). The API mints room tokens that dispatch the worker below.
+      # Paste the same LIVEKIT_* values and the same VOICE_WORKER_SECRET into both services.
+      - key: LIVEKIT_URL
+        sync: false
+      - key: LIVEKIT_API_KEY
+        sync: false
+      - key: LIVEKIT_API_SECRET
+        sync: false
+      - key: VOICE_WORKER_SECRET
+        sync: false
+      # Its own agent name, so a developer's local worker on the same LiveKit project never
+      # receives production sessions. Must match the worker's value.
+      - key: VOICE_AGENT_NAME
+        value: kira-verbal-voice-prod
 
   # --- Website (Next.js). NEXT_PUBLIC_API_BASE_URL is a Docker build arg (baked in). ---
   - type: web
@@ -76,29 +90,36 @@ services:
     region: oregon
     ipAllowList: []
 
-  # --- Voice worker (optional, paid: background workers have no free plan). ---
-  # Uncomment, then add the LiveKit settings and VOICE_WORKER_SECRET to the API as well.
-  # - type: worker
-  #   name: kira-verbal-voice
-  #   runtime: docker
-  #   # plan: omitted -> Render's default paid worker size
-  #   region: oregon
-  #   dockerfilePath: ./backend/Dockerfile
-  #   dockerContext: .
-  #   dockerCommand: python -m app.voice.worker start
-  #   envVars:
-  #     - key: APP_ENV
-  #       value: production
-  #     - key: KIRA_API_URL
-  #       value: https://kira-verbal-api.onrender.com
-  #     - key: LIVEKIT_URL
-  #       sync: false
-  #     - key: LIVEKIT_API_KEY
-  #       sync: false
-  #     - key: LIVEKIT_API_SECRET
-  #       sync: false
-  #     - key: VOICE_WORKER_SECRET
-  #       sync: false
+  # --- Voice worker (LiveKit Agents). Paid: background workers have no free plan. ---
+  # Holds an outbound connection to LiveKit Cloud and calls the API's public URL; it needs
+  # no inbound traffic. Speech-to-text and text-to-speech run on LiveKit Inference.
+  - type: worker
+    name: kira-verbal-voice
+    runtime: docker
+    plan: 0.5c-512mb
+    region: oregon
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    dockerCommand: python -m app.voice.worker start
+    autoDeployTrigger: commit
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: KIRA_API_URL
+        value: https://kira-verbal-api.onrender.com
+      - key: VOICE_AGENT_NAME
+        value: kira-verbal-voice-prod
+      # One warm process: 512 MB is not enough for the default (up to 4).
+      - key: VOICE_IDLE_PROCESSES
+        value: "1"
+      - key: LIVEKIT_URL
+        sync: false
+      - key: LIVEKIT_API_KEY
+        sync: false
+      - key: LIVEKIT_API_SECRET
+        sync: false
+      - key: VOICE_WORKER_SECRET
+        sync: false
 
 databases:
   - name: kira-verbal-db
