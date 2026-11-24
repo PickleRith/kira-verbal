@@ -144,7 +144,12 @@ def test_any_learner_behaviour_terminates_with_only_lesson_question_ids(lessons_
     for lesson in load_catalog(lessons_dir):
         valid_ids = {q.id for q in lesson.questions}
         # Upper bound from the termination argument in policy.py.
-        bound = sum(2 + len(q.hints) for q in lesson.questions) + len(lesson.questions) + 1
+        bound = (
+            sum(2 + len(q.hints) for q in lesson.questions)
+            + len(lesson.questions)
+            + ROOMY.max_side_turns
+            + 1
+        )
         history: list[TurnRecord] = []
         for _ in range(bound):
             action = act(lesson, *history)
@@ -154,3 +159,65 @@ def test_any_learner_behaviour_terminates_with_only_lesson_question_ids(lessons_
             history.append(_random_record(rng, lesson, action.question_id))
         else:
             pytest.fail(f"{lesson.id}: policy did not finish within {bound} steps")
+
+
+# --- side turns (conversation layer) -------------------------------------------------
+
+SIDE = Signal.CONVERSATION
+
+
+def test_side_turn_re_asks_the_same_question(photosynthesis: Lesson):
+    assert act(photosynthesis, TurnRecord("q1", SIDE)) == AskQuestion("q1", "respond")
+
+
+def test_side_turns_use_no_answer_budget(photosynthesis: Lesson):
+    tight = Budget(max_turns=2, max_seconds=300, max_side_turns=4)
+    history = [
+        TurnRecord("q1", SIDE),
+        TurnRecord("q1", SIDE),
+        TurnRecord("q1", Signal.ANSWERED),
+        TurnRecord("q2", SIDE),
+    ]
+    assert act(photosynthesis, *history, budget=tight) == AskQuestion("q2", "respond")
+    # One more real answer reaches the 2-answer budget.
+    assert act(photosynthesis, *history, TurnRecord("q2", Signal.ANSWERED), budget=tight) == Finish(
+        FinishReason.BUDGET
+    )
+
+
+def test_side_turn_does_not_hide_the_previous_follow_up(photosynthesis: Lesson):
+    """A question in between must not cancel the diagnostic the misconception earned."""
+    history = [
+        TurnRecord("q1", Signal.ANSWERED),
+        TurnRecord("q2", Signal.MISCONCEPTION, "co2_from_roots"),
+    ]
+    assert act(photosynthesis, *history) == AskQuestion("q3", "diagnostic")
+    # Side turn while on q3, then an answer: the policy continues from the answers only.
+    after = [*history, TurnRecord("q3", SIDE), TurnRecord("q3", Signal.ANSWERED)]
+    assert act(photosynthesis, *after) == AskQuestion("q4", "open")
+
+
+def test_side_turns_past_the_allowance_count_and_act_like_unclear_answers(
+    photosynthesis: Lesson,
+):
+    budget = Budget(max_turns=50, max_seconds=10_000, max_side_turns=2)
+    two = [TurnRecord("q1", SIDE), TurnRecord("q1", SIDE)]
+    assert act(photosynthesis, *two, budget=budget) == AskQuestion("q1", "respond")
+    third = [*two, TurnRecord("q1", SIDE)]
+    assert act(photosynthesis, *third, budget=budget) == AskQuestion("q1", "clarify")
+    fourth = [*third, TurnRecord("q1", SIDE)]
+    assert act(photosynthesis, *fourth, budget=budget) == AskQuestion("q2", "open")
+    # ...and they now use the answer budget.
+    small = Budget(max_turns=1, max_seconds=10_000, max_side_turns=2)
+    assert act(photosynthesis, *third, budget=small) == Finish(FinishReason.BUDGET)
+
+
+def test_side_turn_after_time_is_up_finishes(photosynthesis: Lesson):
+    budget = Budget(max_turns=5, max_seconds=300)
+    action = act(photosynthesis, TurnRecord("q1", SIDE), elapsed=301, budget=budget)
+    assert action == Finish(FinishReason.BUDGET)
+
+
+def test_side_turn_cannot_carry_a_misconception_tag(photosynthesis: Lesson):
+    with pytest.raises(InvalidTurnRecordError):
+        act(photosynthesis, TurnRecord("q2", SIDE, "co2_from_roots"))

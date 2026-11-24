@@ -8,7 +8,9 @@ export type SessionStatus =
   | "completed"
   | "incomplete";
 
-export type Purpose = "open" | "diagnostic" | "clarify" | "hint";
+// "respond": the same question again after a turn that was not an answer
+// (a question about the topic, "say that again", off topic).
+export type Purpose = "open" | "diagnostic" | "clarify" | "hint" | "respond";
 
 export type FinishReason =
   | "learner_request"
@@ -39,6 +41,7 @@ export interface TranscriptEntry {
   answer: string;
   modality: "text" | "voice";
   assisted: boolean;
+  reply: string | null; // what the agent said after this turn
 }
 
 export interface SessionView {
@@ -71,7 +74,15 @@ export interface TurnResponse {
   finish_reason: FinishReason | null;
 }
 
+export interface VoiceToken {
+  server_url: string;
+  participant_token: string;
+  room_name: string;
+  expires_at: string;
+}
+
 export type ErrorCode =
+  | "voice_unavailable"
   | "missing_token"
   | "session_not_found"
   | "lesson_not_found"

@@ -49,5 +49,9 @@ class SessionExpiredError(AssessmentError):
     """Session deadline passed before this answer was claimed."""
 
 
+class VoiceUnavailableError(AssessmentError):
+    """Voice is not configured on this server (LiveKit credentials or worker secret missing)."""
+
+
 class EvaluationUnavailableError(AssessmentError):
     """Evaluator failed or timed out. The turn was released; the client may retry."""

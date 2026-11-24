@@ -1,20 +1,21 @@
 # Architecture
 
-Status: Day 3. Components marked *(planned)* do not exist in code yet.
+Status: Day 4 + conversation layer. Components marked *(planned)* do not exist in code yet.
 
 ## Diagram
 
 ```mermaid
 flowchart TD
   UI[Next.js student UI] --> API[FastAPI REST API]
-  UI <-->|WebRTC| RTC[LiveKit room - planned]
-  RTC <--> W[Python voice worker - planned]
-  W --> API
+  UI <-->|WebRTC| RTC[LiveKit room]
+  RTC <--> W[Python voice worker: STT/TTS via LiveKit Inference, no LLM]
+  W -->|same /turns endpoint| API
   API --> O[Assessment orchestrator]
   O --> P[Question policy and lesson rubric]
   O --> E[Evaluator: keyword fake or Claude adapter]
   E --> V[Deterministic evidence validator]
   V --> S[Scoring: suggested levels, unknowns, conflicts]
+  O --> RS[Responder: Claude or templates] --> G[Reply guardrails]
   O --> DB[(PostgreSQL durable records)]
   API --> DB
   API -.-> R[(Redis: readiness only so far)]
@@ -39,6 +40,11 @@ flowchart TD
 | Repositories | `backend/app/repositories/` | SQL for lessons, sessions, turns |
 | API | `backend/app/api/` | Routes, bearer-token dependency, error → HTTP mapping |
 | Student UI | `frontend/components/StudentSession.tsx` | Intro, transcript, answer form, hint/finish, retry and resume |
+| Voice panel | `frontend/components/VoicePanel.tsx` | Join the LiveKit room, mic control, agent state; text stays available |
+| Voice token + worker credential | `providers/livekit_tokens.py`, `services/voice_credentials.py` | Room token that dispatches the worker; per-session HMAC credential for the worker |
+| Voice worker | `backend/app/voice/` | `worker.py` (LiveKit), `transport.py` (turn forwarding, testable), `client.py` (HTTP) |
+| Responder | `backend/app/providers/responder.py`, `responder_prompt.py` | The short line said before each question; Claude (`claude-haiku-5-5`) or templates |
+| Reply guardrails | `backend/app/services/conversation.py` | Length, no feedback, no answer-key terms; template otherwise. See [conversation.md](conversation.md) |
 
 ## Dependency direction
 
@@ -69,8 +75,10 @@ api ──► services ──► domain
 
 - **Lesson versions are immutable** (frozen models, hash check, DB trigger). Sessions pin
   `(lesson_id, version)` by foreign key.
-- **Deterministic policy, not a free-form agent.** Reproducible and bounded; follow-ups must be
-  authored.
+- **Deterministic policy, conversational surface.** The policy picks every question, and the
+  authored wording is always used. A responder model writes only the short line in front
+  of it, behind deterministic guardrails. Side turns (questions, "say that again", off topic)
+  re-ask the question without using the answer budget, up to a cap.
 - **The LLM proposes, code disposes.** The evaluator's output is validated before it can affect
   the policy or a score; see [assessment-policy.md](assessment-policy.md).
 - **Budget counts learner turns** (default 5), including hint requests and clarifications.

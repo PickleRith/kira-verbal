@@ -1,9 +1,14 @@
-"""Run an evaluator over data/evals/evaluator_cases.v1.json and report agreement.
+"""Run an evaluator over a labelled case file and report agreement.
 
     # free, deterministic
     python scripts/run_evaluator_cases.py --provider fake
-    # real Claude calls: one request per case (22). Costs money; needs credentials.
+    # real Claude calls: one request per case (33 in v2). Costs money; needs credentials.
     python scripts/run_evaluator_cases.py --provider llm --confirm-cost
+    # the original Day 3 set
+    python scripts/run_evaluator_cases.py --cases data/evals/evaluator_cases.v1.json
+
+v2 adds intent cases (questions about the topic, "say that again", off topic, a wellbeing
+concern) so the run also measures whether the evaluator tells answers from side turns.
 
 Run from the repo root with the backend virtualenv active. This is a Day 3 smoke check
 on a small hand-labelled set, not the Day 6 benchmark: report it as such.
@@ -24,7 +29,7 @@ from app.main import build_evaluator
 from app.providers.llm import EvaluationRequest
 from app.services.evaluator import validate_output
 
-CASES = REPO_ROOT / "data" / "evals" / "evaluator_cases.v1.json"
+CASES = REPO_ROOT / "data" / "evals" / "evaluator_cases.v2.json"
 
 
 def main() -> int:
@@ -32,6 +37,7 @@ def main() -> int:
     parser.add_argument("--provider", choices=["fake", "llm"], default="fake")
     parser.add_argument("--confirm-cost", action="store_true", help="required for --provider llm")
     parser.add_argument("--out", type=Path, help="write per-case results as JSON")
+    parser.add_argument("--cases", type=Path, default=CASES, help="labelled case file")
     args = parser.parse_args()
     if args.provider == "llm" and not args.confirm_cost:
         print(
@@ -42,7 +48,7 @@ def main() -> int:
     settings = Settings(evaluator_provider=args.provider)
     evaluator = build_evaluator(settings)
     catalog = load_catalog(settings.lessons_dir)
-    cases = json.loads(CASES.read_text(encoding="utf-8"))["cases"]
+    cases = json.loads(args.cases.read_text(encoding="utf-8"))["cases"]
 
     results, latencies = [], []
     for case in cases:
@@ -78,6 +84,8 @@ def main() -> int:
             "tag_ok": assessment.misconception_tag == expected["misconception_tag"],
             "level": level,
             "level_ok": level_ok,
+            "intent": output.intent.value,
+            "intent_ok": output.intent.value == expected.get("intent", output.intent.value),
             "rejected": [
                 e.rejection_reason
                 for e in assessment.evidence
@@ -87,7 +95,8 @@ def main() -> int:
             "model": output.model,
         }
         results.append(row)
-        marks = "".join("." if row[k] else "x" for k in ("signal_ok", "tag_ok", "level_ok"))
+        checks = ("signal_ok", "tag_ok", "level_ok", "intent_ok")
+        marks = "".join("." if row[k] else "x" for k in checks)
         print(
             f"{case['id']:28} {marks}  signal={row['signal']:15} tag={row['tag']} "
             f"level={level} rejected={len(row['rejected'])}"
@@ -95,7 +104,7 @@ def main() -> int:
 
     scored = [r for r in results if "error" not in r]
     print(f"\ncases={len(cases)} scored={len(scored)} errors={len(cases) - len(scored)}")
-    for key in ("signal_ok", "tag_ok", "level_ok"):
+    for key in ("signal_ok", "tag_ok", "level_ok", "intent_ok"):
         print(f"{key:10} {sum(r[key] for r in scored)}/{len(scored)}")
     print(f"rejected evidence items: {sum(len(r['rejected']) for r in scored)}")
     if latencies:

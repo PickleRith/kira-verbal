@@ -18,6 +18,8 @@ import { ApiError, api } from "@/lib/api";
 import { sessionStore, type PendingTurn } from "@/lib/storage";
 import type { SessionView, TurnInput } from "@/lib/types";
 
+import { VoicePanel } from "./VoicePanel";
+
 const HINT_REQUEST = "Can I have a hint?";
 const MAX_CHARS = 2000;
 const IN_PROGRESS_RETRIES = 5;
@@ -218,9 +220,15 @@ export function StudentSession({ sessionId }: { sessionId: string }) {
             <li>Follow-up questions depend on what you say. There are no trick questions.</li>
             <li>Nothing is graded automatically. Your teacher reviews your answers.</li>
             <li>You can ask for a hint. Your teacher will see that a hint was used.</li>
+            <li>
+              You can ask to hear a question again or ask what it means. That doesn&rsquo;t use up a
+              question.
+            </li>
             <li>You can stop at any time with &ldquo;Finish early&rdquo;.</li>
           </ul>
-          <p className="mt-3 text-sm text-gray-600">Text mode. Voice answers are not available yet.</p>
+          <p className="mt-3 text-sm text-gray-600">
+            You can answer by typing or, if your browser allows the microphone, by voice.
+          </p>
           <button
             type="button"
             onClick={() => setStarted(true)}
@@ -233,12 +241,18 @@ export function StudentSession({ sessionId }: { sessionId: string }) {
 
       {view.transcript.length > 0 ? (
         <ol className="mt-6 space-y-4" aria-label="Your answers so far">
-          {view.transcript.map((entry) => (
+          {view.transcript.map((entry, index) => (
             <li key={entry.sequence} className="rounded-md bg-gray-50 p-4">
               <p className="text-sm font-medium text-gray-700">{entry.question_text}</p>
               <p className="mt-1 whitespace-pre-wrap">{entry.answer || <em>(no answer)</em>}</p>
               {entry.assisted ? (
                 <p className="mt-1 text-xs text-gray-500">Answered after a hint</p>
+              ) : null}
+              {/* The newest reply is shown above the current question instead. */}
+              {entry.reply && !(index === view.transcript.length - 1 && view.prompt?.lead_in) ? (
+                <p className="mt-2 border-l-2 border-blue-200 pl-3 text-sm text-blue-900">
+                  {entry.reply}
+                </p>
               ) : null}
             </li>
           ))}
@@ -254,6 +268,10 @@ export function StudentSession({ sessionId }: { sessionId: string }) {
             Check again
           </button>
         </div>
+      ) : null}
+
+      {started && !terminal && token ? (
+        <VoicePanel sessionId={sessionId} token={token} onActivity={safeRefresh} />
       ) : null}
 
       {started && !terminal && view.prompt && view.status === "awaiting_answer" ? (

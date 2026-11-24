@@ -25,6 +25,11 @@ This isolates synthetic demo sessions from each other. It is not school authenti
 | `GET /v1/sessions/{id}` | Current state, prompt and transcript (resume) | 200 |
 | `POST /v1/sessions/{id}/turns` | Submit one finalized answer | 200 |
 | `POST /v1/sessions/{id}/finish` | Learner exits early → `incomplete` (idempotent) | 200 |
+| `POST /v1/sessions/{id}/voice-token` | LiveKit room token that dispatches the voice worker; 503 `voice_unavailable` if not configured, 409 if the session is closed | 200 |
+
+The voice worker authenticates with a per-session credential (`v1.<session>.<expiry>.<hmac>`)
+in the same `Authorization: Bearer` header. It is accepted only for its own session and only
+until the session deadline. See [voice-pipeline.md](voice-pipeline.md).
 
 Student responses never include evaluator output (signals, misconception tags, levels).
 A test asserts this.
@@ -69,8 +74,13 @@ Each accepted turn advances `state_version` by 2 (claim, then commit). Clients s
 treat it as opaque and always echo the latest value they were given.
 
 `prompt.purpose` is `open`, `diagnostic` (approved follow-up), `clarify` (one request for
-more detail after an unclear answer) or `hint`. For `clarify` and `hint`, show or speak
-`lead_in` before `text`. When the session finishes, `prompt` is `null` and `finish_reason` is
+more detail after an unclear answer), `hint`, or `respond` (the same question again after
+a turn that was not an answer, such as a question about the topic or "say that again"; see
+[conversation.md](conversation.md)). Whenever `lead_in` is set, show or speak it before
+`text`. It is the agent's reply to the last turn, followed by the authored hint if there is
+one. `text` is always the authored question, word for word. `GET` returns the same
+`lead_in` as the turn response did. Each transcript entry has a `reply`, which is what the
+agent said after that turn. When the session finishes, `prompt` is `null` and `finish_reason` is
 one of `objectives_exhausted`, `budget`, `learner_request`, `timeout`, `learner_exit`.
 
 Limits: `transcript` ≤ 2000 characters (may be empty; an empty answer gets a clarification,
@@ -113,9 +123,12 @@ Rate limiting (429) is planned for Day 6.
 ```text
 T0 refresh  lock session row; recover expired processing lease; time out idle sessions
 T1 claim    lock session row; idempotency lookup; check status/version/deadline/question;
-            insert turn(processing); session -> evaluating; state_version++; lease = now+30 s
---          evaluator call: no transaction, no lock, 10 s timeout
-T2 commit   lock session + turn; verify claim unchanged; policy picks next action;
+            insert turn(processing); session -> evaluating; state_version++; lease = now+60 s
+--          evaluator call: no transaction, no lock, 45 s timeout
+--          plan next action from a snapshot; responder writes the lead-in (5 s timeout,
+            guarded, template fallback); still no lock
+T2 commit   lock session + turn; verify claim unchanged; policy picks next action (if it
+            differs from the plan, the template lead-in is used);
             turn -> committed + cached response; session -> awaiting_answer|completed; state_version++
 ```
 

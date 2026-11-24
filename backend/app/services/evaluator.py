@@ -15,20 +15,31 @@ runs of whitespace are ignored; everything else must match as one contiguous spa
 The signal for the question policy uses ACCEPTED evidence only, so an invented quote can
 never trigger a follow-up or change a suggested level. Missing evidence means AMBIGUOUS
 (ask for clarification), never a zero.
+
+A turn the evaluator classed as not an answer attempt (a subject question, a request to
+repeat, off topic, a wellbeing concern) becomes a CONVERSATION side turn. Any evidence
+proposed for it is stored but downgraded to REJECTED: a question the learner asks
+("do roots take in the gas?") is not a claim they made, so it must never be scored.
 """
 
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from app.domain.models import RUBRIC_LEVELS, Lesson, Question
 from app.domain.policy import Signal
 from app.domain.scoring import EvidenceStatus
-from app.providers.llm import EvaluatorOutput, LearnerIntent, ProposedEvidence
+from app.providers.llm import (
+    CONVERSATIONAL_INTENTS,
+    EvaluatorOutput,
+    LearnerIntent,
+    ProposedEvidence,
+)
 
 MAX_REASON_CHARS = 500
 MIN_QUOTE_CHARS = 2
+NOT_AN_ANSWER = "turn was not an answer attempt"
 
 _QUOTE_CHARS = str.maketrans({"‘": "'", "’": "'", "“": '"', "”": '"', "–": "-", "—": "-"})
 
@@ -113,8 +124,17 @@ def validate_output(
     lesson: Lesson, question: Question, transcript: str, output: EvaluatorOutput
 ) -> TurnAssessment:
     evidence = tuple(_validate_item(lesson, question, transcript, i) for i in output.evidence)
-    accepted = [e for e in evidence if e.status is EvidenceStatus.ACCEPTED]
 
+    if output.intent in CONVERSATIONAL_INTENTS:
+        demoted = tuple(
+            replace(e, status=EvidenceStatus.REJECTED, rejection_reason=NOT_AN_ANSWER)
+            if e.status is not EvidenceStatus.REJECTED
+            else e
+            for e in evidence
+        )
+        return TurnAssessment(Signal.CONVERSATION, None, demoted)
+
+    accepted = [e for e in evidence if e.status is EvidenceStatus.ACCEPTED]
     if output.intent is LearnerIntent.STOP_REQUEST:
         return TurnAssessment(Signal.STOP_REQUESTED, None, evidence)
     if output.intent is LearnerIntent.HELP_REQUEST:

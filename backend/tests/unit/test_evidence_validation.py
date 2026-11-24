@@ -117,3 +117,29 @@ def test_long_reasons_are_truncated(photosynthesis: Lesson):
     long = ProposedEvidence("carbon_dioxide", 1, "roots", None, "x" * 5000, False)
     [evidence] = run(photosynthesis, long).evidence
     assert len(evidence.reason) == 500
+
+
+@pytest.mark.parametrize(
+    "intent",
+    [
+        LearnerIntent.SUBJECT_QUESTION,
+        LearnerIntent.CLARIFICATION_REQUEST,
+        LearnerIntent.OFF_TOPIC,
+        LearnerIntent.WELLBEING_CONCERN,
+    ],
+)
+def test_side_turn_evidence_is_never_accepted(photosynthesis: Lesson, intent):
+    """'Do roots take in the gas?' is a question, not a claim: it must not be scored, even
+    if an evaluator proposes a valid-looking item with a misconception tag."""
+    result = run(
+        photosynthesis,
+        item(tag="co2_from_roots"),
+        item(criterion="made_up"),
+        transcript="Do plants get it through its roots?",
+        intent=intent,
+    )
+    assert (result.signal, result.misconception_tag) == (Signal.CONVERSATION, None)
+    demoted, unknown = result.evidence
+    assert demoted.status is EvidenceStatus.REJECTED
+    assert demoted.rejection_reason == "turn was not an answer attempt"
+    assert unknown.rejection_reason == "unknown criterion"  # own reason kept

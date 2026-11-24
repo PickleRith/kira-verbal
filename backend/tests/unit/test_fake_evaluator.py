@@ -4,14 +4,14 @@ from app.domain.models import Lesson
 from app.domain.policy import Signal
 from app.lesson_catalog import load_catalog
 from app.providers.fake import FakeEvaluator
-from app.providers.llm import EvaluationRequest
+from app.providers.llm import EvaluationRequest, LearnerIntent
 from app.services.evaluator import TurnAssessment, validate_output
 
 
 def assess(lesson: Lesson, question_id: str, text: str) -> TurnAssessment:
     question = lesson.question(question_id)
     output = FakeEvaluator().evaluate(EvaluationRequest(lesson, question, text, assisted=False))
-    assert output.evaluator_version == "fake-keyword-v2"
+    assert output.evaluator_version == "fake-keyword-v3"
     return validate_output(lesson, question, text, output)
 
 
@@ -55,3 +55,33 @@ def test_stop_word_inside_an_answer_is_not_a_stop_request(lessons_dir):
     loops = load_catalog(lessons_dir).get("python_loops", 1)
     text = "The loop will stop when the condition becomes false."
     assert assess(loops, "p3", text).signal is Signal.ANSWERED
+
+
+@pytest.mark.parametrize(
+    ("text", "intent"),
+    [
+        ("What are stomata?", LearnerIntent.SUBJECT_QUESTION),
+        ("Why do plants need light?", LearnerIntent.SUBJECT_QUESTION),
+        ("Can you repeat that?", LearnerIntent.CLARIFICATION_REQUEST),
+        ("Sorry, I didn't hear the question", LearnerIntent.CLARIFICATION_REQUEST),
+        ("What do you mean?", LearnerIntent.CLARIFICATION_REQUEST),
+        ("I'm scared to go home", LearnerIntent.WELLBEING_CONCERN),
+        # A tentative answer phrased as a question is still an answer.
+        ("Is it from the air around the leaves?", LearnerIntent.ANSWER),
+        # A long wh-sentence is an answer, not a question back.
+        (
+            "What happens is the plant takes carbon dioxide from the air through tiny holes "
+            "in its leaves and uses it?",
+            LearnerIntent.ANSWER,
+        ),
+    ],
+)
+def test_conversational_intents(photosynthesis: Lesson, text, intent):
+    question = photosynthesis.question("q2")
+    output = FakeEvaluator().evaluate(EvaluationRequest(photosynthesis, question, text, False))
+    assert output.intent is intent
+    if intent is not LearnerIntent.ANSWER:
+        assert output.evidence == ()
+        assert validate_output(photosynthesis, question, text, output).signal is (
+            Signal.CONVERSATION
+        )

@@ -10,9 +10,14 @@ Transaction layout of `submit_turn` (PROJECT_PLAN.md §5 "Turn algorithm"):
               - check status, expected_state_version, deadline, question_id
               - insert turn(processing); session -> evaluating; state_version += 1; set lease
   --          evaluator call: NO transaction or lock held; bounded by a timeout
+  --          plan + reply: the policy's next action is computed from a read-only
+              snapshot, and the responder writes the line said before it (own timeout,
+              guarded, template fallback). Still no lock held.
   T2 commit   session and turn locked again, short:
               - verify the claim still stands (turn processing, version unchanged)
-              - policy picks the next action from committed history + this turn
+              - policy picks the next action from committed history + this turn; if it
+                differs from the planned one (only the clock can change it), the reply
+                is replaced by the template for the actual action
               - turn -> committed with cached response; session -> awaiting_answer or
                 completed; state_version += 1
 
@@ -43,7 +48,7 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.db.models import EvidenceRow, SessionRow, TurnRow
-from app.domain.models import Lesson
+from app.domain.models import Lesson, Question
 from app.domain.policy import (
     Action,
     AskQuestion,
@@ -55,7 +60,17 @@ from app.domain.policy import (
     next_action,
 )
 from app.domain.state import SessionEvent, SessionStatus, is_terminal, transition
-from app.providers.llm import EvaluationRequest, Evaluator, EvaluatorOutput
+from app.providers.llm import EvaluationRequest, Evaluator, EvaluatorOutput, LearnerIntent
+from app.providers.responder import (
+    CLARIFY_LEAD_IN,
+    HINT_LEAD_IN,
+    Exchange,
+    FakeResponder,
+    NextStep,
+    Responder,
+    ResponderRequest,
+    fallback_reply,
+)
 from app.repositories import sessions as repo
 from app.schemas.sessions import (
     LessonRef,
@@ -65,6 +80,8 @@ from app.schemas.sessions import (
     TurnInput,
     TurnResponse,
 )
+from app.services import voice_credentials
+from app.services.conversation import check_reply
 from app.services.errors import (
     ClaimLostError,
     EvaluationUnavailableError,
@@ -76,14 +93,14 @@ from app.services.errors import (
     SessionNotFoundError,
     StaleStateVersionError,
     TurnInProgressError,
+    VoiceUnavailableError,
 )
 from app.services.evaluator import validate_output
 from app.services.lessons import LessonStore
 
 logger = logging.getLogger(__name__)
 
-CLARIFY_LEAD_IN = "Could you say a bit more about that?"
-HINT_LEAD_IN = "Here's a hint:"
+RECENT_EXCHANGES = 2  # earlier turns shown to the responder for continuity
 
 
 def utcnow() -> datetime:
@@ -107,12 +124,20 @@ class AssessmentConfig:
     deadline_grace_seconds: int = 60
     processing_lease_seconds: int = 60
     evaluator_timeout_seconds: float = 45.0
+    responder_timeout_seconds: float = 5.0
+    max_side_turns: int = 4
 
     def __post_init__(self) -> None:
-        # If the lease could expire while a healthy evaluator call is still running, another
+        # If the lease could expire while a healthy turn is still being processed, another
         # request would "recover" a turn that is not stuck, and every slow answer would fail.
-        if self.processing_lease_seconds <= self.evaluator_timeout_seconds:
-            raise ValueError("processing_lease_seconds must exceed evaluator_timeout_seconds")
+        if (
+            self.processing_lease_seconds
+            <= self.evaluator_timeout_seconds + self.responder_timeout_seconds
+        ):
+            raise ValueError(
+                "processing_lease_seconds must exceed "
+                "evaluator_timeout_seconds + responder_timeout_seconds"
+            )
 
 
 class AssessmentService:
@@ -124,7 +149,11 @@ class AssessmentService:
         executor: ThreadPoolExecutor,
         config: AssessmentConfig | None = None,
         clock: Callable[[], datetime] = utcnow,
+        voice_secret: str | None = None,
+        responder: Responder | None = None,
     ) -> None:
+        self._voice_secret = voice_secret  # enables voice-worker credentials when set
+        self.responder: Responder = responder or FakeResponder()
         self._db = session_factory
         self.lessons = lessons
         self.evaluator = evaluator
@@ -240,7 +269,8 @@ class AssessmentService:
                     state_version=row.state_version,
                 )
 
-            assisted = row.current_purpose == "hint" or repo.question_was_assisted(
+            # A hint stays shown across side turns (current_hint_index is kept on "respond").
+            assisted = row.current_hint_index is not None or repo.question_was_assisted(
                 db, session_id, turn_input.question_id
             )
             turn = TurnRow(
@@ -282,6 +312,26 @@ class AssessmentService:
         assessment = validate_output(lesson, question, turn_input.transcript, result)
         signal, tag = assessment.signal, assessment.misconception_tag
 
+        # Plan the next action from a snapshot and write the reply, still with no lock held.
+        with self._db.begin() as db:
+            snapshot = repo.committed_turns(db, session_id)
+            session_row = repo.get_session(db, session_id, lock=False)
+            assert session_row is not None
+            planned = self._next(
+                lesson, snapshot, turn_input.question_id, signal, tag, session_row.created_at
+            )
+            recent = tuple(
+                Exchange(
+                    question_text=lesson.question(t.question_id).prompt,
+                    learner_text=t.transcript,
+                    reply=_lead_in_of(t),
+                )
+                for t in snapshot[-RECENT_EXCHANGES:]
+            )
+        reply, reply_source = self._reply(
+            lesson, question, turn_input.transcript, result.intent, planned, recent
+        )
+
         # T2: commit
         with self._db.begin() as db:
             row = repo.get_session(db, session_id, lock=True)
@@ -292,21 +342,22 @@ class AssessmentService:
                     "this answer's processing expired; please retry",
                     state_version=row.state_version,
                 )
-            history = [
-                TurnRecord(t.question_id, Signal(t.signal), t.misconception_tag)
-                for t in repo.committed_turns(db, session_id)
-                if t.signal is not None
-            ]
-            history.append(TurnRecord(turn.question_id, signal, tag))
             now = self.clock()
-            action = next_action(
+            action = self._next(
                 lesson,
-                history,
-                elapsed_seconds=max(0.0, (now - row.created_at).total_seconds()),
-                budget=self._budget(),
+                repo.committed_turns(db, session_id),
+                turn.question_id,
+                signal,
+                tag,
+                row.created_at,
             )
+            if action != planned:  # e.g. the time budget ran out while the reply was written
+                reply = _template_reply(lesson, question, result.intent, action)
+                reply_source = "fallback:plan_changed"
 
             turn.signal = signal.value
+            turn.intent = result.intent.value
+            turn.reply_source = reply_source
             turn.misconception_tag = tag
             turn.evaluator_version = result.evaluator_version
             turn.status = "committed"
@@ -331,7 +382,7 @@ class AssessmentService:
                         created_at=now,
                     )
                 )
-            self._apply_action(row, action)
+            self._apply_action(row, action, _compose_lead_in(lesson, action, reply))
             row.state_version += 1
             row.lease_expires_at = None
             row.updated_at = now
@@ -348,14 +399,90 @@ class AssessmentService:
 
     def _budget(self) -> Budget:
         return Budget(
-            max_turns=self.config.max_turns, max_seconds=float(self.config.session_max_seconds)
+            max_turns=self.config.max_turns,
+            max_seconds=float(self.config.session_max_seconds),
+            max_side_turns=self.config.max_side_turns,
         )
 
+    def _next(
+        self,
+        lesson: Lesson,
+        committed: list[TurnRow],
+        question_id: str,
+        signal: Signal,
+        tag: str | None,
+        created_at: datetime,
+    ) -> Action:
+        history = [
+            TurnRecord(t.question_id, Signal(t.signal), t.misconception_tag)
+            for t in committed
+            if t.signal is not None
+        ]
+        history.append(TurnRecord(question_id, signal, tag))
+        return next_action(
+            lesson,
+            history,
+            elapsed_seconds=max(0.0, (self.clock() - created_at).total_seconds()),
+            budget=self._budget(),
+        )
+
+    def _reply(
+        self,
+        lesson: Lesson,
+        asked: Question,
+        transcript: str,
+        intent: LearnerIntent,
+        action: Action,
+        recent: tuple[Exchange, ...],
+    ) -> tuple[str | None, str]:
+        """The line before the next question and where it came from. Never raises."""
+        if isinstance(action, Finish):
+            return None, "none:finished"  # closing words are fixed (voice worker / UI)
+        request = _responder_request(lesson, asked, transcript, intent, action, recent)
+        try:
+            future = self._executor.submit(self.responder.respond, request)
+            reply = future.result(timeout=self.config.responder_timeout_seconds)
+        except Exception as exc:  # noqa: BLE001 - any failure means "use the template"
+            logger.warning("responder failed (%s); using template", type(exc).__name__)
+            return fallback_reply(request), "fallback:error"
+        if reply is None:
+            template = fallback_reply(request)
+            return template, self.responder.version if template is None else "fallback:empty"
+        allowed = " ".join((transcript, asked.prompt, request.next_question.prompt, lesson.title))
+        problem = check_reply(reply, lesson=lesson, allowed_context=allowed)
+        if problem is not None:
+            logger.info("responder reply rejected by guard: %s", problem)
+            return fallback_reply(request), f"fallback:{problem}"
+        return reply, self.responder.version
+
     def _load(self, db: Session, session_id: uuid.UUID, token: str, *, lock: bool) -> SessionRow:
+        """Authorize with the learner's session token or a voice-worker credential.
+
+        Both grant the same access to this one session; neither can reach another session.
+        """
         row = repo.get_session(db, session_id, lock=lock)
-        if row is None or not hmac.compare_digest(row.access_token_sha256, hash_secret(token)):
+        if row is None or not self._authorized(row, token):
             raise SessionNotFoundError("session not found")
         return row
+
+    def _authorized(self, row: SessionRow, token: str) -> bool:
+        if self._voice_secret and voice_credentials.looks_like_credential(token):
+            return voice_credentials.verify(self._voice_secret, token, row.id, self.clock())
+        return hmac.compare_digest(row.access_token_sha256, hash_secret(token))
+
+    def issue_voice_credential(self, session_id: uuid.UUID, token: str) -> tuple[str, datetime]:
+        """A worker credential for an open session, valid until the session deadline."""
+        if not self._voice_secret:
+            raise VoiceUnavailableError("voice is not configured on this server")
+        self._refresh(session_id, token)
+        with self._db.begin() as db:
+            row = self._load(db, session_id, token, lock=False)
+            if is_terminal(SessionStatus(row.status)):
+                raise SessionClosedError(
+                    f"session is {row.status}", state_version=row.state_version
+                )
+            deadline = row.deadline_at
+        return voice_credentials.issue(self._voice_secret, session_id, deadline), deadline
 
     def _lesson_for(self, row: SessionRow) -> Lesson:
         lesson = self.lessons.get(row.lesson_id, row.lesson_version)
@@ -404,6 +531,7 @@ class AssessmentService:
         row.status = transition(SessionStatus(row.status), event).value
         row.finish_reason = reason
         row.current_question_id = row.current_purpose = row.current_hint_index = None
+        row.current_lead_in = None
         row.state_version += 1
         row.updated_at = self.clock()
 
@@ -413,18 +541,25 @@ class AssessmentService:
         return future.result(timeout=self.config.evaluator_timeout_seconds)
 
     @staticmethod
-    def _apply_action(row: SessionRow, action: Action) -> None:
+    def _apply_action(row: SessionRow, action: Action, lead_in: str | None) -> None:
         status = SessionStatus(row.status)
         if isinstance(action, Finish):
             row.status = transition(status, SessionEvent.BUDGET_MET).value
             row.finish_reason = action.reason.value
             row.current_question_id = row.current_purpose = row.current_hint_index = None
+            row.current_lead_in = None
             return
         row.status = transition(status, SessionEvent.EVALUATION_SUCCEEDED).value
         row.finish_reason = None
+        same_question = row.current_question_id == action.question_id
         row.current_question_id = action.question_id
+        row.current_lead_in = lead_in
         if isinstance(action, GiveHint):
             row.current_purpose, row.current_hint_index = "hint", action.hint_index
+        elif action.purpose == "respond":
+            # Re-asking after a side turn: a hint already shown for this question stays.
+            row.current_purpose = "respond"
+            row.current_hint_index = row.current_hint_index if same_question else None
         else:
             row.current_purpose, row.current_hint_index = action.purpose, None
 
@@ -433,12 +568,15 @@ class AssessmentService:
         if row.current_question_id is None or row.current_purpose is None:
             return None
         question = lesson.question(row.current_question_id)
-        hint = lead_in = None
-        if row.current_purpose == "hint" and row.current_hint_index is not None:
+        hint = None
+        if row.current_hint_index is not None:
             hint = question.hints[row.current_hint_index]
-            lead_in = f"{HINT_LEAD_IN} {hint}"
-        elif row.current_purpose == "clarify":
-            lead_in = CLARIFY_LEAD_IN
+        lead_in = row.current_lead_in
+        if lead_in is None:  # sessions written before migration 0004 stored no lead-in
+            if row.current_purpose == "hint" and hint is not None:
+                lead_in = f"{HINT_LEAD_IN} {hint}"
+            elif row.current_purpose == "clarify":
+                lead_in = CLARIFY_LEAD_IN
         return Prompt(
             question_id=question.id,
             text=question.prompt,
@@ -456,6 +594,7 @@ class AssessmentService:
                 answer=t.transcript,
                 modality=t.modality,  # type: ignore[arg-type]
                 assisted=t.assisted,
+                reply=_lead_in_of(t),
             )
             for t in repo.committed_turns(db, row.id)
         ]
@@ -469,3 +608,62 @@ class AssessmentService:
             transcript=transcript,
             deadline_at=row.deadline_at,
         )
+
+
+# --- helpers ------------------------------------------------------------------------
+
+
+def _next_step(action: AskQuestion | GiveHint) -> NextStep:
+    if isinstance(action, GiveHint):
+        return "hint"
+    steps: dict[str, NextStep] = {
+        "open": "new_question",
+        "diagnostic": "follow_up",
+        "clarify": "ask_for_more",
+        "respond": "repeat_question",
+    }
+    return steps[action.purpose]
+
+
+def _responder_request(
+    lesson: Lesson,
+    asked: Question,
+    transcript: str,
+    intent: LearnerIntent,
+    action: AskQuestion | GiveHint,
+    recent: tuple[Exchange, ...],
+) -> ResponderRequest:
+    return ResponderRequest(
+        lesson=lesson,
+        asked=asked,
+        learner_text=transcript,
+        intent=intent,
+        next_step=_next_step(action),
+        next_question=lesson.question(action.question_id),
+        recent=recent,
+    )
+
+
+def _template_reply(
+    lesson: Lesson, asked: Question, intent: LearnerIntent, action: Action
+) -> str | None:
+    if isinstance(action, Finish):
+        return None
+    return fallback_reply(_responder_request(lesson, asked, "", intent, action, ()))
+
+
+def _compose_lead_in(lesson: Lesson, action: Action, reply: str | None) -> str | None:
+    """Responder line first, then the authored hint word for word."""
+    if isinstance(action, Finish):
+        return None
+    parts = [reply] if reply else []
+    if isinstance(action, GiveHint):
+        hint = lesson.question(action.question_id).hints[action.hint_index]
+        parts.append(f"{HINT_LEAD_IN} {hint}")
+    return " ".join(parts) or None
+
+
+def _lead_in_of(turn: TurnRow) -> str | None:
+    """What the agent said right after this turn (from the stored response)."""
+    prompt = (turn.response or {}).get("prompt") or {}
+    return prompt.get("lead_in")

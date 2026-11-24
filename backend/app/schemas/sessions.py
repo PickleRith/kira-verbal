@@ -15,7 +15,7 @@ from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from app.domain.state import SessionStatus
 
 Identifier = Annotated[str, StringConstraints(pattern=r"^[a-z][a-z0-9_]{0,63}$")]
-Purpose = Literal["open", "diagnostic", "clarify", "hint"]
+Purpose = Literal["open", "diagnostic", "clarify", "hint", "respond"]
 FinishReasonOut = Literal[
     "learner_request", "budget", "objectives_exhausted", "timeout", "learner_exit"
 ]
@@ -30,7 +30,8 @@ class Prompt(BaseModel):
     question_id: str
     text: str
     purpose: Purpose
-    lead_in: str | None = None  # e.g. "Here's a hint: ..." spoken/shown before the question
+    # Said or shown before the question: the agent's reply to the last turn and/or a hint.
+    lead_in: str | None = None
     hint: str | None = None
 
 
@@ -41,6 +42,7 @@ class TranscriptEntry(BaseModel):
     answer: str
     modality: Literal["text", "voice"]
     assisted: bool
+    reply: str | None = None  # what the agent said after this turn (lead-in of the next prompt)
 
 
 class LessonRef(BaseModel):
@@ -89,6 +91,13 @@ class TurnResponse(BaseModel):
 
 class FinishRequest(_Strict):
     expected_state_version: int = Field(ge=0)
+
+
+class VoiceTokenResponse(BaseModel):
+    server_url: str
+    participant_token: str = Field(description="LiveKit room token; join before expires_at")
+    room_name: str
+    expires_at: datetime
 
 
 class ErrorResponse(BaseModel):

@@ -21,6 +21,7 @@ ERROR_MAP: dict[type[e.AssessmentError], tuple[int, str]] = {
     e.SessionClosedError: (409, "session_closed"),
     e.SessionExpiredError: (409, "session_expired"),
     e.EvaluationUnavailableError: (503, "evaluation_unavailable"),
+    e.VoiceUnavailableError: (503, "voice_unavailable"),
 }
 RETRYABLE = {e.TurnInProgressError, e.EvaluationUnavailableError}
 

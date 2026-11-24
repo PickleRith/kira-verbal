@@ -7,6 +7,10 @@ replayable and the policy unit-testable without an LLM.
 
 Rules, checked in order (PROJECT_PLAN.md §5 "Question policy"):
 
+0. Side turn (the learner asked about the topic, asked to repeat, went off topic or said
+   something worrying) within the side-turn allowance -> AskQuestion(respond, same
+   question). Side turns inside the allowance are invisible to every other rule: they
+   use no answer budget and never count as an attempt.
 1. Learner asked to stop                        -> Finish(learner_request)
 2. Turn or time budget used up                  -> Finish(budget)
 3. Follow-up on the most recent turn:
@@ -18,7 +22,9 @@ Rules, checked in order (PROJECT_PLAN.md §5 "Question policy"):
 
 Why this terminates even without the budget: each open question is asked at most
 once, each diagnostic at most once, each question is clarified at most once, and
-each question has a finite list of hints. Every follow-up path is bounded.
+each question has a finite list of hints. Every follow-up path is bounded. Side turns
+are bounded by `Budget.max_side_turns`; past that allowance a side turn counts as an
+ordinary turn and is treated like an unclear answer (one clarification, then move on).
 
 What the policy deliberately does not do: score, judge correctness, or treat
 silence/ambiguity as wrong. It only reacts to signals produced elsewhere.
@@ -43,6 +49,7 @@ class Signal(StrEnum):
     AMBIGUOUS = "ambiguous"  # empty, unclear, or insufficient evidence
     HELP_REQUESTED = "help_requested"
     STOP_REQUESTED = "stop_requested"
+    CONVERSATION = "conversation"  # not an answer attempt: question, repeat, off topic, concern
 
 
 @dataclass(frozen=True)
@@ -56,10 +63,13 @@ class TurnRecord:
 class Budget:
     max_turns: int = 5
     max_seconds: float = 300.0
+    max_side_turns: int = 4  # side turns per session that use no answer budget
 
     def __post_init__(self) -> None:
         if self.max_turns < 1 or self.max_seconds <= 0:
             raise ValueError("budget must allow at least one turn and positive time")
+        if self.max_side_turns < 0:
+            raise ValueError("max_side_turns must be non-negative")
 
 
 class FinishReason(StrEnum):
@@ -71,7 +81,7 @@ class FinishReason(StrEnum):
 @dataclass(frozen=True)
 class AskQuestion:
     question_id: str
-    purpose: Literal["open", "diagnostic", "clarify"]
+    purpose: Literal["open", "diagnostic", "clarify", "respond"]
 
 
 @dataclass(frozen=True)
@@ -122,6 +132,18 @@ def next_action(
         raise ValueError("elapsed_seconds must be non-negative")
     validate_history(lesson, history)
 
+    side_turns = [i for i, r in enumerate(history) if r.signal is Signal.CONVERSATION]
+    free_side_turns = set(side_turns[: budget.max_side_turns])
+    if history and len(history) - 1 in free_side_turns and elapsed_seconds < budget.max_seconds:
+        return AskQuestion(history[-1].question_id, "respond")
+
+    # Everything below sees only assessed turns. A side turn beyond the allowance counts,
+    # and is treated like an unclear answer so the session still moves on.
+    history = [
+        TurnRecord(r.question_id, Signal.AMBIGUOUS) if r.signal is Signal.CONVERSATION else r
+        for i, r in enumerate(history)
+        if i not in free_side_turns
+    ]
     last = history[-1] if history else None
 
     if last is not None and last.signal is Signal.STOP_REQUESTED:

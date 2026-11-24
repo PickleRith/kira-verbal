@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from app.providers.llm import EvaluationRequest
 
-PROMPT_VERSION = "evaluator-v1"
+PROMPT_VERSION = "evaluator-v2"
 
 SYSTEM_PROMPT = """\
 You extract rubric evidence from one learner answer in a short oral assessment.
@@ -25,11 +25,23 @@ A teacher reviews everything you produce; you never decide grades.
 Read the question, the rubric for the objective it assesses, and the learner transcript.
 Return JSON matching the schema.
 
-learner_intent:
+learner_intent (choose the first that applies):
+- "wellbeing_concern": the learner says something suggesting they are upset, unsafe,
+  being hurt, or in danger, whether or not they also answer.
+- "stop_request": the learner asks to stop or finish.
 - "help_request": the learner asks for a hint or help, or says they don't know without
   attempting an answer.
-- "stop_request": the learner asks to stop or finish.
-- "answer": anything else, including wrong, partial or off-topic answers.
+- "clarification_request": the learner asks to hear the question again, asks what it
+  means, or says they didn't hear or understand it, without attempting an answer.
+- "subject_question": the learner asks a question about the lesson topic instead of
+  answering (for example "what is chlorophyll?"). A tentative answer phrased as a
+  question ("is it from the air?") is an "answer", not a subject_question.
+- "off_topic": the turn is unrelated to the lesson and is not an attempt to answer
+  (chat about other things, jokes, other school subjects).
+- "answer": anything else, including wrong, partial, vague or very short answers.
+
+For every intent except "answer", return an empty evidence list: those turns are not
+answer attempts and are never scored.
 
 evidence (zero or more items; usually one per applicable criterion):
 - criterion_id: only a criterion listed as applicable.

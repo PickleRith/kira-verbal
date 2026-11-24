@@ -15,7 +15,9 @@ teacher effort than running oral assessments by hand.
 | Day 1: scaffold, lesson schema, state machine, question policy, health/ready, CI | Built |
 | Day 2: end-to-end text assessment (sessions, turns, fake evaluator, student UI, idempotency) | Built |
 | Day 3: Claude evaluator, evidence validation, abstention, independent/assisted scoring | Built; live API run pending credentials |
-| Day 4–7: voice, teacher review, evaluation, deploy | Not started |
+| Day 4: voice via LiveKit (worker, room tokens, voice panel, text fallback) | Built; live voice run pending LiveKit credentials |
+| Conversation layer: side turns, guarded responder replies (text and voice) | Built; live Claude responder run pending credentials |
+| Day 5–7: teacher review, evaluation, deploy | Not started |
 
 Progress and real test results are in the [engineering journal](docs/engineering-journal.md).
 
@@ -26,7 +28,8 @@ No benchmark results exist yet. See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the f
 Next.js + TypeScript + Tailwind (frontend) · FastAPI + Pydantic (API) · PostgreSQL + SQLAlchemy +
 Alembic (durable records) · Redis (coordination only, never the source of truth) · pytest.
 Evaluator: Claude (`claude-opus-5-5`) via the official `anthropic` SDK, or a free keyword fake.
-Voice (LiveKit, Deepgram, ElevenLabs) arrives in a later milestone.
+Voice (optional): LiveKit Agents worker with LiveKit Inference for speech-to-text and
+text-to-speech, and `livekit-client` in the browser. See [voice-pipeline.md](docs/voice-pipeline.md).
 
 ## Local setup
 
@@ -56,7 +59,10 @@ Open http://localhost:3000, pick a lesson, and answer as a demo learner. Try the
 misconception on photosynthesis ("From the soil through its roots.") to see the adaptive
 follow-up. No API keys are needed: by default the evaluator is a deterministic keyword fake.
 To use Claude instead, set `EVALUATOR_PROVIDER=llm` and either `LLM_API_KEY` or
-`ANTHROPIC_API_KEY` (each answer is one paid API call). Inspect what was recorded for a session
+`ANTHROPIC_API_KEY` (each answer is one paid API call). Set `RESPONDER_PROVIDER=llm` as well
+to let Claude write the agent's conversational replies (one more call per turn; see
+[conversation.md](docs/conversation.md)). Try "What are stomata?" or "Can you repeat that?"
+to see a side turn: the question is asked again and no answer is used up. Inspect what was recorded for a session
 with `python -m app.inspect_session <session_id>`.
 The frontend calls `http://127.0.0.1:8000` by default (override with
 `NEXT_PUBLIC_API_BASE_URL` in `frontend/.env.local`).
@@ -100,6 +106,8 @@ docs/                    architecture, journal; more docs per milestone
 - [Architecture](docs/architecture.md)
 - [API, errors, idempotency and transactions](docs/api.md)
 - [Assessment policy, evidence validation and scoring](docs/assessment-policy.md)
+- [Voice pipeline](docs/voice-pipeline.md)
+- [Conversation layer and guardrails](docs/conversation.md)
 - [ADR 0001: idempotency in Postgres, not Redis](docs/adr/0001-database-idempotency.md)
 - [Engineering journal](docs/engineering-journal.md)
 

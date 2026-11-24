@@ -86,6 +86,15 @@ def test_request_shape(request_q2):
     assert item["properties"]["criterion_id"]["enum"] == ["carbon_dioxide"]  # this objective only
     assert item["properties"]["misconception_tag"]["anyOf"][0]["enum"] == ["co2_from_roots"]
     assert item["additionalProperties"] is False and schema["additionalProperties"] is False
+    assert schema["properties"]["learner_intent"]["enum"] == [
+        "answer",
+        "help_request",
+        "stop_request",
+        "subject_question",
+        "clarification_request",
+        "off_topic",
+        "wellbeing_concern",
+    ]
 
     content = params["messages"][0]["content"]
     assert (

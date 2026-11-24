@@ -39,6 +39,22 @@ class LearnerIntent(StrEnum):
     ANSWER = "answer"
     HELP_REQUEST = "help_request"
     STOP_REQUEST = "stop_request"
+    # Not an answer attempt. These become side turns: the question is asked again and no
+    # answer budget is used (up to a cap). Any evidence proposed for them is not accepted.
+    SUBJECT_QUESTION = "subject_question"  # asks about the topic instead of answering
+    CLARIFICATION_REQUEST = "clarification_request"  # repeat / rephrase / didn't hear
+    OFF_TOPIC = "off_topic"  # unrelated to the lesson
+    WELLBEING_CONCERN = "wellbeing_concern"  # upset, unsafe or being harmed
+
+
+CONVERSATIONAL_INTENTS: frozenset[LearnerIntent] = frozenset(
+    {
+        LearnerIntent.SUBJECT_QUESTION,
+        LearnerIntent.CLARIFICATION_REQUEST,
+        LearnerIntent.OFF_TOPIC,
+        LearnerIntent.WELLBEING_CONCERN,
+    }
+)
 
 
 @dataclass(frozen=True)

@@ -1,5 +1,132 @@
 # Engineering journal
 
+## 2026-11-23 — Conversation layer (between Day 4 and Day 5)
+
+- [ ] I can explain each changed module.
+- [ ] I ran tests and recorded results.
+- [ ] I updated docs and committed code.
+
+### What I built
+- Four new evaluator intents (`subject_question`, `clarification_request`, `off_topic`,
+  `wellbeing_concern`). They become a `CONVERSATION` signal, and any evidence proposed for
+  them is downgraded to rejected. Prompt bumped to `evaluator-v2`, fake to `fake-keyword-v3`.
+- Policy rule 0: a side turn re-asks the same question (`respond`) without using the answer
+  budget, up to `max_side_turns` (4). Beyond that it counts and acts like an unclear answer.
+- Responder (`providers/responder.py`): writes the line before each question. The default
+  `FakeResponder` returns templates; `AnthropicResponder` uses `claude-haiku-5-5` at low
+  effort with structured output, one attempt and a 5 s timeout.
+- Guardrails (`services/conversation.py`): length, no links or markup, no evaluative phrases,
+  no answer-key terms the learner hasn't said. On any problem the template is used.
+- Migration 0004: `sessions.current_lead_in`, the `respond` purpose, `turns.intent`,
+  `turns.reply_source`. Transcript entries now carry `reply`.
+- Eval set v2: the 22 v1 cases unchanged plus 11 intent cases; the runner gained `--cases`
+  and an `intent_ok` column.
+- UI: shows the agent's replies in the transcript and tells learners they can ask questions.
+
+### Why this design
+The user asked for a more free-form agent with guardrails around subject questions. A
+free-running chat model would reword questions, encourage, explain and decide when to stop,
+and each of those changes what the assessment measures. So the model owns tone and
+reactions, and code owns question choice, wording, evidence and ending. The responder runs
+in the backend so text and voice share one implementation. It runs with no lock held: the
+next action is planned from a snapshot and re-checked in T2.
+
+Decisions:
+- Subject-question replies do **not** mark the next answer as assisted, because the reply is
+  guarded to contain no content. A hint shown before a side turn still counts.
+- Responder model: Haiku 5.5 rather than the project's default Opus, because this call is on
+  the learner's critical path and the task is short. It is configurable.
+
+### Results (actual)
+- `pytest -q`: **522 passed**. Ruff check and format are clean. That includes 13 new
+  integration tests (`tests/integration/test_conversation.py`), 1 new voice test, and unit
+  tests for policy side turns, guardrails, the responder request shape, fake intents,
+  validator demotion and eval-set consistency.
+- `run_evaluator_cases.py --provider fake` on v2: signal 25/33, intent 27/33. The fake
+  misses off-topic remarks and some questions, as documented.
+- Live stack (fake providers): "What are stomata?" and "Can you repeat that?" each re-asked
+  q1 with the template line and used no answer.
+- `tsc --noEmit` and `npm run lint` are clean.
+
+### Not verified
+- No live Claude responder call (no API key): the guard pass rate, prompt adherence under
+  pressure, and added latency are unmeasured.
+- No live voice run (no LiveKit credentials).
+
+## 2026-11-23 — Day 4: streaming voice
+
+- [ ] I can explain each changed module.
+- [ ] I ran tests and recorded results.
+- [ ] I updated docs and committed code.
+
+### What I built
+- `POST /v1/sessions/{id}/voice-token`: a LiveKit room token (fresh room per attempt) that
+  dispatches the `kira-verbal-voice` worker, with job metadata holding the session ID and a
+  per-session HMAC worker credential.
+- `AssessmentService` accepts that credential as an alternative bearer token for its own
+  session only, until the session deadline.
+- Voice worker (`app/voice/`): LiveKit Agents 1.8.13, STT/TTS/turn detection via LiveKit
+  Inference, **no LLM**. `on_user_turn_completed` → API → `session.say` → `StopResponse`.
+  It also handles barge-in (framework default), stale-reply dropping, a slow-evaluation filler,
+  silence re-prompts (at most 2), shutdown after the closing line, and latency logging.
+- `VoiceTurnBridge` (`transport.py`): all turn decisions, with no LiveKit imports.
+- Browser `VoicePanel` (`livekit-client` 2.25.0): start/stop, mute, agent state, transcript
+  polling, and fallback messages for "not configured", "mic blocked" and "couldn't connect".
+
+### Request flow (files and functions)
+`VoicePanel.start` → `api.createVoiceToken` → `api/sessions.py:create_voice_token` →
+`AssessmentService.issue_voice_credential` + `providers/livekit_tokens.py:mint_room_token` →
+browser joins the room → LiveKit dispatches `worker.py:entrypoint` →
+`AssessmentVoiceAgent.on_user_turn_completed` → `VoiceTurnBridge.handle_final_transcript` →
+`KiraClient.submit_turn` → the same `/turns` route and `AssessmentService.submit_turn` as text.
+
+### Why this design
+Voice reuses the text path instead of duplicating it, so idempotency, stale-state rejection,
+evaluation and scoring are proven once. The worker is a transport; it holds no assessment state.
+
+### Deviations from the plan (and why)
+- **LiveKit Inference instead of Deepgram + ElevenLabs.** It runs on the LiveKit credentials
+  already needed, so there are no extra provider accounts or secrets, and models switch by name.
+  The plan's "replaceable providers" still holds: they are settings.
+- **No LLM in the voice loop.** The deterministic policy already chooses every question; an LLM
+  would add latency and a way to go off-script.
+
+### Bug, root cause, fix, regression test
+- `next build` failed with `EPERM` on `.next/trace`. Root cause: the running `next dev` held a
+  lock on that file. Fix: stop dev, build, restart. Not a code bug.
+- Test JWTs warned about HMAC keys under 32 bytes. Settings now reject a
+  `VOICE_WORKER_SECRET` shorter than 32 characters, and the tests use long keys.
+
+### Tradeoff and alternative
+- The worker credential travels in the room token's dispatch metadata, which the browser can
+  decode. Accepted: it grants exactly the learner's own access to one session, and expires.
+  Alternative: dispatch via the server API (`CreateAgentDispatchRequest`) so the browser never
+  sees it. That costs one more network call per voice start.
+- The browser polls `GET /v1/sessions/{id}` every 2 s while voice is on, rather than receiving
+  pushed updates. It is simple and robust; it costs a little extra traffic.
+
+### What I still do not understand
+_(fill in yourself)_
+
+### Actual results / next task
+- `REQUIRE_SERVICES=1 pytest -q`: **422 passed** in 11.8 s, with no warnings. New: 14 voice
+  integration tests and 6 credential/token unit tests. The integration tests cover the full spoken
+  photosynthesis flow through the worker's bridge against the real API (adaptive follow-up,
+  completion, stored as `voice`, agent speech never stored), a hint by voice, an empty turn not
+  submitted, typing in the browser meanwhile → resync with no extra turn, evaluator outage →
+  ask to repeat → retry succeeds, silence re-prompt bound, unreachable API → text fallback,
+  network retry reuses the same `client_turn_id`, the credential scoped to one session and
+  expiring at the deadline, and the token endpoint returning 503/401/404/409.
+- `ruff check` / `format --check`: clean. Frontend `tsc --noEmit`, `npm run lint`,
+  `npm run build`: clean.
+- Live stack without LiveKit credentials: `voice-token` → 503 `voice_unavailable` and the student
+  page loads, so the text fallback path works.
+- Worker: `python -m app.voice.worker --help` runs, and the module imports against
+  livekit-agents 1.8.13.
+- **Not yet verified:** a real two-way voice conversation, interruption behaviour and measured
+  latency. These need a LiveKit Cloud project (see voice-pipeline.md → Running it).
+- Next: Day 5, teacher dashboard and export.
+
 ## 2026-11-23 — Day 3: real evaluation
 
 - [ ] I can explain each changed module.

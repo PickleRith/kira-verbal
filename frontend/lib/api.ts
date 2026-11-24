@@ -8,6 +8,7 @@ import type {
   SessionView,
   TurnInput,
   TurnResponse,
+  VoiceToken,
 } from "./types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
@@ -79,6 +80,9 @@ export const api = {
 
   submitTurn: (sessionId: string, token: string, turn: TurnInput) =>
     request<TurnResponse>(`/v1/sessions/${sessionId}/turns`, { method: "POST", body: turn, token }),
+
+  createVoiceToken: (sessionId: string, token: string) =>
+    request<VoiceToken>(`/v1/sessions/${sessionId}/voice-token`, { method: "POST", token }),
 
   finish: (sessionId: string, token: string, expectedStateVersion: number) =>
     request<SessionView>(`/v1/sessions/${sessionId}/finish`, {

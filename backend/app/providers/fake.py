@@ -6,15 +6,22 @@ Its output goes through the same validator as the LLM's.
 
 Known limitations: it ignores negation ("not from the roots" still matches "root"), and
 the level it proposes for an ordinary answer (2) is a placeholder, not a judgment. Its
-evaluator_version ("fake-keyword-v2") marks every such row so it is never mistaken for
-real evaluation.
+evaluator_version ("fake-keyword-v3") marks every such row so it is never mistaken for
+real evaluation. Its intent detection is a stand-in for tests: the real classification
+of what a learner meant is done by the LLM evaluator.
 
 Rules, in order:
 1. Whole answer is a stop phrase            -> intent stop_request
-2. Short answer asking for help/a hint      -> intent help_request
-3. Fewer than 3 words                       -> abstain (-> AMBIGUOUS, never scored as wrong)
-4. Keyword for a misconception of this question's objective -> level 1 + tag
-5. Otherwise                                -> placeholder level 2
+2. Contains a worry phrase ("I'm scared")   -> intent wellbeing_concern
+3. Short request to repeat/rephrase         -> intent clarification_request
+4. Short answer asking for help/a hint      -> intent help_request
+5. Short wh-question ending in "?"          -> intent subject_question
+   ("is it from the air?" stays an answer: a tentative answer is still an answer)
+6. Fewer than 3 words                       -> abstain (-> AMBIGUOUS, never scored as wrong)
+7. Keyword for a misconception of this question's objective -> level 1 + tag
+8. Otherwise                                -> placeholder level 2
+
+It never detects off_topic; only the LLM evaluator does.
 """
 
 from __future__ import annotations
@@ -28,13 +35,33 @@ from app.providers.llm import (
     ProposedEvidence,
 )
 
-FAKE_EVALUATOR_VERSION = "fake-keyword-v2"
+FAKE_EVALUATOR_VERSION = "fake-keyword-v3"
 
 STOP_PHRASES = frozenset(
     {"stop", "quit", "i want to stop", "i want to finish", "i'm done", "im done", "end"}
 )
 HELP_PATTERN = re.compile(r"\b(hint|help)\b|\bi (don'?t|do not) know\b|\bnot sure\b")
 HELP_MAX_WORDS = 8
+WELLBEING_PHRASES = (
+    "i'm scared",
+    "im scared",
+    "i am scared",
+    "hurts me",
+    "hurting me",
+    "not safe",
+    "i'm being bullied",
+    "i am being bullied",
+)
+CLARIFY_PATTERN = re.compile(
+    r"\brepeat\b|\bsay (that|it) again\b|\bwhat was the question\b|\bwhat do you mean\b"
+    r"|\bdidn'?t (hear|catch)\b|\b(don'?t|do not) understand the question\b|\bpardon\b"
+)
+CLARIFY_MAX_WORDS = 10
+SUBJECT_QUESTION_PATTERN = re.compile(
+    r"^(what|what's|whats|why|how|who|which|when|where|can you explain|could you explain"
+    r"|can you tell me)\b.*\?$"
+)
+SUBJECT_QUESTION_MAX_WORDS = 15
 
 # Keywords per misconception tag, matched as substrings of the normalized answer.
 MISCONCEPTION_KEYWORDS: dict[str, tuple[str, ...]] = {
@@ -117,8 +144,14 @@ class FakeEvaluator:
 
         if answer.rstrip(".!") in STOP_PHRASES:
             return output(LearnerIntent.STOP_REQUEST)
+        if any(phrase in answer for phrase in WELLBEING_PHRASES):
+            return output(LearnerIntent.WELLBEING_CONCERN)
+        if len(words) <= CLARIFY_MAX_WORDS and CLARIFY_PATTERN.search(answer):
+            return output(LearnerIntent.CLARIFICATION_REQUEST)
         if len(words) <= HELP_MAX_WORDS and HELP_PATTERN.search(answer):
             return output(LearnerIntent.HELP_REQUEST)
+        if len(words) <= SUBJECT_QUESTION_MAX_WORDS and SUBJECT_QUESTION_PATTERN.search(answer):
+            return output(LearnerIntent.SUBJECT_QUESTION)
         if len(words) < 3:
             return output(LearnerIntent.ANSWER, item(None, None, "Too short to judge."))
 

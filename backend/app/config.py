@@ -52,17 +52,62 @@ class Settings(BaseSettings):
     llm_effort: Literal["low", "medium", "high", "xhigh", "max"] = "medium"
     llm_timeout_seconds: float = 20.0  # per HTTP attempt
     llm_max_retries: int = 1  # SDK retries (connection errors, 429, 5xx)
+    # Conversation layer: the line said before each question. "fake" = fixed templates.
+    # "llm" = Claude writes it, checked by deterministic guardrails, template on any problem.
+    responder_provider: Literal["fake", "llm"] = "fake"
+    # A fast model: this call is on the learner's critical path (one per turn).
+    responder_model: str = "claude-haiku-5-5"
+    responder_effort: Literal["low", "medium", "high", "xhigh", "max"] = "low"
+    responder_timeout_seconds: float = 5.0  # then the template is used; never fails a turn
+    # Side turns (questions about the topic, "say that again", off topic) per session that
+    # use no answer budget. Past this they count as turns.
+    max_side_turns: int = 4
+    # Voice (Day 4). LiveKit Cloud credentials; STT/TTS go through LiveKit Inference, so no
+    # separate speech-provider keys are needed.
     livekit_url: str | None = None
     livekit_api_key: SecretStr | None = None
     livekit_api_secret: SecretStr | None = None
+    # HMAC key for the per-session credential the voice worker uses to call this API.
+    voice_worker_secret: SecretStr | None = None
+    voice_agent_name: str = "kira-verbal-voice"
+    voice_token_ttl_seconds: int = 600  # how long the browser's room token can be used to join
+    # Worker side
+    kira_api_url: str = "http://127.0.0.1:8000"
+    voice_stt_model: str = "assemblyai/assemblyai-stt-3-7-realtime-agent"
+    voice_tts_model: str = "fishaudio/s2.1-pro"
+    voice_tts_voice: str = "fa4c9eb3dccc4806b382b40d61c6b10a"
+    voice_user_away_seconds: float = 20.0
+    # Unused: kept so old .env files still parse. Plan originally named these providers.
     deepgram_api_key: SecretStr | None = None
     elevenlabs_api_key: SecretStr | None = None
     elevenlabs_voice_id: str | None = None
 
+    @property
+    def voice_configured(self) -> bool:
+        return bool(
+            self.livekit_url
+            and self.livekit_api_key
+            and self.livekit_api_secret
+            and self.voice_worker_secret
+        )
+
+    @model_validator(mode="after")
+    def _voice_secret_is_strong(self) -> Settings:
+        secret = self.voice_worker_secret
+        if secret is not None and len(secret.get_secret_value()) < 32:
+            raise ValueError("VOICE_WORKER_SECRET must be at least 32 characters")
+        return self
+
     @model_validator(mode="after")
     def _timeouts_are_consistent(self) -> Settings:
-        if self.processing_lease_seconds <= self.evaluator_timeout_seconds:
-            raise ValueError("PROCESSING_LEASE_SECONDS must exceed EVALUATOR_TIMEOUT_SECONDS")
+        if (
+            self.processing_lease_seconds
+            <= self.evaluator_timeout_seconds + self.responder_timeout_seconds
+        ):
+            raise ValueError(
+                "PROCESSING_LEASE_SECONDS must exceed "
+                "EVALUATOR_TIMEOUT_SECONDS + RESPONDER_TIMEOUT_SECONDS"
+            )
         if self.evaluator_provider == "llm":
             worst_case = self.llm_timeout_seconds * (self.llm_max_retries + 1)
             if self.evaluator_timeout_seconds < worst_case:

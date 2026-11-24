@@ -62,7 +62,7 @@ class LessonVersionRecord(Base):
 
 
 SESSION_STATUSES = "('created','awaiting_answer','evaluating','completed','incomplete')"
-PROMPT_PURPOSES = "('open','diagnostic','clarify','hint')"
+PROMPT_PURPOSES = "('open','diagnostic','clarify','hint','respond')"
 TURN_STATUSES = "('processing','committed','failed')"
 
 
@@ -93,6 +93,8 @@ class SessionRow(Base):
     current_question_id: Mapped[str | None] = mapped_column(String(64))
     current_purpose: Mapped[str | None] = mapped_column(String(16))
     current_hint_index: Mapped[int | None] = mapped_column(Integer)
+    # Line said before the current question (responder reply and/or hint), as last sent.
+    current_lead_in: Mapped[str | None] = mapped_column(Text)
     finish_reason: Mapped[str | None] = mapped_column(String(32))
     lease_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
@@ -141,6 +143,8 @@ class TurnRow(Base):
     signal: Mapped[str | None] = mapped_column(String(32))
     misconception_tag: Mapped[str | None] = mapped_column(String(64))
     evaluator_version: Mapped[str | None] = mapped_column(String(128))
+    intent: Mapped[str | None] = mapped_column(String(32))  # evaluator's learner_intent
+    reply_source: Mapped[str | None] = mapped_column(String(160))  # who wrote the lead-in
     # The exact student-facing response, replayed verbatim for idempotent retries.
     response: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

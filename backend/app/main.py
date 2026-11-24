@@ -26,6 +26,7 @@ from app.db.session import make_engine, make_session_factory
 from app.lesson_catalog import load_catalog
 from app.providers.fake import FakeEvaluator
 from app.providers.llm import AnthropicEvaluator, Evaluator, build_anthropic_client
+from app.providers.responder import AnthropicResponder, FakeResponder, Responder
 from app.services.assessment import AssessmentConfig, AssessmentService
 from app.services.lessons import LessonStore
 
@@ -41,13 +42,29 @@ def build_evaluator(settings: Settings) -> Evaluator:
     return AnthropicEvaluator(client, model=settings.llm_model, effort=settings.llm_effort)
 
 
+def build_responder(settings: Settings) -> Responder:
+    if settings.responder_provider == "fake":
+        return FakeResponder()
+    # Its own client: one attempt, bounded by the responder timeout. A slow or failed reply
+    # falls back to the template, so retrying would only add latency.
+    client = build_anthropic_client(
+        api_key=settings.llm_api_key.get_secret_value() if settings.llm_api_key else None,
+        timeout_seconds=settings.responder_timeout_seconds,
+        max_retries=0,
+    )
+    return AnthropicResponder(
+        client, model=settings.responder_model, effort=settings.responder_effort
+    )
+
+
 def create_app(
     settings: Settings | None = None,
     *,
     readiness_checks: Mapping[str, Callable[[], None]] | None = None,
     evaluator: Evaluator | None = None,
+    responder: Responder | None = None,
 ) -> FastAPI:
-    """Build the app. Tests inject `readiness_checks` and `evaluator`."""
+    """Build the app. Tests inject `readiness_checks`, `evaluator` and `responder`."""
     settings = settings or get_settings()
 
     @asynccontextmanager
@@ -76,7 +93,15 @@ def create_app(
                 deadline_grace_seconds=settings.deadline_grace_seconds,
                 processing_lease_seconds=settings.processing_lease_seconds,
                 evaluator_timeout_seconds=settings.evaluator_timeout_seconds,
+                responder_timeout_seconds=settings.responder_timeout_seconds,
+                max_side_turns=settings.max_side_turns,
             ),
+            voice_secret=(
+                settings.voice_worker_secret.get_secret_value()
+                if settings.voice_worker_secret
+                else None
+            ),
+            responder=responder or build_responder(settings),
         )
 
         def check_database() -> None:

@@ -18,9 +18,15 @@ dependencies = [
   "alembic==1.20.1",
   "redis==8.2.0",
   "anthropic==2.13.0",
+  "livekit-api==1.2.3",  # mints room tokens; no network calls
 ]
 
 [project.optional-dependencies]
+# The LiveKit voice worker (python -m app.voice.worker dev). Not needed by the API server.
+voice = [
+  "livekit-agents==1.8.13",
+  "httpx==0.28.1",
+]
 dev = [
   "pytest==9.2.0",
   "httpx==0.28.1",

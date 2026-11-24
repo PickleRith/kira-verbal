@@ -216,8 +216,8 @@ def test_evidence_is_persisted_with_assisted_flag_and_metadata(service, seeded_e
             .order_by(TurnRow.sequence)
         ).all()
     assert [tuple(r) for r in rows] == [
-        ("purpose", True, "accepted", 2, None, "fake-keyword-v2"),
-        ("carbon_dioxide", False, "accepted", 1, "co2_from_roots", "fake-keyword-v2"),
+        ("purpose", True, "accepted", 2, None, "fake-keyword-v3"),
+        ("carbon_dioxide", False, "accepted", 1, "co2_from_roots", "fake-keyword-v3"),
     ]
 
 

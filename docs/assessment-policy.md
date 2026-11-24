@@ -21,6 +21,11 @@ Everything here produces **suggestions for a teacher**. Nothing is a grade.
 `backend/app/domain/policy.py`. A pure function of the lesson, the turn history, elapsed time
 and the budget, checked in order:
 
+0. Side turn (a question about the topic, "say that again", off topic, a wellbeing
+   concern) within the allowance (`MAX_SIDE_TURNS`, default 4 per session) → ask the same
+   question again (`respond`). These turns use no answer budget and are invisible to the
+   rules below. Past the allowance they count, and are treated like an unclear answer. See
+   [conversation.md](conversation.md).
 1. Stop requested → finish.
 2. Budget used → finish.
 3. Follow up on the last turn:
@@ -43,6 +48,7 @@ never a penalty.
 | Propose evidence (criterion, level, exact quote, tag, reason) or abstain | Evaluator: Claude, or the keyword fake | `providers/llm.py`, `providers/fake.py` |
 | Accept, abstain or reject each item | Deterministic validator | `services/evaluator.py` |
 | Pick the next question | Deterministic policy | `domain/policy.py` |
+| Write the short line said before it | Responder: Claude or templates, checked by guardrails | `providers/responder.py`, `services/conversation.py` |
 | Suggest a level per criterion | Deterministic aggregation | `domain/scoring.py` |
 | Final decision | Teacher (Day 5) | — |
 
