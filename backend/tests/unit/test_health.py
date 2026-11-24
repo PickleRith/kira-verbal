@@ -50,3 +50,14 @@ def test_startup_fails_on_invalid_lesson_fixture(tmp_path: Path):
     with pytest.raises(Exception, match="broken.v1.json"):
         with TestClient(app):
             pass
+
+
+def test_blank_optional_settings_mean_not_configured():
+    """`.env.example` copied as-is has `VOICE_WORKER_SECRET=` etc.; that must not fail startup."""
+    from app.config import Settings
+
+    settings = Settings(
+        _env_file=None, voice_worker_secret="", livekit_url="", llm_api_key="  key  "
+    )
+    assert settings.voice_worker_secret is None and not settings.voice_configured
+    assert settings.llm_api_key.get_secret_value() == "key"

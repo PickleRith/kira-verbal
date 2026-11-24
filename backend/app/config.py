@@ -11,7 +11,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import SecretStr, model_validator
+from pydantic import SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -90,6 +90,24 @@ class Settings(BaseSettings):
             and self.livekit_api_secret
             and self.voice_worker_secret
         )
+
+    @field_validator(
+        "llm_api_key",
+        "livekit_url",
+        "livekit_api_key",
+        "livekit_api_secret",
+        "voice_worker_secret",
+        "deepgram_api_key",
+        "elevenlabs_api_key",
+        "elevenlabs_voice_id",
+        mode="before",
+    )
+    @classmethod
+    def _blank_means_unset(cls, value: object) -> object:
+        # `.env.example` lists these as `KEY=` with no value; that means "not configured".
+        if isinstance(value, str) and not value.strip():
+            return None
+        return value.strip() if isinstance(value, str) else value
 
     @model_validator(mode="after")
     def _voice_secret_is_strong(self) -> Settings:

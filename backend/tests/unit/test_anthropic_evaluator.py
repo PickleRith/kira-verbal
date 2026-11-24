@@ -163,3 +163,19 @@ def test_sdk_errors_propagate_to_the_orchestrator(request_q2):
 
     with pytest.raises(TimeoutError):
         AnthropicEvaluator(Boom(), model="m").evaluate(request_q2)
+
+
+def test_haiku_requests_carry_no_server_side_fallback(request_q2):
+    """Haiku 5.5 has no server-side fallback; sending `fallbacks` would break every call."""
+    client = StubClient(reply(GOOD, model="claude-haiku-5-5"))
+    output = AnthropicEvaluator(client, model="claude-haiku-5-5", effort="low").evaluate(request_q2)
+    [params] = client.calls
+    assert "fallbacks" not in params and "betas" not in params
+    assert params["model"] == "claude-haiku-5-5" and params["output_config"]["effort"] == "low"
+    assert output.evidence  # parsed as usual
+
+
+def test_haiku_refusal_is_recorded_as_no_evidence(request_q2):
+    client = StubClient(reply(stop_reason="refusal", text="", model="claude-haiku-5-5"))
+    output = AnthropicEvaluator(client, model="claude-haiku-5-5").evaluate(request_q2)
+    assert output.evidence == ()

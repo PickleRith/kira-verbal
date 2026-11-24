@@ -100,6 +100,13 @@ Effort = Literal["low", "medium", "high", "xhigh", "max"]
 REFUSAL_FALLBACK_BETA = "server-side-fallback-2026-07-01"
 
 
+def supports_server_fallback(model: str) -> bool:
+    """Haiku models have no server-side fallback: a `fallbacks` list is a 400 and the
+    "default" form does nothing, so it is not sent. A refusal is then handled here
+    (recorded as no evidence), as for every other model."""
+    return not model.startswith("claude-haiku")
+
+
 class _LlmEvidence(BaseModel):
     model_config = ConfigDict(extra="forbid")
     criterion_id: str
@@ -181,12 +188,9 @@ class AnthropicEvaluator:
         self.version = f"anthropic:{model}:{prompts.PROMPT_VERSION}"
 
     def build_params(self, request: EvaluationRequest) -> dict[str, Any]:
-        return {
+        params: dict[str, Any] = {
             "model": self.model,
             "max_tokens": self.max_tokens,
-            # Opt in to server-side refusal fallbacks (routes by refusal category).
-            "betas": [REFUSAL_FALLBACK_BETA],
-            "fallbacks": "default",
             "system": prompts.SYSTEM_PROMPT,
             "messages": [{"role": "user", "content": prompts.render_user_message(request)}],
             "output_config": {
@@ -197,6 +201,11 @@ class AnthropicEvaluator:
                 },
             },
         }
+        if supports_server_fallback(self.model):
+            # Opt in to server-side refusal fallbacks (routes by refusal category).
+            params["betas"] = [REFUSAL_FALLBACK_BETA]
+            params["fallbacks"] = "default"
+        return params
 
     def evaluate(self, request: EvaluationRequest) -> EvaluatorOutput:
         params = self.build_params(request)
