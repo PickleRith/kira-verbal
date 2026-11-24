@@ -1,6 +1,15 @@
 # Deployment
 
-**Status: deploy configuration ready for Render (`render.yaml`); not yet deployed.** The container images build and the full stack runs locally with
+**Status: deployed (2026-11-24).** Website https://kira-verbal-web.onrender.com, API
+https://kira-verbal-api.onrender.com on Render (free plans); voice agent on LiveKit Cloud
+(free Build plan, us-east). A production smoke test passed: sign-up, class code, a full
+check-in graded by Claude, voice (agent joined and spoke in ~8 s from cold), teacher review,
+approval, and the student seeing the grade; no 5xx responses.
+
+Lessons from the first deploy: Render only prompts for `sync: false` secrets when a
+Blueprint is first created, so a service created by a later sync needs them added by hand
+under **Environment Variables** (not Secret Files, which become files the app doesn't
+read). The container images build and the full stack runs locally with
 one command (below). Putting it on a public host needs accounts and secrets only the owner
 has; this page is the checklist for doing that.
 

@@ -209,7 +209,9 @@ PostgreSQL 16, Redis 7 · Claude via the `anthropic` SDK · LiveKit Agents and L
   SSO) and no gradebook. Use made-up names and emails.
 - **Not validated with learners or teachers.** All evaluation is on scripted answers written
   by the author; no educator reviewed the rubrics or labels.
-- **Not deployed.** Images build and run locally; a public host is not set up.
+- **Free hosting.** Live at https://kira-verbal-web.onrender.com (Render free plans; the
+  first request after 15 idle minutes takes about a minute, and the free database expires
+  after 30 days). Voice runs on LiveKit Cloud's free plan (1,000 minutes a month).
 - **Voice is slow** (several seconds per reply) and was tested only in a few manual sessions.
 - **No high-stakes use.** No cheating detection, emotion or accent scoring, or biometrics, by
   design. Levels are suggestions for a teacher, not proof of mastery.
